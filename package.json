@@ -1,3 +1,4 @@
+
 {
   "name": "dom-project",
   "version": "0.1.0",
@@ -11,7 +12,8 @@
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.4"
+    "next": "15.3.4",
+    "@clerk/nextjs": "^6.23.3"
   },
   "devDependencies": {
     "typescript": "^5",
