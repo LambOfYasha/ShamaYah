@@ -2,17 +2,23 @@
 
 import { SignedIn, SignedOut, SignInButton, UserButton,useUser } from "@clerk/nextjs"
 import { Button } from "./ui/button"
-import { MenuIcon } from "lucide-react"
+import { ChevronLeftIcon, MenuIcon } from "lucide-react"
+import { useSidebar } from "./ui/sidebar"
 
 function Header() {
 
     const {user} = useUser()
+    const {toggleSidebar, open, isMobile} = useSidebar()
 
   return (
-<header>
+<header className="flex items-center justify-between p-4 border-b border-gray-200">
     {/* Left side */}
     <div>
-        <MenuIcon className="h-6 w-6 gap-2" />
+        {open ? (
+            <ChevronLeftIcon className="h-6 w-6 gap-2" onClick={toggleSidebar}/>
+        ) : (
+            <MenuIcon className="h-6 w-6 gap-2" onClick={toggleSidebar}/>
+        )}
     </div>
 
     {/* Right side */}

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "../../app/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import Header  from "@/components/header";
-
+import  Header from "@/components/header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,13 +16,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider><html lang="en">
-      <body
+    <ClerkProvider>
+      <html lang="en">
+      <body className="antialiased"
       >
+         <SidebarProvider>
+          <AppSidebar/>
+          <SidebarInset>
           <Header/>
-          {children}
-        
+          <div className="flex flex-col">{children}</div>
+                    </SidebarInset>
+         </SidebarProvider>
       </body>
-    </html></ClerkProvider>
+    </html>
+    </ClerkProvider>
   );
 }
