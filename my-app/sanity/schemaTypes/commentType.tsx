@@ -19,7 +19,7 @@ export const commentType = defineType({
             title: 'Author',
             type: 'reference',
             description: 'The author of the comment',
-            to: [{type: 'user'}],
+            to: [{type: 'user'}, {type: 'teacher'}],
             validation: (Rule) => Rule.required(),
         }),
         defineField({
