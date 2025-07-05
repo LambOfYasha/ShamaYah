@@ -27,7 +27,7 @@ export const commentType = defineType({
             title: 'Post',
             type: 'reference',
             description: 'The post the comment belongs to',
-            to: [{type: 'post'}],
+            to: [{type: 'post'}, {type: 'blog'}],
             validation: (Rule) => Rule.required(),
         }),
         defineField({

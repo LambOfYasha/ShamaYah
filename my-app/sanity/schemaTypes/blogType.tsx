@@ -30,10 +30,25 @@ export const blogType = defineType({
             validation: (Rule) => Rule.required().min(100),
         }),
         defineField({
+            name: 'image',
+            title: 'Image',
+            type: 'image',
+            description: 'The image of the blog',
+            fields: [
+                {
+                    name: 'alt',
+                    title: 'Alt Text',
+                    type: 'string',
+                    description: 'The alt text for the image',
+                },
+            ]
+        }),
+        defineField({
             name: 'content',
             title: 'Content',
-            type: 'text',
+            type: 'array',
             description: 'The content of the blog',
+            of: [{type: 'block'}],
             validation: (Rule) => Rule.required().min(100),
         }),
         defineField({
@@ -57,6 +72,7 @@ export const blogType = defineType({
         select: {
             title: 'title',
             subtitle: 'author.username',
+            media: 'image',
         },
     }
 })

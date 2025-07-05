@@ -1,7 +1,7 @@
 import {defineField, defineType} from "sanity";
 import { HeartIcon, HeartOffIcon } from "lucide-react";
 
-export default defineType({
+export const favoriteType = defineType({
   name: 'favorite',
   title: 'Favorite',
   type: 'document',
@@ -11,7 +11,7 @@ export default defineType({
       name: 'user',
       title: 'User',
       type: 'reference',
-      to: [{type: 'user'}],
+      to: [{type: 'user'}, {type: 'teacher'}],
       description: 'The user who saved this post',
       validation: (Rule) => Rule.required(),
     }),
@@ -19,7 +19,7 @@ export default defineType({
       name: 'post',
       title: 'Post',
       type: 'reference',
-      to: [{type: 'post'}],
+      to: [{type: 'post'}, {type: 'blog'}],
       description: 'The post that was saved',
       validation: (Rule) => Rule.required(),
     }),
@@ -42,13 +42,15 @@ export default defineType({
     select: {
       favorite: "favorite",
       postTitle: 'post.title',
+      blogTitle: 'blog.title',
       username: 'user.username',
+      teacherUsername: 'teacher.username',
     },
     prepare(selection) {
-      const {favorite, postTitle, username} = selection;
+      const {favorite, postTitle, blogTitle, username, teacherUsername} = selection;
       return {
-        title: postTitle,
-        subtitle: username,
+        title: postTitle || blogTitle,
+        subtitle: username || teacherUsername,
         media: favorite === true ? <HeartIcon /> : <HeartOffIcon />,
       };
     },
