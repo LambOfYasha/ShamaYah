@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import "../../app/globals.css";
+import "@/app/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import  Header from "@/components/header";
+import Header from "@/components/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 
@@ -18,17 +18,16 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-      <body className="antialiased"
-      >
-         <SidebarProvider>
-          <AppSidebar/>
-          <SidebarInset>
-          <Header/>
-          <div className="flex flex-col">{children}</div>
-                    </SidebarInset>
-         </SidebarProvider>
-      </body>
-    </html>
+        <body className="antialiased">
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+              <Header />
+              <div className="flex flex-col">{children}</div>
+            </SidebarInset>
+          </SidebarProvider>
+        </body>
+      </html>
     </ClerkProvider>
   );
 }
