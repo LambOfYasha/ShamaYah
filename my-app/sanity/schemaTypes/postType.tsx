@@ -19,8 +19,8 @@ export const postType = defineType({
       name: 'originalTitle',
       title: 'Original Title',
       type: 'string',
-      description: 'The original title of the post',
-      validation: (Rule) => Rule.required().min(3).max(100),
+      description: 'The original title of the post in case deleted',
+      hidden: true,
     }),
     defineField({
       name: 'author',
@@ -44,7 +44,7 @@ export const postType = defineType({
       type: 'array',
       description: 'The body of the post',
       of: [{type: 'block'}],
-      validation: (Rule) => Rule.required().min(100),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'image',

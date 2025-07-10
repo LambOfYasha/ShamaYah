@@ -27,7 +27,7 @@ export const blogType = defineType({
             title: 'Description',
             type: 'text',
             description: 'The description of the blog',
-            validation: (Rule) => Rule.required().min(100),
+            validation: (Rule) => Rule.required(),
         }),
         defineField({
             name: 'image',
@@ -49,7 +49,7 @@ export const blogType = defineType({
             type: 'array',
             description: 'The content of the blog',
             of: [{type: 'block'}],
-            validation: (Rule) => Rule.required().min(100),
+            validation: (Rule) => Rule.required(),
         }),
         defineField({
             name: 'author',
