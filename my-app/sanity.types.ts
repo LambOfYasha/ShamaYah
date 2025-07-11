@@ -365,5 +365,14 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
+export type GetCommunityQueryResult = {
+  _id: string;
+  _type: "community";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+};
+
+
 export type AllSanitySchemaTypes = Favorite | Comment | Blog | Post | Community | Teacher | User | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
