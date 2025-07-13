@@ -27,6 +27,7 @@ export async function getCommunities(): Promise<CommunityWithModerator[]> {
     
 const getCommunitiesQuery = defineQuery(`*[_type == "community"] {
         ...,
+        title,
         "slug": slug.current,
         "moderator": moderator->,
     }  | order(createdAt desc)`);

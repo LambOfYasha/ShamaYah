@@ -23,32 +23,39 @@ import {
 import Link from "next/link"
 import { getCommunities } from "@/sanity/lib/communties/getCommunities"
 
-// This is sample data.
-const data = {
-  navMain: [
-    {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-    
-  ],
-}
+type SidebarData = {
+  navMain: {
+    title: string
+    url: string
+    items: {
+      title: string
+      url: string
+      isActive: boolean
+    }[]
+    }[]
+  
+  }
+
 
 export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
  
   const communities = await getCommunities();
-  console.log(communities);
 
+
+ const sidebarData: SidebarData = {
+   navMain: [
+    {
+      title: "Communities",
+      url: "#",
+      items: 
+      communities?.map((community) => ({
+        title: community.title || "",
+        url: `/communities/${community.slug}`,
+        isActive: false,
+      })) || [],
+    },
+   ]
+ }
 
   return (
     <Sidebar {...props}>
@@ -68,7 +75,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {data.navMain.map((item, index) => (
+            {sidebarData.navMain.map((item, index) => (
               <Collapsible
                 key={item.title}
                 defaultOpen={index === 1}

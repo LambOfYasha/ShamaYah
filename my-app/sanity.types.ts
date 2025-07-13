@@ -369,14 +369,14 @@ export type AllSanitySchemaTypes = Favorite | Comment | Blog | Post | Community 
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./sanity/lib/communties/getCommunities.ts
 // Variable: getCommunitiesQuery
-// Query: *[_type == "community"] {        ...,        "slug": slug.current,        "moderator": moderator->,    }  | order(createdAt desc)
+// Query: *[_type == "community"] {        ...,        title,        "slug": slug.current,        "moderator": moderator->,    }  | order(createdAt desc)
 export type GetCommunitiesQueryResult = Array<{
   _id: string;
   _type: "community";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  title?: string;
+  title: string | null;
   description?: string;
   slug: string | null;
   image?: {
@@ -411,6 +411,6 @@ export type GetCommunitiesQueryResult = Array<{
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    "*[_type == \"community\"] {\n        ...,\n        \"slug\": slug.current,\n        \"moderator\": moderator->,\n    }  | order(createdAt desc)": GetCommunitiesQueryResult;
+    "*[_type == \"community\"] {\n        ...,\n        title,\n        \"slug\": slug.current,\n        \"moderator\": moderator->,\n    }  | order(createdAt desc)": GetCommunitiesQueryResult;
   }
 }
