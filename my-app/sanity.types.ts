@@ -365,14 +365,52 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type GetCommunityQueryResult = {
+export type AllSanitySchemaTypes = Favorite | Comment | Blog | Post | Community | Teacher | User | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export declare const internalGroqTypeReferenceTo: unique symbol;
+// Source: ./sanity/lib/communties/getCommunities.ts
+// Variable: getCommunitiesQuery
+// Query: *[_type == "community"] {        ...,        "slug": slug.current,        "moderator": moderator->,    }  | order(createdAt desc)
+export type GetCommunitiesQueryResult = Array<{
   _id: string;
   _type: "community";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-};
+  title?: string;
+  description?: string;
+  slug: string | null;
+  image?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  moderator: {
+    _id: string;
+    _type: "user";
+    _createdAt: string;
+    _updatedAt: string;
+    _rev: string;
+    username?: string;
+    email?: string;
+    imageURL?: string;
+    joinedAt?: string;
+    isReported?: boolean;
+  } | null;
+  createdAt?: string;
+}>;
 
-
-export type AllSanitySchemaTypes = Favorite | Comment | Blog | Post | Community | Teacher | User | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
-export declare const internalGroqTypeReferenceTo: unique symbol;
+// Query TypeMap
+import "@sanity/client";
+declare module "@sanity/client" {
+  interface SanityQueries {
+    "*[_type == \"community\"] {\n        ...,\n        \"slug\": slug.current,\n        \"moderator\": moderator->,\n    }  | order(createdAt desc)": GetCommunitiesQueryResult;
+  }
+}
