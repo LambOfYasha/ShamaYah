@@ -21,6 +21,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
+import { getCommunities } from "@/sanity/lib/communties/getCommunities"
 
 // This is sample data.
 const data = {
@@ -43,7 +44,12 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+ 
+  const communities = await getCommunities();
+  console.log(communities);
+
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
