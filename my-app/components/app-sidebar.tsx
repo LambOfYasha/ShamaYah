@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { getCommunities } from "@/sanity/lib/communties/getCommunities"
+import CreateCommunityButton from "./header/CreateCommunityButton"
 
 type SidebarData = {
   navMain: {
@@ -75,6 +76,15 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <CreateCommunityButton />
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarMenu>
             {sidebarData.navMain.map((item, index) => (
               <Collapsible
                 key={item.title}
@@ -82,7 +92,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 className="group/collapsible"
               >
                 <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
+                  <CollapsibleTrigger>
                     <SidebarMenuButton>
                       {item.title}{" "}
                       <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />

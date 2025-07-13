@@ -1,9 +1,9 @@
 "use client"
 
 import { SignedIn, SignedOut, SignInButton, UserButton,useUser } from "@clerk/nextjs"
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 import { ChevronLeftIcon, MenuIcon } from "lucide-react"
-import { useSidebar } from "./ui/sidebar"
+import { useSidebar } from "../ui/sidebar"
 
 function Header() {
 
