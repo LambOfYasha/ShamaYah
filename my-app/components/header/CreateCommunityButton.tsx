@@ -19,9 +19,19 @@ function CreateCommunityButton() {
   const [open, setOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [name, setName] = useState("")
+  const [slug, setSlug] = useState("")
 
 const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  setName(e.target.value)
+  const value = e.target.value
+  setName(value)
+  
+  if (!slug || slug === generateSlug(name)) {
+    setSlug(generateSlug(value))
+  }
+}
+
+const generateSlug = (text: string) => {
+  return text.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "").slice(0, 21)
 }
 
   return (
@@ -60,6 +70,27 @@ const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           minLength={3}
           maxLength={21} 
           />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="slug" className="text-sm font-medium">
+            Community Slug (URL)
+          </label>
+          <Input 
+          id="slug" 
+          placeholder="Enter a unique slug for your question"
+          className="w-full focus:ring-2 focus:ring-blue-500"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+          required
+          minLength={3}
+          maxLength={21} 
+          pattern="[a-z0-9-]*"
+          title="Lowercase letters, numbers, and hyphens only"
+          />
+          <p className="text-sm text-gray-500">
+            This will be used in the URL: shama.com/community-questions/{slug || "community-slug"}
+          </p>
         </div>
       </form>
     </DialogHeader>
