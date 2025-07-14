@@ -8,11 +8,14 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useUser } from '@clerk/nextjs' 
-import { Plus } from "lucide-react"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
+import { ImageIcon, Plus, X } from "lucide-react"
+import Image from "next/image"
+import { Label } from "../ui/label"
+
 
 function CreateCommunityButton() {
 
@@ -22,6 +25,9 @@ function CreateCommunityButton() {
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
   const [description, setDescription] = useState("")
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
 
 const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const value = e.target.value
@@ -34,6 +40,25 @@ const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
 const generateSlug = (text: string) => {
   return text.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "").slice(0, 21)
+}
+
+const removeImage = () => {
+  setImagePreview(null)
+  setImageFile(null)
+  if (fileInputRef.current) {
+    fileInputRef.current.value = ""
+  }
+}
+
+const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0]
+  if (file) {
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+}
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
 }
 
   return (
@@ -109,6 +134,52 @@ const generateSlug = (text: string) => {
           maxLength={1000}
           />
         </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">
+            Community Image (Optional)
+            </Label>
+
+            {imagePreview ? (
+
+              <div className="relative w-24 h-24 mx-auto">
+              <Image 
+              src={imagePreview}
+              alt="Community Preview"
+              fill
+              className="object-cover rounded-full"
+              />
+              <button 
+              type="button"
+              onClick={removeImage}
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              </div>
+            ): (
+              <div className="flex items-center justify-center w-full">
+                <Label htmlFor="community-image" className="flex flex-col items-center justify-center w-full
+                h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                  <div className="flex flex-col items-center justify-center">
+                    <ImageIcon className="w-6 h-6 mb-2 text-gray-400" />
+                    <p className="text-xs text-gray-500">
+                      Click to upload image
+                    </p>
+                    </div>
+                    <input 
+                    id="community-image"
+                    name="community-image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    ref={fileInputRef}
+                    className="hidden" />
+                  </Label>
+                  </div>
+            )}
+            </div>
+
       </form>
     </DialogHeader>
   </DialogContent>

@@ -1,3 +1,5 @@
+// Client component for the sidebar
+'use client'
 import * as React from "react"
 import { Minus, Plus } from "lucide-react"
 
@@ -21,7 +23,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
-import { getCommunities } from "@/sanity/lib/communties/getCommunities"
 import CreateCommunityButton from "./header/CreateCommunityButton"
 
 type SidebarData = {
@@ -38,28 +39,9 @@ type SidebarData = {
   }
 
 
-export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
- 
-  const communities = await getCommunities();
-
-
- const sidebarData: SidebarData = {
-   navMain: [
-    {
-      title: "Community Questions",
-      url: "#",
-      items: 
-      communities?.map((community) => ({
-        title: community.title || "",
-        url: `/community-questions/${community.slug}`,
-        isActive: false,
-      })) || [],
-    },
-   ]
- }
-
+function AppSidebarClient({ sidebarData }: { sidebarData: SidebarData }) {
   return (
-    <Sidebar {...props}>
+    <Sidebar>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -92,7 +74,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 className="group/collapsible"
               >
                 <SidebarMenuItem>
-                  <CollapsibleTrigger>
+                  <CollapsibleTrigger asChild>
                     <SidebarMenuButton>
                       {item.title}{" "}
                       <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
@@ -124,4 +106,32 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
       <SidebarRail />
     </Sidebar>
   )
+}
+
+// Server component to fetch data
+async function SidebarDataProvider() {
+  // Import getCommunities here to keep it server-side only
+  const { getCommunities } = await import("@/sanity/lib/communties/getCommunities");
+  const communities = await getCommunities();
+  
+  const sidebarData: SidebarData = {
+    navMain: [
+      {
+        title: "Community Questions",
+        url: "#",
+        items: 
+        communities?.map((community) => ({
+          title: community.title || "",
+          url: `/community-questions/${community.slug}`,
+          isActive: false,
+        })) || [],
+      },
+    ]
+  }
+
+  return <AppSidebarClient sidebarData={sidebarData} />
+}
+
+export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  return <SidebarDataProvider />
 }
