@@ -12,6 +12,7 @@ import React, { useState } from 'react'
 import { useUser } from '@clerk/nextjs' 
 import { Plus } from "lucide-react"
 import { Input } from "../ui/input"
+import { Textarea } from "../ui/textarea"
 
 function CreateCommunityButton() {
 
@@ -20,6 +21,7 @@ function CreateCommunityButton() {
   const [errorMessage, setErrorMessage] = useState("")
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
+  const [description, setDescription] = useState("")
 
 const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const value = e.target.value
@@ -91,6 +93,21 @@ const generateSlug = (text: string) => {
           <p className="text-sm text-gray-500">
             This will be used in the URL: shama.com/community-questions/{slug || "community-slug"}
           </p>
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="description" className="text-sm font-medium">
+            Description
+          </label>
+          <Textarea
+          id="description"
+          placeholder="Enter a description for your question"
+          className="w-full focus:ring-2 focus:ring-blue-500"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+          minLength={10}
+          maxLength={1000}
+          />
         </div>
       </form>
     </DialogHeader>
