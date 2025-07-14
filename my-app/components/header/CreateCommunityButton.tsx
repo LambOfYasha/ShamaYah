@@ -11,14 +11,18 @@ import {
 import React, { useState } from 'react'
 import { useUser } from '@clerk/nextjs' 
 import { Plus } from "lucide-react"
+import { Input } from "../ui/input"
 
 function CreateCommunityButton() {
 
   const { user } = useUser()
   const [open, setOpen] = useState(false)
-  const [errorMessage, setErrorMessage] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [name, setName] = useState("")
 
-
+const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setName(e.target.value)
+}
 
   return (
 
@@ -28,19 +32,35 @@ function CreateCommunityButton() {
   hover:bg-black transition-all duration-200 
   disabled:text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled={!user}>
     <Plus />
-  {user ? "Create a Community" : "Sign in to create community"}
+  {user ? "Ask a Question" : "Sign in to ask a Question"}
   </DialogTrigger>
   <DialogContent>
     <DialogHeader>
-      <DialogTitle>Create a Community</DialogTitle>
+      <DialogTitle>Ask a question</DialogTitle>
       <DialogDescription>
-        Create a community to share your ideas and get feedback from others.
+        Share your ideas and get feedback from others in regards to Christian doctrine.
       </DialogDescription>
 
       <form>
         {errorMessage && (
           <div className="text-red-500 text-sm">{errorMessage}</div>
         )}
+
+        <div className="space-y-2">
+          <label htmlFor="question" className="text-sm font-medium">
+            Question
+          </label>
+          <Input 
+          id="question" 
+          placeholder="What is your question?"
+          className="w-full focus:ring-2 focus:ring-blue-500"
+          value={name}
+          onChange={handleNameChange}
+          required
+          minLength={3}
+          maxLength={21} 
+          />
+        </div>
       </form>
     </DialogHeader>
   </DialogContent>

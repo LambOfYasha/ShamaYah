@@ -1,18 +1,18 @@
 import { sanityFetch } from "../live";
 import { defineQuery } from "groq";
-import type { Community, User } from "../../../sanity.types";
+import type { CommunityQuestion, User } from "../../../sanity.types";
 
 // Type for the expanded community data from GROQ query
 interface CommunityWithModerator {
     _id: string;
-    _type: "community";
+    _type: "communityQuestion";
     _createdAt: string;
     _updatedAt: string;
     _rev: string;
     title?: string;
     description?: string;
     slug: string; // This comes from slug.current in the query
-    image?: Community['image'];
+    image?: CommunityQuestion['image'];
     moderator: User; // This is the expanded user data
     createdAt?: string;
 }
@@ -25,7 +25,7 @@ async function typedSanityFetch<T>(query: string): Promise<T> {
 
 export async function getCommunities(): Promise<CommunityWithModerator[]> {
     
-const getCommunitiesQuery = defineQuery(`*[_type == "community"] {
+const getCommunitiesQuery = defineQuery(`*[_type == "communityQuestion"] {
         ...,
         title,
         "slug": slug.current,

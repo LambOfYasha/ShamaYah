@@ -819,7 +819,7 @@
         },
         "optional": true
       },
-      "community": {
+      "communityQuestion": {
         "type": "objectAttribute",
         "value": {
           "type": "object",
@@ -845,7 +845,7 @@
               "optional": true
             }
           },
-          "dereferencesTo": "community"
+          "dereferencesTo": "communityQuestion"
         },
         "optional": true
       },
@@ -1128,7 +1128,7 @@
     }
   },
   {
-    "name": "community",
+    "name": "communityQuestion",
     "type": "document",
     "attributes": {
       "_id": {
@@ -1141,7 +1141,7 @@
         "type": "objectAttribute",
         "value": {
           "type": "string",
-          "value": "community"
+          "value": "communityQuestion"
         }
       },
       "_createdAt": {

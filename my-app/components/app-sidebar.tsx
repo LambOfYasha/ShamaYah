@@ -46,12 +46,12 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
  const sidebarData: SidebarData = {
    navMain: [
     {
-      title: "Communities",
+      title: "Community Questions",
       url: "#",
       items: 
       communities?.map((community) => ({
         title: community.title || "",
-        url: `/communities/${community.slug}`,
+        url: `/community-questions/${community.slug}`,
         isActive: false,
       })) || [],
     },

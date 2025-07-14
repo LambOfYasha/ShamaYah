@@ -31,11 +31,11 @@ export const postType = defineType({
     }),
 
     defineField({
-      name: 'community',
-      title: 'Community',
+      name: 'communityQuestion',
+      title: 'Community Question',
       type: 'reference',
-      description: 'The community the post belongs to',
-      to: [{type: 'community'}],
+      description: 'The community question the post belongs to',
+      to: [{type: 'communityQuestion'}],
       validation: (Rule) => Rule.required(),
     }),
     defineField({

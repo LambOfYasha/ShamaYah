@@ -2,8 +2,8 @@ import {defineField, defineType} from "sanity";
 import { UsersIcon } from "lucide-react";
 
 export const communityType = defineType({
-    name: 'community',
-    title: 'Community',
+    name: 'communityQuestion',
+    title: 'Community Question',
     type: 'document',
     icon: UsersIcon,
     fields: [
