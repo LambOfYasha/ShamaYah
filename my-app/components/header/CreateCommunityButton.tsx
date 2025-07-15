@@ -8,13 +8,14 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useTransition } from 'react'
 import { useUser } from '@clerk/nextjs' 
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
 import { ImageIcon, Plus, X } from "lucide-react"
 import Image from "next/image"
 import { Label } from "../ui/label"
+import { Button } from "../ui/button"
 
 
 function CreateCommunityButton() {
@@ -28,6 +29,8 @@ function CreateCommunityButton() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [isPending, startTransition] = useTransition()
+  
 
 const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const value = e.target.value
@@ -52,13 +55,85 @@ const removeImage = () => {
 
 const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0]
+  
   if (file) {
     setImageFile(file)
-    setImagePreview(URL.createObjectURL(file))
-  }
+    const reader = new FileReader()
+reader.onload = () => {
+  const result = reader.result as string
+  setImagePreview(result)
+} 
+reader.readAsDataURL(file)
 }
+}
+
+
 const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault()
+}
+
+const resetForm = () => {
+  setName("")
+  setSlug("")
+  setDescription("")
+  setImagePreview(null)
+  setImageFile(null)
+  if (fileInputRef.current) {
+    fileInputRef.current.value = ""
+  }
+}
+
+const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
+  if(!name.trim()) {
+    setErrorMessage("Name is required")
+    return
+  }
+
+  if(!slug.trim()) {
+    setErrorMessage("Slug is required")
+    return
+  }
+
+  setErrorMessage("")
+
+  startTransition(async () => {
+    try {
+      let imageBase64: string | null = null
+      let fileName: string | null = null
+      let fileType: string | null = null
+
+      if(imageFile) {
+        const reader = new FileReader()
+          imageBase64 = await new Promise<string>((resolve) => {
+            reader.onload = () => {
+              resolve(reader.result as string)
+            }
+            reader.readAsDataURL(imageFile)
+          })
+
+          fileName = imageFile.name
+          fileType = imageFile.type
+        }
+const result = await createCommunity (
+  name.trim(),
+  imageBase64,
+  fileName,
+  fileType,
+  slug.trim(),
+  description.trim() || undefined,
+        )  
+      
+      if ("error" in result && result.error) {
+        setErrorMessage(result.error)
+      } else if ("community" in result && result.community) {
+        setOpen(false)
+        resetForm()
+      }} catch (err) {
+          console.error("failed to create community", err)
+          setErrorMessage("failed to create community")
+        }
+      })
 }
 
   return (
@@ -78,7 +153,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         Share your ideas and get feedback from others in regards to Christian doctrine.
       </DialogDescription>
 
-      <form>
+      <form onSubmit={handleCreateCommunity} className="space-y-4 mt-2">
         {errorMessage && (
           <div className="text-red-500 text-sm">{errorMessage}</div>
         )}
@@ -180,6 +255,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             )}
             </div>
 
+            <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isPending || !user}>Submit Question</Button>
       </form>
     </DialogHeader>
   </DialogContent>

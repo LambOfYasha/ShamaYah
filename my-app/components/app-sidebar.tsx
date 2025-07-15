@@ -1,5 +1,4 @@
 // Client component for the sidebar
-'use client'
 import * as React from "react"
 import { Minus, Plus } from "lucide-react"
 
