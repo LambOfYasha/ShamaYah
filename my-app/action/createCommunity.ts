@@ -17,6 +17,27 @@ export async function createCommunity(
 ) {
     try {
         const user = await getUser()
+
+        if ("error" in user) {
+            return { error: user.error }
+        }
+
+let imageData: ImageData = null
+if(imageBase64 && imageFilename && imageContentType) {
+    imageData = {
+        base64: imageBase64,
+        fileName: imageFilename,
+        contentType: imageContentType,
+    }
+}
+
+const result = await createCommunity({
+    name,
+    imageData,
+    slug,
+    description,
+    user._id,
+})
        
     } catch (error) {
         console.error("failed to create community", error)
