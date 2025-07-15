@@ -1,6 +1,7 @@
-import { currentUser } from "@clerk/nextjs/server"
-import { defineQuery } from "next-sanity"
+import { defineQuery } from "groq"
 import { sanityFetch } from "@/sanity/lib/live"
+import { addUser} from "./addUser"
+import { currentUser } from "@clerk/nextjs/server"
 
 interface UserResult {
     _id: string
@@ -9,6 +10,17 @@ interface UserResult {
     email: string
 }
 
+
+const parseUsername = (username: string) => {
+    const randomNum = Math.floor(1000 + Math.random() * 9000)
+
+    //convert whitespace to camelCase and add random number to avoid conflicts
+    return (
+        username
+        .replace(/\s+/g, (_, char) => char.toUpperCase()) // Convert whitespace to camelCase
+        .replace(/\s+/g, "") + randomNum // Add random number to avoid conflicts
+    )
+}
 
 export async function getUser(): Promise<UserResult | {error: string}> {
     try {

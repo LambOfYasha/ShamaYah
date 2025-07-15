@@ -793,6 +793,9 @@ packages:
   '@codemirror/view@6.38.0':
     resolution: {integrity: sha512-yvSchUwHOdupXkd7xJ0ob36jdsSR/I+/C+VbY0ffBiL5NiSTEBDfB1ZGWbbIlDd5xgdUkody+lukAdOxYrOBeg==}
 
+  '@codemirror/view@6.38.1':
+    resolution: {integrity: sha512-RmTOkE7hRU3OVREqFVITWHz6ocgBjv08GoePscAakgVQfciA3SGCEk7mb9IzwW61cKKmlTpHXG6DUE5Ubx+MGQ==}
+
   '@csstools/color-helpers@5.0.2':
     resolution: {integrity: sha512-JqWH1vsgdGcw2RR6VliXXdA0/59LttzlU8UlRT/iUUsEeWfYq8I+K0yhihEUTTHLRm1EXvpsCx3083EU15ecsA==}
     engines: {node: '>=18'}
@@ -7273,10 +7276,17 @@ snapshots:
     dependencies:
       '@codemirror/language': 6.11.2
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.0
+      '@codemirror/view': 6.38.1
       '@lezer/highlight': 1.2.1
 
   '@codemirror/view@6.38.0':
+    dependencies:
+      '@codemirror/state': 6.5.2
+      crelt: 1.0.6
+      style-mod: 4.1.2
+      w3c-keyname: 2.2.8
+
+  '@codemirror/view@6.38.1':
     dependencies:
       '@codemirror/state': 6.5.2
       crelt: 1.0.6
@@ -9672,7 +9682,7 @@ snapshots:
       '@codemirror/lint': 6.8.5
       '@codemirror/search': 6.5.11
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.0
+      '@codemirror/view': 6.38.1
 
   color-convert@1.9.3:
     dependencies:
