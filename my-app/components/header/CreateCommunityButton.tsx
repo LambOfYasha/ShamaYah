@@ -16,7 +16,8 @@ import { ImageIcon, Plus, X } from "lucide-react"
 import Image from "next/image"
 import { Label } from "../ui/label"
 import { Button } from "../ui/button"
-
+import { createCommunityQuestion } from "@/action/createCommunityQuestion"
+import { useRouter } from "next/navigation"
 
 function CreateCommunityButton() {
 
@@ -30,7 +31,7 @@ function CreateCommunityButton() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isPending, startTransition] = useTransition()
-  
+  const router = useRouter()
 
 const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const value = e.target.value
@@ -115,7 +116,8 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
           fileName = imageFile.name
           fileType = imageFile.type
         }
-const result = await createCommunity (
+
+        const result = await createCommunityQuestion(
   name.trim(),
   imageBase64,
   fileName,
@@ -123,12 +125,15 @@ const result = await createCommunity (
   slug.trim(),
   description.trim() || undefined,
         )  
+
+        console.log("created community:", result)
       
       if ("error" in result && result.error) {
         setErrorMessage(result.error)
-      } else if ("community" in result && result.community) {
+      } else if ("createdCommunity" in result && result.createdCommunity) {
         setOpen(false)
         resetForm()
+        router.push(`/community-questions/${result.createdCommunity._id}`)
       }} catch (err) {
           console.error("failed to create community", err)
           setErrorMessage("failed to create community")
