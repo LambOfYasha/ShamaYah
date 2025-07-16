@@ -1,5 +1,8 @@
 'use server'
 
+import { getUser } from "@/lib/user/getUser"
+import { createCommunity } from "@/sanity/lib/communties/createCommunity"
+
 export type ImageData = {
     base64: string
     fileName: string
@@ -7,7 +10,7 @@ export type ImageData = {
 } | null
 
 
-export async function createCommunity(
+export async function createCommunityQuestion(
     name: string,
     imageBase64: string | null | undefined,
     imageFilename: string | null | undefined,
@@ -31,13 +34,15 @@ if(imageBase64 && imageFilename && imageContentType) {
     }
 }
 
-const result = await createCommunity({
+const result = await createCommunity(
     name,
+    user._id,
     imageData,
     slug,
-    description,
-    user._id,
-})
+    description || ""
+)
+
+return result
        
     } catch (error) {
         console.error("failed to create community", error)

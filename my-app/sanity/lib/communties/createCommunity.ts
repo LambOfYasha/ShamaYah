@@ -1,4 +1,4 @@
-import { ImageData } from "@/action/createCommunity"
+import { ImageData } from "@/action/createCommunityQuestion"
 import { defineQuery } from "groq"
 import { sanityFetch } from "../live"
 import { adminClient } from "../adminClient"
@@ -50,7 +50,7 @@ export async function createCommunity(
 
                 if (existingSlug.data) {
                     console.log(`Community with slug "${customSlug}" already exists`)
-                    return (error: "A community with this URL already exists")
+                    return { error: "A community with this URL already exists" }
                 }
             }
 
@@ -95,8 +95,27 @@ export async function createCommunity(
             },
             createdAt: new Date().toISOString(),
         }
-        
-        
+
+
+        //add image if available
+
+        if (imageAsset) {
+            communityDoc.image = {
+                _type: "image",
+                asset: {
+                    _type: "reference",
+                    _ref: imageAsset._id,
+                },
+            }
+        }
+
+        //create community
+        const createdCommunity = await adminClient.create(communityDoc as CommunityQuestion)
+
+        console.log(`created community: ${createdCommunity._id}`)
+
+        return { createdCommunity }
+
      } catch (error) {
         console.error("failed to create community", error)
         return { error: "failed to create community" }
