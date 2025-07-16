@@ -367,6 +367,14 @@ export type SanityAssetSourceData = {
 
 export type AllSanitySchemaTypes = Favorite | Comment | Blog | Post | CommunityQuestion | Teacher | User | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
+// Source: ./sanity/lib/communties/createCommunity.ts
+// Variable: checkExistingQuery
+// Query: *[_type == "community" && title == $name][0]            {                _id,            }
+export type CheckExistingQueryResult = null;
+// Variable: checkSlugQuery
+// Query: *[_type == "community" && slug.current == $slug][0]                    {                        _id,                    }
+export type CheckSlugQueryResult = null;
+
 // Source: ./sanity/lib/communties/getCommunities.ts
 // Variable: getCommunitiesQuery
 // Query: *[_type == "communityQuestion"] {        ...,        title,        "slug": slug.current,        "moderator": moderator->,    }  | order(createdAt desc)
@@ -411,6 +419,8 @@ export type GetCommunitiesQueryResult = Array<{
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
+    "*[_type == \"community\" && title == $name][0]\n            {\n                _id,\n            }\n        ": CheckExistingQueryResult;
+    "*[_type == \"community\" && slug.current == $slug][0]\n                    {\n                        _id,\n                    }\n                ": CheckSlugQueryResult;
     "*[_type == \"communityQuestion\"] {\n        ...,\n        title,\n        \"slug\": slug.current,\n        \"moderator\": moderator->,\n    }  | order(createdAt desc)": GetCommunitiesQueryResult;
   }
 }
