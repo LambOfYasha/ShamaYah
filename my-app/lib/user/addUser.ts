@@ -1,15 +1,18 @@
 import { adminClient } from "@/sanity/lib/adminClient"
+import { UserRole } from "../auth/roles"
 
 export async function addUser({
     id,
     username,
     imageURL,
     email,
+    role = 'member',
 } : {
     id:string
     username:string
     imageURL:string
     email:string
+    role?: UserRole
 }) {
     try {
         console.log("Attempting to create user with ID:", id)
@@ -25,6 +28,7 @@ export async function addUser({
             username,
             imageURL,
             email,
+            role,
             joinedAt: new Date().toISOString(),
         })
 

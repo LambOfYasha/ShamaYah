@@ -27,10 +27,33 @@ export const teacherType = defineType({
       description: 'URL to the user\'s profile image',
     }),
     defineField({
+      name: 'role',
+      title: 'Role',
+      type: 'string',
+      description: 'Teacher role in the system',
+      options: {
+        list: [
+          {title: 'Teacher', value: 'teacher'},
+          {title: 'Senior Teacher', value: 'senior_teacher'},
+          {title: 'Lead Teacher', value: 'lead_teacher'},
+        ],
+        layout: 'radio'
+      },
+      initialValue: 'teacher',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'specializations',
+      title: 'Specializations',
+      type: 'array',
+      description: 'Areas of expertise',
+      of: [{type: 'string'}],
+    }),
+    defineField({
       name: 'joinedAt',
       title: 'Joined At',
       type: 'datetime',
-      description: 'When the user joined',
+      description: 'When the teacher joined',
       initialValue: new Date().toISOString(),
       validation: (Rule) => Rule.required(),
     }),
@@ -38,7 +61,7 @@ export const teacherType = defineType({
       name: 'isReported',
       title: 'Is Reported',
       type: 'boolean',
-      description: 'Whether this user has been reported',
+      description: 'Whether this teacher has been reported',
       initialValue: false,
     }),
   ],
@@ -46,10 +69,12 @@ export const teacherType = defineType({
     select: {
       title: 'username',
       media: 'imageURL',
+      role: 'role',
     },
-    prepare({title, media}) {
+    prepare({title, media, role}) {
       return {
         title,
+        subtitle: role ? `Role: ${role}` : 'No role assigned',
         media: media ? (
             <Image src={media} alt={`${title}'s avatar`} width={40} height={40} />
         ) : (

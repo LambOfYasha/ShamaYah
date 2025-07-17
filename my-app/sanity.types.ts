@@ -199,6 +199,8 @@ export type Teacher = {
   username?: string;
   email?: string;
   imageURL?: string;
+  role?: "teacher" | "senior_teacher" | "lead_teacher";
+  specializations?: Array<string>;
   joinedAt?: string;
   isReported?: boolean;
 };
@@ -212,6 +214,7 @@ export type User = {
   username?: string;
   email?: string;
   imageURL?: string;
+  role?: "member" | "moderator" | "admin" | "teacher";
   joinedAt?: string;
   communityQuestion?: {
     _ref: string;
@@ -415,6 +418,7 @@ export type GetCommunitiesQueryResult = Array<{
     username?: string;
     email?: string;
     imageURL?: string;
+    role?: "admin" | "member" | "moderator" | "teacher";
     joinedAt?: string;
     communityQuestion?: {
       _ref: string;

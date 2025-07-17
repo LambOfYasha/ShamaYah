@@ -1183,6 +1183,37 @@
         },
         "optional": true
       },
+      "role": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "teacher"
+            },
+            {
+              "type": "string",
+              "value": "senior_teacher"
+            },
+            {
+              "type": "string",
+              "value": "lead_teacher"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "specializations": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
+      },
       "joinedAt": {
         "type": "objectAttribute",
         "value": {
@@ -1252,6 +1283,31 @@
         "type": "objectAttribute",
         "value": {
           "type": "string"
+        },
+        "optional": true
+      },
+      "role": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "member"
+            },
+            {
+              "type": "string",
+              "value": "moderator"
+            },
+            {
+              "type": "string",
+              "value": "admin"
+            },
+            {
+              "type": "string",
+              "value": "teacher"
+            }
+          ]
         },
         "optional": true
       },

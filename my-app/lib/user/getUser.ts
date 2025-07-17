@@ -2,14 +2,7 @@ import { defineQuery } from "groq"
 import { sanityFetch } from "@/sanity/lib/live"
 import { addUser} from "./addUser"
 import { currentUser } from "@clerk/nextjs/server"
-
-interface UserResult {
-    _id: string
-    username: string
-    imageURL: string
-    email: string
-}
-
+import { UserWithRole, UserRole } from "../auth/roles"
 
 const parseUsername = (username: string) => {
     const randomNum = Math.floor(1000 + Math.random() * 9000)
@@ -22,7 +15,7 @@ const parseUsername = (username: string) => {
     )
 }
 
-export async function getUser(): Promise<UserResult | {error: string}> {
+export async function getUser(): Promise<UserWithRole | {error: string}> {
     try {
         console.log("Getting user")
         const loggedInUser = await currentUser()
@@ -34,16 +27,21 @@ export async function getUser(): Promise<UserResult | {error: string}> {
 
         console.log("User found", loggedInUser)
 
-        const getExistingUserQuery = defineQuery (
-            `*[_type == "user" && id == $id][0]`,
+        // Check for both user and teacher types
+        const getUserQuery = defineQuery(
+            `*[_type == "user" && id == $id][0]`
+        )
+
+        const getTeacherQuery = defineQuery(
+            `*[_type == "teacher" && id == $id][0]`
         )
 
         console.log("checking if user exists")
         
-        // Add timeout handling for the query
+        // Check for user first
         const existingUser = await Promise.race([
             sanityFetch({
-                query: getExistingUserQuery,
+                query: getUserQuery,
                 params: {
                     id: loggedInUser.id,
                 },
@@ -54,15 +52,40 @@ export async function getUser(): Promise<UserResult | {error: string}> {
         ]) as any
 
         if(existingUser.data?._id) {
-            console.log(`User already exists with ID:  ${existingUser.data._id}`)
-            const user = {
+            console.log(`User already exists with ID: ${existingUser.data._id}`)
+            const user: UserWithRole = {
                 _id: existingUser.data._id,
                 username: existingUser.data.username,
                 imageURL: existingUser.data.imageURL,
                 email: existingUser.data.email,
+                role: existingUser.data.role || 'member',
             }
-
             return user
+        }
+
+        // Check for teacher if user not found
+        const existingTeacher = await Promise.race([
+            sanityFetch({
+                query: getTeacherQuery,
+                params: {
+                    id: loggedInUser.id,
+                },
+            }),
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Query timeout")), 15000)
+            )
+        ]) as any
+
+        if(existingTeacher.data?._id) {
+            console.log(`Teacher already exists with ID: ${existingTeacher.data._id}`)
+            const teacher: UserWithRole = {
+                _id: existingTeacher.data._id,
+                username: existingTeacher.data.username,
+                imageURL: existingTeacher.data.imageURL,
+                email: existingTeacher.data.email,
+                role: existingTeacher.data.role || 'teacher',
+            }
+            return teacher
         }
 
         console.log("User does not exist, creating new user")
@@ -75,11 +98,12 @@ export async function getUser(): Promise<UserResult | {error: string}> {
         })
 
         console.log("New user created", newUser._id)
-        const user = {
+        const user: UserWithRole = {
             _id: newUser._id,
             username: newUser.username!,
             imageURL: newUser.imageURL,
             email: newUser.email,
+            role: newUser.role || 'member',
         }
 
         return user

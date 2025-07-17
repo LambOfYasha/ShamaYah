@@ -1,12 +1,13 @@
 "use client"
 
-import { SignedIn, SignedOut, SignInButton, UserButton,useUser } from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "../ui/button"
-import { ChevronLeftIcon, MenuIcon } from "lucide-react"
+import { ChevronLeftIcon, MenuIcon, Shield } from "lucide-react"
 import { useSidebar } from "../ui/sidebar"
+import { RoleGuard } from "../auth/RoleGuard"
+import Link from "next/link"
 
 function Header() {
-
     const {user} = useUser()
     const {toggleSidebar, open, isMobile} = useSidebar()
 
@@ -22,15 +23,25 @@ function Header() {
     </div>
 
     {/* Right side */}
-    <div>
+    <div className="flex items-center gap-4">
         <SignedIn>
+            {/* Admin Link */}
+            <RoleGuard permission="canAccessAdminPanel">
+                <Button variant="outline" size="sm" asChild>
+                    <Link href="/admin" className="flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Admin
+                    </Link>
+                </Button>
+            </RoleGuard>
+            
             <UserButton/>
         </SignedIn>
       
         <SignedOut>
-                <Button asChild variant={"outline"}>
+            <Button asChild variant={"outline"}>
                 <SignInButton mode="modal" />
-                </Button>
+            </Button>
         </SignedOut>
     </div>
 </header>  

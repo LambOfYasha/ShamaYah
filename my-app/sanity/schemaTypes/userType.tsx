@@ -27,6 +27,23 @@ export const userType = defineType({
       description: 'URL to the user\'s profile image',
     }),
     defineField({
+      name: 'role',
+      title: 'Role',
+      type: 'string',
+      description: 'User role in the system',
+      options: {
+        list: [
+          {title: 'Member', value: 'member'},
+          {title: 'Moderator', value: 'moderator'},
+          {title: 'Admin', value: 'admin'},
+          {title: 'Teacher', value: 'teacher'},
+        ],
+        layout: 'radio'
+      },
+      initialValue: 'member',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'joinedAt',
       title: 'Joined At',
       type: 'datetime',
@@ -35,11 +52,11 @@ export const userType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'community',
+      name: 'communityQuestion',
       title: 'Community Question',
       type: 'reference',
       description: 'The community question this user is a moderator of',
-      to: [{type: 'community'}],
+      to: [{type: 'communityQuestion'}],
     }),
     defineField({
       name: 'isReported',
@@ -53,10 +70,12 @@ export const userType = defineType({
     select: {
       title: 'username',
       media: 'imageURL',
+      role: 'role',
     },
-    prepare({title, media}) {
+    prepare({title, media, role}) {
       return {
         title,
+        subtitle: role ? `Role: ${role}` : 'No role assigned',
         media: media ? (
             <Image src={media} alt={`${title}'s avatar`} width={40} height={40} />
         ) : (
