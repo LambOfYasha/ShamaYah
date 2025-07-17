@@ -190,6 +190,38 @@ export type Post = {
   publishedAt?: string;
 };
 
+export type Teacher = {
+  _id: string;
+  _type: "teacher";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  username?: string;
+  email?: string;
+  imageURL?: string;
+  joinedAt?: string;
+  isReported?: boolean;
+};
+
+export type User = {
+  _id: string;
+  _type: "user";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  username?: string;
+  email?: string;
+  imageURL?: string;
+  joinedAt?: string;
+  communityQuestion?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "communityQuestion";
+  };
+  isReported?: boolean;
+};
+
 export type CommunityQuestion = {
   _id: string;
   _type: "communityQuestion";
@@ -219,32 +251,6 @@ export type CommunityQuestion = {
     [internalGroqTypeReferenceTo]?: "user";
   };
   createdAt?: string;
-};
-
-export type Teacher = {
-  _id: string;
-  _type: "teacher";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  username?: string;
-  email?: string;
-  imageURL?: string;
-  joinedAt?: string;
-  isReported?: boolean;
-};
-
-export type User = {
-  _id: string;
-  _type: "user";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  username?: string;
-  email?: string;
-  imageURL?: string;
-  joinedAt?: string;
-  isReported?: boolean;
 };
 
 export type SanityImagePaletteSwatch = {
@@ -365,7 +371,7 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = Favorite | Comment | Blog | Post | CommunityQuestion | Teacher | User | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = Favorite | Comment | Blog | Post | Teacher | User | CommunityQuestion | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./sanity/lib/communties/createCommunity.ts
 // Variable: checkExistingQuery
@@ -410,6 +416,12 @@ export type GetCommunitiesQueryResult = Array<{
     email?: string;
     imageURL?: string;
     joinedAt?: string;
+    communityQuestion?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "communityQuestion";
+    };
     isReported?: boolean;
   } | null;
   createdAt?: string;

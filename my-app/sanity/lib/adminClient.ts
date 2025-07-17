@@ -6,6 +6,6 @@ import { createClient } from "next-sanity"
         dataset,
         apiVersion,
         useCdn: true,
-        token: process.env.SANITY_ADMIN_API_TOKEN,
+        token: process.env.SANITY_API_ADMIN_TOKEN,
     })
 

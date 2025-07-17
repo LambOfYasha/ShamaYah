@@ -35,6 +35,13 @@ export const userType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'community',
+      title: 'Community Question',
+      type: 'reference',
+      description: 'The community question this user is a moderator of',
+      to: [{type: 'community'}],
+    }),
+    defineField({
       name: 'isReported',
       title: 'Is Reported',
       type: 'boolean',
