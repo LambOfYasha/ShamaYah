@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Header from "@/components/header/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { SanityLive } from "@/sanity/lib/live";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,7 +26,10 @@ export default function RootLayout({
               <Header />
               <div className="flex flex-col">{children}</div>
             </SidebarInset>
-          </SidebarProvider>
+        </SidebarProvider>
+
+          <SanityLive /> 
+           
         </body>
       </html>
     </ClerkProvider>

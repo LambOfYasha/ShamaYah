@@ -15,7 +15,7 @@ export async function createCommunityQuestion(
     imageBase64: string | null | undefined,
     imageFilename: string | null | undefined,
     imageContentType: string | null | undefined,
-    slug: string,
+    slug?: string,
     description?: string
 ) {
     try {

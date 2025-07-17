@@ -17,7 +17,7 @@ const parseUsername = (username: string) => {
     //convert whitespace to camelCase and add random number to avoid conflicts
     return (
         username
-        .replace(/\s+/g, (_, char) => char.toUpperCase()) // Convert whitespace to camelCase
+        .replace(/\s+(.)/g, (_, char) => char.toUpperCase()) // Convert whitespace to camelCase
         .replace(/\s+/g, "") + randomNum // Add random number to avoid conflicts
     )
 }
@@ -62,7 +62,7 @@ if(existingUser.data?._id) {
 
 console.log("User does not exist, creating new user")
 const newUser = await addUser( {
-    _id: loggedInUser.id,
+    id: loggedInUser.id,
     username: parseUsername(loggedInUser.fullName!),
     imageUrl: loggedInUser.imageUrl,
     email: loggedInUser.primaryEmailAddress?.emailAddress || 

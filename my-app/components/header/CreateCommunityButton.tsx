@@ -133,7 +133,7 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
       } else if ("createdCommunity" in result && result.createdCommunity) {
         setOpen(false)
         resetForm()
-        router.push(`/community-questions/${result.createdCommunity._id}`)
+        router.push(`/community-questions/${result.createdCommunity.slug?.current}`)
       }} catch (err) {
           console.error("failed to create community", err)
           setErrorMessage("failed to create community")

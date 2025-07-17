@@ -8,8 +8,8 @@ export async function createCommunity(
     name: string,
     moderatorId: string,
     imageData: ImageData | null,
-    customSlug: string,
-    customDescription: string
+    customSlug?: string,
+    customDescription?: string
 
 ) {
     console.log(`Creating community: ${name} with moderator: ${moderatorId}`)
