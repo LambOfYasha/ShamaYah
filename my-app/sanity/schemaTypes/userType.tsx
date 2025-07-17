@@ -9,6 +9,13 @@ export const userType = defineType({
   icon: UserIcon,
   fields: [
     defineField({
+      name: 'id',
+      title: 'Clerk ID',
+      type: 'string',
+      description: 'The Clerk user ID',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'username',
       title: 'Username',
       type: 'string',
@@ -71,11 +78,12 @@ export const userType = defineType({
       title: 'username',
       media: 'imageURL',
       role: 'role',
+      clerkId: 'id',
     },
-    prepare({title, media, role}) {
+    prepare({title, media, role, clerkId}) {
       return {
         title,
-        subtitle: role ? `Role: ${role}` : 'No role assigned',
+        subtitle: `${role || 'No role'} • ${clerkId ? 'Clerk ID: ' + clerkId.slice(0, 8) + '...' : 'No Clerk ID'}`,
         media: media ? (
             <Image src={media} alt={`${title}'s avatar`} width={40} height={40} />
         ) : (
