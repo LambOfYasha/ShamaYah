@@ -264,7 +264,7 @@ export default function AppSidebar() {
                               asChild
                             isActive={false}
                             >
-                            <Link href={`/community-questions/${community.slug}`}>
+                            <Link href={`/community-questions/${community.slug?.current || community.slug}`}>
                               {community.title || "Untitled"}
                             </Link>
                             </SidebarMenuSubButton>
@@ -302,7 +302,7 @@ export default function AppSidebar() {
                             asChild
                             isActive={false}
                           >
-                            <Link href={`/blogs/${blog.slug}`}>
+                            <Link href={`/blogs/${blog.slug?.current || blog.slug}`}>
                               {blog.title || "Untitled Blog"}
                             </Link>
                           </SidebarMenuSubButton>

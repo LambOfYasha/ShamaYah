@@ -21,7 +21,10 @@ interface CommunityData {
   _id: string;
   title: string;
   description: string;
-  slug: string;
+  slug: {
+    _type: string;
+    current: string;
+  };
   image?: {
     asset?: {
       _ref: string;
@@ -45,7 +48,7 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(community.title);
   const [description, setDescription] = useState(community.description);
-  const [slug, setSlug] = useState(community.slug);
+  const [slug, setSlug] = useState(community.slug?.current || '');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

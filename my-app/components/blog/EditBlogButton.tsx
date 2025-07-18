@@ -21,7 +21,10 @@ interface BlogData {
   _id: string;
   title: string;
   description: string;
-  slug: string;
+  slug: {
+    _type: string;
+    current: string;
+  };
   content?: string;
   image?: {
     asset?: {
@@ -47,7 +50,7 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(blog.title);
   const [description, setDescription] = useState(blog.description);
-  const [slug, setSlug] = useState(blog.slug);
+  const [slug, setSlug] = useState(blog.slug?.current || '');
   const [content, setContent] = useState(blog.content || "");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
