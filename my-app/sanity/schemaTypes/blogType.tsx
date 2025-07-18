@@ -55,8 +55,8 @@ export const blogType = defineType({
             name: 'author',
             title: 'Author',
             type: 'reference',
-            to: [{type: 'teacher'}],
-            description: 'The author of the blog',
+            to: [{type: 'teacher'}, {type: 'user'}],
+            description: 'The author of the blog (can be a teacher or user)',
             validation: (Rule) => Rule.required(),
         }),
         defineField({

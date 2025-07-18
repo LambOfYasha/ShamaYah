@@ -15,14 +15,14 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
+import { deleteBlogAction } from '@/action/deleteBlogAction';
 
 interface DeleteBlogButtonProps {
   blogId: string;
   blogTitle: string;
-  onDelete: () => Promise<void>;
 }
 
-export default function DeleteBlogButton({ blogId, blogTitle, onDelete }: DeleteBlogButtonProps) {
+export default function DeleteBlogButton({ blogId, blogTitle }: DeleteBlogButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
@@ -30,14 +30,8 @@ export default function DeleteBlogButton({ blogId, blogTitle, onDelete }: Delete
     setIsDeleting(true);
     try {
       console.log('DeleteBlogButton: Starting delete process');
-      const result = await onDelete();
+      const result = await deleteBlogAction(blogId);
       console.log('DeleteBlogButton: Delete result:', result);
-      
-      if (result && 'error' in result) {
-        console.error('DeleteBlogButton: Delete failed:', result.error);
-        alert(`Failed to delete blog: ${result.error}`);
-        return;
-      }
       
       console.log('DeleteBlogButton: Delete successful, redirecting');
       // Redirect to blogs page after successful deletion

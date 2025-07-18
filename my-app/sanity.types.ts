@@ -13,6 +13,19 @@
  */
 
 // Source: schema.json
+export type Tag = {
+  _id: string;
+  _type: "tag";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  slug?: Slug;
+  description?: string;
+  color?: "blue" | "green" | "red" | "yellow" | "purple" | "orange" | "pink" | "gray";
+  createdAt?: string;
+};
+
 export type Favorite = {
   _id: string;
   _type: "favorite";
@@ -85,12 +98,11 @@ export type Comment = {
     _ref: string;
     _type: "reference";
     _weak?: boolean;
+    _key: string;
     [internalGroqTypeReferenceTo]?: "comment";
   }>;
   likes?: number;
   likedBy?: Array<string>;
-  isReported?: boolean;
-  isDeleted?: boolean;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -140,6 +152,11 @@ export type Blog = {
     _type: "reference";
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "teacher";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "user";
   };
   createdAt?: string;
 };
@@ -157,6 +174,11 @@ export type Post = {
     _type: "reference";
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "user";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "teacher";
   };
   communityQuestion?: {
     _ref: string;
@@ -200,27 +222,13 @@ export type Post = {
   publishedAt?: string;
 };
 
-export type Teacher = {
-  _id: string;
-  _type: "teacher";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  username?: string;
-  email?: string;
-  imageURL?: string;
-  role?: "teacher" | "senior_teacher" | "lead_teacher";
-  specializations?: Array<string>;
-  joinedAt?: string;
-  isReported?: boolean;
-};
-
 export type User = {
   _id: string;
   _type: "user";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  id?: string;
   username?: string;
   email?: string;
   imageURL?: string;
@@ -262,8 +270,29 @@ export type CommunityQuestion = {
     _type: "reference";
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "user";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "teacher";
   };
   createdAt?: string;
+};
+
+export type Teacher = {
+  _id: string;
+  _type: "teacher";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  id?: string;
+  username?: string;
+  email?: string;
+  imageURL?: string;
+  role?: "teacher" | "senior_teacher" | "lead_teacher";
+  specializations?: Array<string>;
+  joinedAt?: string;
+  isReported?: boolean;
 };
 
 export type SanityImagePaletteSwatch = {
@@ -384,15 +413,153 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = Favorite | Comment | Blog | Post | Teacher | User | CommunityQuestion | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = Tag | Favorite | Comment | Blog | Post | User | CommunityQuestion | Teacher | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
-// Source: ./sanity/lib/communties/createCommunity.ts
+// Source: ./app/(app)/blogs/[slug]/page.tsx
+// Variable: query
+// Query: *[_type == "blog" && slug.current == $slug][0] {      _id,      title,      description,      slug,      content,      image,      author->{        _id,        username,        imageURL,        role      },      createdAt,      _createdAt    }
+export type QueryResult = {
+  _id: string;
+  title: string | null;
+  description: string | null;
+  slug: Slug | null;
+  content: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+  image: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  } | null;
+  author: {
+    _id: string;
+    username: string | null;
+    imageURL: string | null;
+    role: "admin" | "member" | "moderator" | "teacher" | null;
+  } | {
+    _id: string;
+    username: string | null;
+    imageURL: string | null;
+    role: "lead_teacher" | "senior_teacher" | "teacher" | null;
+  } | null;
+  createdAt: string | null;
+  _createdAt: string;
+} | null;
+
+// Source: ./sanity/lib/blogs/createBlog.ts
 // Variable: checkExistingQuery
-// Query: *[_type == "community" && title == $name][0]            {                _id,            }
-export type CheckExistingQueryResult = null;
+// Query: *[_type == "blog" && title == $title][0]            {                _id,            }
+export type CheckExistingQueryResult = {
+  _id: string;
+} | null;
 // Variable: checkSlugQuery
-// Query: *[_type == "community" && slug.current == $slug][0]                    {                        _id,                    }
-export type CheckSlugQueryResult = null;
+// Query: *[_type == "blog" && slug.current == $slug][0]                {                    _id,                }
+export type CheckSlugQueryResult = {
+  _id: string;
+} | null;
+
+// Source: ./sanity/lib/blogs/getBlogs.ts
+// Variable: getBlogsQuery
+// Query: *[_type == "blog"] {        ...,        title,        "slug": slug.current,        "author": author->,    }  | order(createdAt desc)
+export type GetBlogsQueryResult = Array<{
+  _id: string;
+  _type: "blog";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string | null;
+  slug: string | null;
+  description?: string;
+  image?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  content?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  author: {
+    _id: string;
+    _type: "teacher";
+    _createdAt: string;
+    _updatedAt: string;
+    _rev: string;
+    id?: string;
+    username?: string;
+    email?: string;
+    imageURL?: string;
+    role?: "lead_teacher" | "senior_teacher" | "teacher";
+    specializations?: Array<string>;
+    joinedAt?: string;
+    isReported?: boolean;
+  } | {
+    _id: string;
+    _type: "user";
+    _createdAt: string;
+    _updatedAt: string;
+    _rev: string;
+    id?: string;
+    username?: string;
+    email?: string;
+    imageURL?: string;
+    role?: "admin" | "member" | "moderator" | "teacher";
+    joinedAt?: string;
+    communityQuestion?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "communityQuestion";
+    };
+    isReported?: boolean;
+  } | null;
+  createdAt?: string;
+}>;
 
 // Source: ./sanity/lib/communties/getCommunities.ts
 // Variable: getCommunitiesQuery
@@ -421,10 +588,25 @@ export type GetCommunitiesQueryResult = Array<{
   };
   moderator: {
     _id: string;
+    _type: "teacher";
+    _createdAt: string;
+    _updatedAt: string;
+    _rev: string;
+    id?: string;
+    username?: string;
+    email?: string;
+    imageURL?: string;
+    role?: "lead_teacher" | "senior_teacher" | "teacher";
+    specializations?: Array<string>;
+    joinedAt?: string;
+    isReported?: boolean;
+  } | {
+    _id: string;
     _type: "user";
     _createdAt: string;
     _updatedAt: string;
     _rev: string;
+    id?: string;
     username?: string;
     email?: string;
     imageURL?: string;
@@ -445,8 +627,10 @@ export type GetCommunitiesQueryResult = Array<{
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    "*[_type == \"community\" && title == $name][0]\n            {\n                _id,\n            }\n        ": CheckExistingQueryResult;
-    "*[_type == \"community\" && slug.current == $slug][0]\n                    {\n                        _id,\n                    }\n                ": CheckSlugQueryResult;
+    "\n    *[_type == \"blog\" && slug.current == $slug][0] {\n      _id,\n      title,\n      description,\n      slug,\n      content,\n      image,\n      author->{\n        _id,\n        username,\n        imageURL,\n        role\n      },\n      createdAt,\n      _createdAt\n    }\n  ": QueryResult;
+    "*[_type == \"blog\" && title == $title][0]\n            {\n                _id,\n            }\n        ": CheckExistingQueryResult;
+    "*[_type == \"blog\" && slug.current == $slug][0]\n                {\n                    _id,\n                }\n            ": CheckSlugQueryResult;
+    "*[_type == \"blog\"] {\n        ...,\n        title,\n        \"slug\": slug.current,\n        \"author\": author->,\n    }  | order(createdAt desc)": GetBlogsQueryResult;
     "*[_type == \"communityQuestion\"] {\n        ...,\n        title,\n        \"slug\": slug.current,\n        \"moderator\": moderator->,\n    }  | order(createdAt desc)": GetCommunitiesQueryResult;
   }
 }

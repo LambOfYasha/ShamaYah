@@ -26,7 +26,8 @@ export const postType = defineType({
       name: 'author',
       title: 'Author',
       type: 'reference',
-      to: [{type: 'user'}],
+      to: [{type: 'user'}, {type: 'teacher'}],
+      description: 'The author of the post (can be a user or teacher)',
       validation: (Rule) => Rule.required(),
     }),
 

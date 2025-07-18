@@ -48,8 +48,8 @@ export const communityType = defineType({
             name: 'moderator',
             title: 'Moderator',
             type: 'reference',
-            to: [{type: 'user'}],
-            description: 'The moderator of the community',
+            to: [{type: 'user'}, {type: 'teacher'}],
+            description: 'The moderator of the community (can be a user or teacher)',
             validation: (Rule) => Rule.required(),
         }),
         defineField({

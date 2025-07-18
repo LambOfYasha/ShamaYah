@@ -128,4 +128,21 @@ export async function deleteBlog(blogId: string) {
         
         return { error: "Failed to delete blog" };
     }
+}
+
+// New server action that can be called directly from client components
+export async function deleteBlogAction(blogId: string) {
+    console.log("=== DELETE BLOG ACTION CALLED ===");
+    console.log("deleteBlogAction called with blog ID:", blogId);
+    
+    const result = await deleteBlog(blogId);
+    console.log("Delete result:", result);
+    
+    if ("error" in result) {
+        console.error("Delete blog error:", result.error);
+        throw new Error(result.error);
+    }
+    
+    console.log("Delete successful");
+    return result;
 } 

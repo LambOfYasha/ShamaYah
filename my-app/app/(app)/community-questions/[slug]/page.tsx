@@ -23,7 +23,6 @@ import EditCommunityButton from "@/components/community/EditCommunityButton";
 import DeleteCommunityButton from "@/components/community/DeleteCommunityButton";
 import CommentSectionWrapper from "@/components/comments/CommentSectionWrapper";
 import { editCommunity } from "@/action/editCommunity";
-import { deleteCommunity } from "@/action/deleteCommunity";
 import { addComment, editComment, deleteComment, likeComment, getComments } from "@/action/comments";
 
 interface CommunityQuestionWithModerator extends CommunityQuestion {
@@ -103,15 +102,7 @@ export default async function CommunityQuestionPage({
     return result;
   };
 
-  const handleDeleteCommunity = async () => {
-    console.log("handleDeleteCommunity called with community ID:", communityQuestion._id);
-    const result = await deleteCommunity(communityQuestion._id);
-    if ("error" in result) {
-      console.error("Delete community error:", result.error);
-      throw new Error(result.error);
-    }
-    return result;
-  };
+
 
   const handleAddComment = async (content: string, parentCommentId?: string) => {
     'use server';
@@ -217,7 +208,6 @@ export default async function CommunityQuestionPage({
                 <DeleteCommunityButton 
                   communityId={communityQuestion._id}
                   communityTitle={communityQuestion.title || 'Untitled Community'}
-                  onDelete={handleDeleteCommunity}
                 />
               )}
               <Button variant="outline" size="sm">

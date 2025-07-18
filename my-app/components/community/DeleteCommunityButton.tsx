@@ -15,14 +15,14 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
+import { deleteCommunityAction } from '@/action/deleteCommunityAction';
 
 interface DeleteCommunityButtonProps {
   communityId: string;
   communityTitle: string;
-  onDelete: () => Promise<void>;
 }
 
-export default function DeleteCommunityButton({ communityId, communityTitle, onDelete }: DeleteCommunityButtonProps) {
+export default function DeleteCommunityButton({ communityId, communityTitle }: DeleteCommunityButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
@@ -30,14 +30,8 @@ export default function DeleteCommunityButton({ communityId, communityTitle, onD
     setIsDeleting(true);
     try {
       console.log('DeleteCommunityButton: Starting delete process');
-      const result = await onDelete();
+      const result = await deleteCommunityAction(communityId);
       console.log('DeleteCommunityButton: Delete result:', result);
-      
-      if (result && 'error' in result) {
-        console.error('DeleteCommunityButton: Delete failed:', result.error);
-        alert(`Failed to delete community: ${result.error}`);
-        return;
-      }
       
       console.log('DeleteCommunityButton: Delete successful, redirecting');
       // Redirect to communities page after successful deletion

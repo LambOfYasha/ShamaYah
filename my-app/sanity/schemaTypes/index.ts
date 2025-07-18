@@ -6,7 +6,8 @@ import { commentType } from './commentType'
 import { favoriteType } from './favoriteType'
 import { blogType } from './blogType'
 import { communityType } from './communityType'
+import { tagType } from './tagType'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [userType, teacherType, postType, commentType, favoriteType, blogType, communityType],
+  types: [userType, teacherType, postType, commentType, favoriteType, blogType, communityType, tagType],
 }

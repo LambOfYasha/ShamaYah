@@ -24,7 +24,6 @@ import EditBlogButton from "@/components/blog/EditBlogButton";
 import DeleteBlogButton from "@/components/blog/DeleteBlogButton";
 import CommentSectionWrapper from "@/components/comments/CommentSectionWrapper";
 import { editBlog } from "@/action/editBlog";
-import { deleteBlog } from "@/action/deleteBlog";
 import { addComment, editComment, deleteComment, likeComment, getComments } from "@/action/comments";
 
 interface BlogWithAuthor extends Blog {
@@ -128,21 +127,7 @@ export default async function BlogPage({
     return result;
   };
 
-  const handleDeleteBlog = async () => {
-    console.log("=== BLOG PAGE DELETE HANDLER ===");
-    console.log("handleDeleteBlog called with blog ID:", blog._id);
-    
-    const result = await deleteBlog(blog._id);
-    console.log("Delete result:", result);
-    
-    if ("error" in result) {
-      console.error("Delete blog error:", result.error);
-      throw new Error(result.error);
-    }
-    
-    console.log("Delete successful");
-    return result;
-  };
+
 
   const handleAddComment = async (content: string, parentCommentId?: string) => {
     'use server';
@@ -247,7 +232,6 @@ export default async function BlogPage({
                 <DeleteBlogButton 
                   blogId={blog._id}
                   blogTitle={blog.title || 'Untitled Blog'}
-                  onDelete={handleDeleteBlog}
                 />
               )}
               <Button variant="outline" size="sm">
