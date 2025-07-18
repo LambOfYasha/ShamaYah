@@ -21,8 +21,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth/middleware";
 import EditBlogButton from "@/components/blog/EditBlogButton";
+import DeleteBlogButton from "@/components/blog/DeleteBlogButton";
 import CommentSectionWrapper from "@/components/comments/CommentSectionWrapper";
 import { editBlog } from "@/action/editBlog";
+import { deleteBlog } from "@/action/deleteBlog";
 import { addComment, editComment, deleteComment, likeComment, getComments } from "@/action/comments";
 
 interface BlogWithAuthor extends Blog {
@@ -64,6 +66,11 @@ export default async function BlogPage({
     currentUser.role === "teacher"
   );
 
+  const canDelete = currentUser && (
+    currentUser._id === blog.author?._id || 
+    currentUser.role === "admin"
+  );
+
   const handleEditBlog = async (data: {
     title: string;
     description: string;
@@ -94,6 +101,15 @@ export default async function BlogPage({
       throw new Error(result.error);
     }
 
+    return result;
+  };
+
+  const handleDeleteBlog = async () => {
+    'use server';
+    const result = await deleteBlog(blog._id);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
     return result;
   };
 
@@ -194,6 +210,13 @@ export default async function BlogPage({
                 <EditBlogButton 
                   blog={blog}
                   onEdit={handleEditBlog}
+                />
+              )}
+              {canDelete && (
+                <DeleteBlogButton 
+                  blogId={blog._id}
+                  blogTitle={blog.title || 'Untitled Blog'}
+                  onDelete={handleDeleteBlog}
                 />
               )}
               <Button variant="outline" size="sm">

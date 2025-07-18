@@ -1,27 +1,26 @@
-import { requireAdmin } from "@/lib/auth/middleware";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Search, 
-  Edit, 
-  Trash2, 
   Users, 
-  MessageSquare, 
   TrendingUp, 
+  MessageSquare, 
+  Calendar, 
+  User, 
+  Search, 
   Plus,
   Eye,
-  Calendar,
-  User,
-  Settings
+  Settings,
+  Edit,
+  Trash2
 } from "lucide-react";
 import Link from "next/link";
 import CreateCommunityButton from "@/components/header/CreateCommunityButton";
+import DeleteCommunityButton from "@/components/community/DeleteCommunityButton";
+import { deleteCommunity } from "@/action/deleteCommunity";
 
 export default async function AdminCommunitiesPage() {
-  const user = await requireAdmin();
-
   // Mock data - replace with actual data fetching
   const communities = [
     {
@@ -76,6 +75,13 @@ export default async function AdminCommunitiesPage() {
     activeCommunities: communities.filter(comm => comm.isActive).length,
     totalMembers: communities.reduce((sum, comm) => sum + comm.members, 0),
     totalPosts: communities.reduce((sum, comm) => sum + comm.posts, 0),
+  };
+
+  const handleDeleteCommunity = async () => {
+    'use server';
+    // This would be implemented with actual community deletion
+    // For now, we'll use a placeholder since this is mock data
+    console.log('Delete community functionality would be implemented here');
   };
 
   return (
@@ -200,9 +206,11 @@ export default async function AdminCommunitiesPage() {
                     <Edit className="w-4 h-4 mr-2" />
                     Edit
                   </Button>
-                  <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <DeleteCommunityButton 
+                    communityId={community._id}
+                    communityTitle={community.title}
+                    onDelete={handleDeleteCommunity}
+                  />
                 </div>
               </CardContent>
             </Card>

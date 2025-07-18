@@ -1,36 +1,35 @@
-import { requireAdmin } from "@/lib/auth/middleware";
-import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { Search, Edit, Trash2, Shield, BookOpen, TrendingUp, Eye, Calendar, User, Plus } from "lucide-react";
+  BookOpen, 
+  TrendingUp, 
+  Eye, 
+  Calendar, 
+  User, 
+  Search, 
+  Plus,
+  Trash2
+} from "lucide-react";
 import Link from "next/link";
 import CreateBlogButton from "@/components/header/CreateBlogButton";
 import EditBlogButton from "@/components/blog/EditBlogButton";
+import DeleteBlogButton from "@/components/blog/DeleteBlogButton";
+import { deleteBlog } from "@/action/deleteBlog";
 
 export default async function AdminBlogsPage() {
-  const user = await requireAdmin();
-
-  // Check if user has permission to access blog management
-  if (user.role !== "admin" && user.role !== "teacher") {
-    redirect("/unauthorized");
-  }
-
   // Mock data - replace with actual data fetching
   const blogs = [
     {
       _id: "1",
       title: "Understanding Biblical Hermeneutics",
       description: "A comprehensive guide to interpreting biblical texts with proper methodology and historical context.",
+      slug: {
+        _type: "slug",
+        current: "understanding-biblical-hermeneutics"
+      },
+      content: "Blog content here...",
       author: {
         username: "Dr. Sarah Johnson",
         role: "teacher"
@@ -45,6 +44,11 @@ export default async function AdminBlogsPage() {
       _id: "2",
       title: "The Role of Prayer in Christian Life",
       description: "Exploring the importance of prayer and its transformative power in the believer's journey.",
+      slug: {
+        _type: "slug",
+        current: "role-of-prayer-christian-life"
+      },
+      content: "Blog content here...",
       author: {
         username: "Pastor Michael Chen",
         role: "teacher"
@@ -59,6 +63,11 @@ export default async function AdminBlogsPage() {
       _id: "3",
       title: "Church History: The Early Church Fathers",
       description: "An examination of the early church fathers and their contributions to Christian theology.",
+      slug: {
+        _type: "slug",
+        current: "church-history-early-fathers"
+      },
+      content: "Blog content here...",
       author: {
         username: "Prof. David Williams",
         role: "teacher"
@@ -76,6 +85,13 @@ export default async function AdminBlogsPage() {
     publishedBlogs: blogs.filter(blog => blog.isPublished).length,
     totalViews: blogs.reduce((sum, blog) => sum + blog.views, 0),
     draftBlogs: blogs.filter(blog => !blog.isPublished).length,
+  };
+
+  const handleDeleteBlog = async () => {
+    'use server';
+    // This would be implemented with actual blog deletion
+    // For now, we'll use a placeholder since this is mock data
+    console.log('Delete blog functionality would be implemented here');
   };
 
   return (
@@ -195,9 +211,11 @@ export default async function AdminBlogsPage() {
                       console.log('Edit blog:', data);
                     }}
                   />
-                  <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <DeleteBlogButton 
+                    blogId={blog._id}
+                    blogTitle={blog.title}
+                    onDelete={handleDeleteBlog}
+                  />
                 </div>
               </CardContent>
             </Card>

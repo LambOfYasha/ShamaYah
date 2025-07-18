@@ -20,8 +20,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth/middleware";
 import EditCommunityButton from "@/components/community/EditCommunityButton";
+import DeleteCommunityButton from "@/components/community/DeleteCommunityButton";
 import CommentSectionWrapper from "@/components/comments/CommentSectionWrapper";
 import { editCommunity } from "@/action/editCommunity";
+import { deleteCommunity } from "@/action/deleteCommunity";
 import { addComment, editComment, deleteComment, likeComment, getComments } from "@/action/comments";
 
 interface CommunityQuestionWithModerator extends CommunityQuestion {
@@ -62,6 +64,11 @@ export default async function CommunityQuestionPage({
     currentUser.role === "admin"
   );
 
+  const canDelete = currentUser && (
+    currentUser._id === communityQuestion.moderator?._id || 
+    currentUser.role === "admin"
+  );
+
   const handleEditCommunity = async (data: {
     title: string;
     description: string;
@@ -90,6 +97,15 @@ export default async function CommunityQuestionPage({
       throw new Error(result.error);
     }
 
+    return result;
+  };
+
+  const handleDeleteCommunity = async () => {
+    'use server';
+    const result = await deleteCommunity(communityQuestion._id);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
     return result;
   };
 
@@ -191,6 +207,13 @@ export default async function CommunityQuestionPage({
                 <EditCommunityButton 
                   community={communityQuestion}
                   onEdit={handleEditCommunity}
+                />
+              )}
+              {canDelete && (
+                <DeleteCommunityButton 
+                  communityId={communityQuestion._id}
+                  communityTitle={communityQuestion.title || 'Untitled Community'}
+                  onDelete={handleDeleteCommunity}
                 />
               )}
               <Button variant="outline" size="sm">
