@@ -70,26 +70,29 @@ export default function AppSidebar() {
 
   // Fetch user role on client side
   React.useEffect(() => {
+    console.log('Sidebar: Role fetching useEffect triggered');
+    console.log('Sidebar: User object:', user);
+    
     async function fetchUserRole() {
       if (user) {
         try {
-          console.log('Fetching user role for user:', user.id);
+          console.log('Sidebar: Fetching user role for user:', user.id);
           const response = await fetch('/api/user/role');
-          console.log('Role API response status:', response.status);
+          console.log('Sidebar: Role API response status:', response.status);
           if (response.ok) {
             const data = await response.json();
-            console.log('Role API response data:', data);
+            console.log('Sidebar: Role API response data:', data);
             setUserRole(data.role);
           } else {
-            console.error('Failed to fetch user role:', response.status);
+            console.error('Sidebar: Failed to fetch user role:', response.status);
             const errorData = await response.json();
-            console.error('Error data:', errorData);
+            console.error('Sidebar: Error data:', errorData);
           }
         } catch (error) {
-          console.error('Failed to fetch user role:', error);
+          console.error('Sidebar: Failed to fetch user role:', error);
         }
       } else {
-        console.log('No user found, skipping role fetch');
+        console.log('Sidebar: No user found, skipping role fetch');
       }
     }
 
@@ -127,8 +130,9 @@ export default function AppSidebar() {
   // Check if user can create blogs (admin or teacher)
   const canCreateBlogs = userRole === "admin" || userRole === "teacher";
   
-  console.log('User role:', userRole);
-  console.log('Can create blogs:', canCreateBlogs);
+  console.log('Sidebar: User role:', userRole);
+  console.log('Sidebar: Can create blogs:', canCreateBlogs);
+  console.log('Sidebar: isSignedIn:', isSignedIn);
 
   return (
     <>
