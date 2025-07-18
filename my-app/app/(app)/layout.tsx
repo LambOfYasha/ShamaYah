@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "@/app/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Header from "@/components/header/header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SanityLive } from "@/sanity/lib/live";
+import { Sidebar, SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/app-sidebar";
+import SanityLiveWrapper from "@/components/sanity-live-wrapper";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -21,14 +21,16 @@ export default function RootLayout({
       <html lang="en">
         <body className="antialiased">
           <SidebarProvider>
-            <AppSidebar />
+            <Sidebar>
+              <AppSidebar />
+            </Sidebar>
             <SidebarInset>
               <Header />
               <div className="flex flex-col">{children}</div>
             </SidebarInset>
-        </SidebarProvider>
+          </SidebarProvider>
 
-          <SanityLive /> 
+          <SanityLiveWrapper /> 
            
         </body>
       </html>

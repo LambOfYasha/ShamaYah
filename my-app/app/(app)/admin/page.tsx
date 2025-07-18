@@ -1,6 +1,17 @@
 import { requireAdmin } from "@/lib/auth/middleware";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { 
+  Users, 
+  GraduationCap, 
+  Shield, 
+  MessageSquare, 
+  BarChart3, 
+  Settings,
+  ArrowRight
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function AdminPage() {
   const user = await requireAdmin();
@@ -13,93 +24,169 @@ export default async function AdminPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* User Management */}
           <RoleGuard permission="canManageUsers">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">User Management</h2>
-              <p className="text-gray-600 mb-4">
-                Manage user accounts and permissions
-              </p>
-              <Button>Manage Users</Button>
-            </div>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <Users className="h-5 w-5 text-blue-600" />
+                  <CardTitle>User Management</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Manage user accounts and permissions
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/users">
+                    Manage Users
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </RoleGuard>
 
           {/* Teacher Management */}
           <RoleGuard permission="canManageTeachers">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Teacher Management</h2>
-              <p className="text-gray-600 mb-4">
-                Manage teacher accounts and specializations
-              </p>
-              <Button>Manage Teachers</Button>
-            </div>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <GraduationCap className="h-5 w-5 text-green-600" />
+                  <CardTitle>Teacher Management</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Manage teacher accounts and specializations
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/teachers">
+                    Manage Teachers
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </RoleGuard>
 
           {/* Content Moderation */}
           <RoleGuard permission="canModerate">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Content Moderation</h2>
-              <p className="text-gray-600 mb-4">
-                Review and moderate community content
-              </p>
-              <Button>Moderate Content</Button>
-            </div>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <Shield className="h-5 w-5 text-orange-600" />
+                  <CardTitle>Content Moderation</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Review and moderate community content
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/moderation">
+                    Moderate Content
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </RoleGuard>
 
           {/* Community Management */}
           <RoleGuard permission="canCreateCommunities">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Community Management</h2>
-              <p className="text-gray-600 mb-4">
-                Create and manage community questions
-              </p>
-              <Button>Manage Communities</Button>
-            </div>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <MessageSquare className="h-5 w-5 text-purple-600" />
+                  <CardTitle>Community Management</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Create and manage community questions
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/communities">
+                    Manage Communities
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </RoleGuard>
 
           {/* Analytics */}
           <RoleGuard permission="canAccessAdminPanel">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Analytics</h2>
-              <p className="text-gray-600 mb-4">
-                View platform analytics and insights
-              </p>
-              <Button>View Analytics</Button>
-            </div>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <BarChart3 className="h-5 w-5 text-indigo-600" />
+                  <CardTitle>Analytics</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  View platform analytics and insights
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/analytics">
+                    View Analytics
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </RoleGuard>
 
           {/* System Settings */}
           <RoleGuard permission="canAccessAdminPanel">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">System Settings</h2>
-              <p className="text-gray-600 mb-4">
-                Configure system-wide settings
-              </p>
-              <Button>System Settings</Button>
-            </div>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <Settings className="h-5 w-5 text-gray-600" />
+                  <CardTitle>System Settings</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Configure system-wide settings
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/settings">
+                    System Settings
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </RoleGuard>
         </div>
 
         {/* User Info */}
-        <div className="mt-8 bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Current User</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="font-medium">Username:</label>
-              <p className="text-gray-600">{user.username}</p>
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Current User</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="font-medium">Username:</label>
+                <p className="text-gray-600">{user.username}</p>
+              </div>
+              <div>
+                <label className="font-medium">Role:</label>
+                <p className="text-gray-600 capitalize">{user.role}</p>
+              </div>
+              <div>
+                <label className="font-medium">Email:</label>
+                <p className="text-gray-600">{user.email}</p>
+              </div>
+              <div>
+                <label className="font-medium">User ID:</label>
+                <p className="text-gray-600">{user._id}</p>
+              </div>
             </div>
-            <div>
-              <label className="font-medium">Role:</label>
-              <p className="text-gray-600 capitalize">{user.role}</p>
-            </div>
-            <div>
-              <label className="font-medium">Email:</label>
-              <p className="text-gray-600">{user.email}</p>
-            </div>
-            <div>
-              <label className="font-medium">User ID:</label>
-              <p className="text-gray-600">{user._id}</p>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

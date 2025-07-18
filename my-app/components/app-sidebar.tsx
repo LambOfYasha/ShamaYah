@@ -1,6 +1,8 @@
+"use client"
 // Client component for the sidebar
 import * as React from "react"
-import { Minus, Plus } from "lucide-react"
+import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings } from "lucide-react"
+import { useAuth } from "@clerk/nextjs"
 
 import { SearchForm } from "@/components/search-form"
 import {
@@ -9,7 +11,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import {
-  Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarHeader,
@@ -24,31 +25,78 @@ import {
 import Link from "next/link"
 import CreateCommunityButton from "./header/CreateCommunityButton"
 
-type SidebarData = {
-  navMain: {
-    title: string
-    url: string
-    items: {
-      title: string
-      url: string
-      isActive: boolean
-    }[]
-    }[]
-  
-  }
+// Member navigation items
+const memberNavigation = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Profile",
+    url: "/dashboard/profile",
+    icon: User,
+  },
+  {
+    title: "Favorites",
+    url: "/dashboard/favorites",
+    icon: Heart,
+  },
+  {
+    title: "Communities",
+    url: "/dashboard/communities",
+    icon: Users,
+  },
+  {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: Settings,
+  },
+];
 
+export default function AppSidebar() {
+  const { isSignedIn } = useAuth();
+  const [communities, setCommunities] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [hasFetched, setHasFetched] = React.useState(false);
 
-function AppSidebarClient({ sidebarData }: { sidebarData: SidebarData }) {
+  // Fetch communities on client side
+  React.useEffect(() => {
+    // Prevent multiple fetches
+    if (hasFetched) return;
+
+    async function fetchCommunities() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/communities');
+        if (response.ok) {
+          const data = await response.json();
+          setCommunities(data);
+        } else {
+          console.error('Failed to fetch communities:', response.status);
+          setCommunities([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch communities:', error);
+        setCommunities([]);
+      } finally {
+        setLoading(false);
+        setHasFetched(true);
+      }
+    }
+
+    fetchCommunities();
+  }, [hasFetched]); // Only depend on hasFetched to prevent infinite loops
+
   return (
-    <Sidebar>
+    <>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-          {/* TODO: Add logo */}
-          <Link href="/">
-            
-          </Link>
+              <Link href="/">
+                {/* TODO: Add logo */}
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -64,73 +112,94 @@ function AppSidebarClient({ sidebarData }: { sidebarData: SidebarData }) {
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
+        
+        {/* Member Dashboard Navigation - Only show when signed in */}
+        {isSignedIn && (
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/dashboard/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/dashboard/favorites">
+                    <Heart className="mr-2 h-4 w-4" />
+                    Favorites
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/dashboard/communities">
+                    <Users className="mr-2 h-4 w-4" />
+                    Communities
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/dashboard/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
+        {/* Community Questions */}
         <SidebarGroup>
           <SidebarMenu>
-            {sidebarData.navMain.map((item, index) => (
-              <Collapsible
-                key={item.title}
-                defaultOpen={index === 1}
-                className="group/collapsible"
-              >
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
-                      {item.title}{" "}
-                      <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-                      <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  {item.items?.length ? (
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {item.items.map((item) => (
-                          <SidebarMenuSubItem key={item.title}>
-                            <SidebarMenuSubButton
-                              asChild
-                              isActive={item.isActive}
-                            >
-                              <a href={item.url}>{item.title}</a>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  ) : null}
-                </SidebarMenuItem>
-              </Collapsible>
-            ))}
+            <Collapsible
+              defaultOpen={true}
+              className="group/collapsible"
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton>
+                    Community Questions{" "}
+                    <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                    <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                {!loading && communities.length > 0 && (
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {communities.map((community: any) => (
+                        <SidebarMenuSubItem key={community._id}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={false}
+                          >
+                            <Link href={`/community-questions/${community.slug}`}>
+                              {community.title || "Untitled"}
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                )}
+              </SidebarMenuItem>
+            </Collapsible>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
-    </Sidebar>
+    </>
   )
-}
-
-// Server component to fetch data
-async function SidebarDataProvider() {
-  // Import getCommunities here to keep it server-side only
-  const { getCommunities } = await import("@/sanity/lib/communties/getCommunities");
-  const communities = await getCommunities();
-  
-  const sidebarData: SidebarData = {
-    navMain: [
-      {
-        title: "Community Questions",
-        url: "#",
-        items: 
-        communities?.map((community) => ({
-          title: community.title || "",
-          url: `/community-questions/${community.slug}`,
-          isActive: false,
-        })) || [],
-      },
-    ]
-  }
-
-  return <AppSidebarClient sidebarData={sidebarData} />
-}
-
-export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  return <SidebarDataProvider />
 }
