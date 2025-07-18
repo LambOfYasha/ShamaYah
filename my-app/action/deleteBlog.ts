@@ -60,23 +60,26 @@ export async function deleteBlog(blogId: string) {
 
         // First, find and delete all comments associated with this blog
         console.log("Finding all comments for blog:", blogId);
-        const commentsQuery = defineQuery(`
-            *[_type == "comment" && post._ref == $blogId] {
+        
+        // Find all comments that reference this blog (both direct and nested)
+        const allCommentsQuery = defineQuery(`
+            *[_type == "comment" && (post._ref == $blogId || parentComment._ref in *[_type == "comment" && post._ref == $blogId]._id)] {
                 _id,
                 parentComment,
                 replies
             }
         `);
 
-        const comments = await adminClient.fetch(commentsQuery, { blogId });
+        const allComments = await adminClient.fetch(allCommentsQuery, { blogId });
+        console.log("Found all comments (including nested):", allComments);
 
-        console.log("Found comments:", comments);
-
-        if (comments && comments.length > 0) {
-            console.log(`Found ${comments.length} comments to delete`);
+        if (allComments && allComments.length > 0) {
+            console.log(`Found ${allComments.length} comments to delete`);
             
-            // Delete all comments (this will also handle nested comments due to referential integrity)
-            for (const comment of comments) {
+            // Delete comments in reverse order to handle dependencies
+            const commentsToDelete = [...allComments].reverse();
+            
+            for (const comment of commentsToDelete) {
                 console.log("Deleting comment:", comment._id);
                 try {
                     await adminClient.delete(comment._id);
@@ -88,6 +91,31 @@ export async function deleteBlog(blogId: string) {
             }
         } else {
             console.log("No comments found for this blog");
+        }
+
+        // Also try to find comments that might reference the blog with different field names
+        console.log("Checking for comments with alternative references...");
+        const alternativeCommentsQuery = defineQuery(`
+            *[_type == "comment" && (post._ref == $blogId || post._ref in *[_type == "blog" && _id == $blogId]._id)] {
+                _id
+            }
+        `);
+
+        const alternativeComments = await adminClient.fetch(alternativeCommentsQuery, { blogId });
+        console.log("Alternative comments found:", alternativeComments);
+
+        if (alternativeComments && alternativeComments.length > 0) {
+            console.log(`Found ${alternativeComments.length} alternative comments to delete`);
+            
+            for (const comment of alternativeComments) {
+                console.log("Deleting alternative comment:", comment._id);
+                try {
+                    await adminClient.delete(comment._id);
+                    console.log("Successfully deleted alternative comment:", comment._id);
+                } catch (commentError) {
+                    console.error("Error deleting alternative comment:", comment._id, commentError);
+                }
+            }
         }
 
         console.log("Deleting blog with ID:", blogId);
