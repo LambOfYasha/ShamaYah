@@ -13,6 +13,9 @@ export async function createBlog(
     content?: string
 ) {
     console.log(`Creating blog: ${title} with author: ${authorId}`)
+    console.log(`Admin token available: ${!!process.env.SANITY_ADMIN_API_TOKEN}`)
+    console.log(`Author ID type: ${typeof authorId}, value: ${authorId}`)
+    
     try {
         // Check if blog with this title already exists
         const checkExistingQuery = defineQuery(
@@ -93,24 +96,24 @@ export async function createBlog(
             },
             createdAt: new Date().toISOString(),
         }
+        
+        console.log("Blog document before creation:", JSON.stringify(blogDoc, null, 2))
 
-        // Add content if provided
-        if (content) {
-            blogDoc.content = [
-                {
-                    _type: "block",
-                    _key: "content",
-                    children: [
-                        {
-                            _type: "span",
-                            _key: "content-text",
-                            text: content,
-                        }
-                    ],
-                    style: "normal"
-                }
-            ]
-        }
+        // Add content (required field)
+        blogDoc.content = [
+            {
+                _type: "block",
+                _key: "content",
+                children: [
+                    {
+                        _type: "span",
+                        _key: "content-text",
+                        text: content || "Blog content will be added here.",
+                    }
+                ],
+                style: "normal"
+            }
+        ]
 
         // Add image if available
         if (imageAsset) {
@@ -124,6 +127,7 @@ export async function createBlog(
         }
 
         // Create blog
+        console.log("About to create blog with document:", JSON.stringify(blogDoc, null, 2))
         const createdBlog = await adminClient.create(blogDoc as Blog)
 
         console.log(`created blog: ${createdBlog._id}`)
@@ -132,6 +136,10 @@ export async function createBlog(
 
      } catch (error) {
         console.error("failed to create blog", error)
+        console.error("Error details:", {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+        })
         return { error: "failed to create blog" }
     }
 } 

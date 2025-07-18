@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import { 
   Search, 
   Users, 
@@ -161,10 +162,12 @@ export default async function CommunitiesPage() {
                   </div>
                   
                   <div className="flex space-x-2">
-                    <Button size="sm" className="flex-1">
-                      <Eye className="w-4 h-4 mr-2" />
-                      View
-                    </Button>
+                    <Link href={`/community-questions/${community._id}`}>
+                      <Button size="sm" className="flex-1">
+                        <Eye className="w-4 h-4 mr-2" />
+                        View
+                      </Button>
+                    </Link>
                     {community.isModerator && (
                       <Button size="sm" variant="outline">
                         <Settings className="w-4 h-4" />

@@ -5,14 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, 
+  Filter, 
   BookOpen, 
+  User, 
+  Calendar, 
+  Eye, 
   Heart, 
-  Share2, 
-  Calendar,
-  User,
-  Eye,
-  MessageSquare,
-  Filter
+  MessageSquare, 
+  Share2 
 } from "lucide-react";
 import Link from "next/link";
 import CreateBlogButton from "@/components/header/CreateBlogButton";
@@ -24,61 +24,26 @@ export default async function MemberBlogsPage() {
   const featuredBlogs = [
     {
       _id: "1",
-      title: "Understanding Biblical Hermeneutics",
-      description: "A comprehensive guide to interpreting biblical texts with proper methodology and historical context.",
+      title: "Understanding the Trinity",
+      description: "A comprehensive guide to understanding the complex nature of the Trinity and its significance in Christian theology.",
       author: {
         username: "Dr. Sarah Johnson",
         role: "teacher"
       },
       createdAt: "2024-01-15",
-      category: "Biblical Studies",
+      category: "Theology",
       views: 1250,
       likes: 89,
       comments: 23,
-      isLiked: false,
+      isLiked: true,
       isSaved: false,
     },
     {
       _id: "2",
-      title: "The Role of Prayer in Christian Life",
-      description: "Exploring the importance of prayer and its transformative power in the believer's journey.",
+      title: "The Power of Prayer in Daily Life",
+      description: "How to integrate prayer into your daily routine and experience its transformative power in your spiritual journey.",
       author: {
         username: "Pastor Michael Chen",
-        role: "teacher"
-      },
-      createdAt: "2024-01-10",
-      category: "Spiritual Life",
-      views: 890,
-      likes: 67,
-      comments: 15,
-      isLiked: true,
-      isSaved: true,
-    },
-  ];
-
-  const recentBlogs = [
-    {
-      _id: "3",
-      title: "Church History: The Early Church Fathers",
-      description: "An examination of the early church fathers and their contributions to Christian theology.",
-      author: {
-        username: "Prof. David Williams",
-        role: "teacher"
-      },
-      createdAt: "2024-01-08",
-      category: "Church History",
-      views: 567,
-      likes: 34,
-      comments: 8,
-      isLiked: false,
-      isSaved: false,
-    },
-    {
-      _id: "4",
-      title: "The Power of Forgiveness",
-      description: "How forgiveness transforms relationships and brings healing to our lives.",
-      author: {
-        username: "Dr. Emily Rodriguez",
         role: "teacher"
       },
       createdAt: "2024-01-05",
@@ -87,6 +52,41 @@ export default async function MemberBlogsPage() {
       likes: 28,
       comments: 12,
       isLiked: false,
+      isSaved: true,
+    },
+  ];
+
+  const recentBlogs = [
+    {
+      _id: "3",
+      title: "Biblical Interpretation Methods",
+      description: "Learn about different approaches to interpreting biblical texts and their historical context.",
+      author: {
+        username: "Prof. David Wilson",
+        role: "teacher"
+      },
+      createdAt: "2024-01-10",
+      category: "Biblical Studies",
+      views: 890,
+      likes: 45,
+      comments: 18,
+      isLiked: false,
+      isSaved: false,
+    },
+    {
+      _id: "4",
+      title: "Christian Living in the Digital Age",
+      description: "Navigating faith and technology in today's connected world while maintaining spiritual values.",
+      author: {
+        username: "Rev. Lisa Thompson",
+        role: "teacher"
+      },
+      createdAt: "2024-01-08",
+      category: "Christian Living",
+      views: 567,
+      likes: 32,
+      comments: 15,
+      isLiked: true,
       isSaved: true,
     },
   ];
@@ -108,7 +108,7 @@ export default async function MemberBlogsPage() {
             <h1 className="text-3xl font-bold">Blog</h1>
             <p className="text-gray-600">Discover insightful articles and teachings</p>
           </div>
-         <div className="flex items-center gap-2"> {/* Show Create Blog Button for admins and teachers */}
+         <div className="flex items-center gap-2">
           {(user.role === "admin" || user.role === "teacher") && (
             <CreateBlogButton />
           )}
@@ -187,10 +187,12 @@ export default async function MemberBlogsPage() {
                   </div>
                   
                   <div className="flex space-x-2">
-                    <Button size="sm" className="flex-1">
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Read More
-                    </Button>
+                    <Link href={`/blogs/${blog._id}`}>
+                      <Button size="sm" className="flex-1">
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Read More
+                      </Button>
+                    </Link>
                     <Button size="sm" variant="outline">
                       <Heart className={`w-4 h-4 ${blog.isLiked ? 'text-red-500 fill-current' : ''}`} />
                     </Button>
@@ -246,10 +248,12 @@ export default async function MemberBlogsPage() {
                   </div>
                   
                   <div className="flex space-x-2">
-                    <Button size="sm" className="flex-1">
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Read Article
-                    </Button>
+                    <Link href={`/blogs/${blog._id}`}>
+                      <Button size="sm" className="flex-1">
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Read Article
+                      </Button>
+                    </Link>
                     <Button size="sm" variant="outline">
                       <Heart className={`w-4 h-4 ${blog.isLiked ? 'text-red-500 fill-current' : ''}`} />
                     </Button>
