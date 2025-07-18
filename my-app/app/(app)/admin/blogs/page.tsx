@@ -1,25 +1,24 @@
-import { getCurrentUser } from "@/lib/auth/middleware";
+import { requireAdmin } from "@/lib/auth/middleware";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Search, 
-  BookOpen, 
-  Edit, 
-  Trash2, 
-  Plus,
-  Eye,
-  Calendar,
-  User,
-  TrendingUp
-} from "lucide-react";
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Search, Edit, Trash2, Shield, BookOpen, TrendingUp, Eye, Calendar, User, Plus } from "lucide-react";
 import Link from "next/link";
 import CreateBlogButton from "@/components/header/CreateBlogButton";
+import EditBlogButton from "@/components/blog/EditBlogButton";
 
 export default async function AdminBlogsPage() {
-  const user = await getCurrentUser();
+  const user = await requireAdmin();
 
   // Check if user has permission to access blog management
   if (user.role !== "admin" && user.role !== "teacher") {
@@ -189,10 +188,13 @@ export default async function AdminBlogsPage() {
                       View
                     </Button>
                   </Link>
-                  <Button size="sm" variant="outline">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit
-                  </Button>
+                  <EditBlogButton 
+                    blog={blog}
+                    onEdit={async (data) => {
+                      // This would be handled by the EditBlogButton component
+                      console.log('Edit blog:', data);
+                    }}
+                  />
                   <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
                     <Trash2 className="w-4 h-4" />
                   </Button>

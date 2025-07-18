@@ -8,16 +8,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Calendar, 
   User, 
-  MessageCircle, 
+  MessageSquare, 
   BookOpen, 
   ArrowLeft,
   Share,
   Bookmark,
   Clock,
-  Eye
+  Eye,
+  Edit
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getCurrentUser } from "@/lib/auth/middleware";
+import EditBlogButton from "@/components/blog/EditBlogButton";
+import CommentSectionWrapper from "@/components/comments/CommentSectionWrapper";
+import { editBlog } from "@/action/editBlog";
+import { addComment, editComment, deleteComment, likeComment, getComments } from "@/action/comments";
 
 interface BlogWithAuthor extends Blog {
   author: Teacher;
@@ -46,10 +52,86 @@ export default async function BlogPage({
   params: { slug: string } 
 }) {
   const blog = await getBlog(params.slug);
+  const currentUser = await getCurrentUser();
 
   if (!blog) {
     notFound();
   }
+
+  const canEdit = currentUser && (
+    currentUser._id === blog.author?._id || 
+    currentUser.role === "admin" ||
+    currentUser.role === "teacher"
+  );
+
+  const handleEditBlog = async (data: {
+    title: string;
+    description: string;
+    slug: string;
+    content: string;
+    imageBase64?: string;
+    imageFilename?: string;
+    imageContentType?: string;
+  }) => {
+    'use server';
+    
+    const imageData = data.imageBase64 ? {
+      base64: data.imageBase64,
+      fileName: data.imageFilename!,
+      contentType: data.imageContentType!,
+    } : null;
+
+    const result = await editBlog(
+      blog._id,
+      data.title,
+      data.description,
+      data.slug,
+      data.content,
+      imageData
+    );
+
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+
+    return result;
+  };
+
+  const handleAddComment = async (content: string) => {
+    'use server';
+    const result = await addComment(blog._id, 'blog', content);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    return result;
+  };
+
+  const handleEditComment = async (commentId: string, content: string) => {
+    'use server';
+    const result = await editComment(commentId, content);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    return result;
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    'use server';
+    const result = await deleteComment(commentId);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    return result;
+  };
+
+  const handleLikeComment = async (commentId: string) => {
+    'use server';
+    const result = await likeComment(commentId);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    return result;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -108,6 +190,12 @@ export default async function BlogPage({
 
             {/* Action Buttons */}
             <div className="flex gap-2">
+              {canEdit && (
+                <EditBlogButton 
+                  blog={blog}
+                  onEdit={handleEditBlog}
+                />
+              )}
               <Button variant="outline" size="sm">
                 <Share className="w-4 h-4 mr-2" />
                 Share
@@ -183,19 +271,14 @@ export default async function BlogPage({
 
         {/* Comments Section */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Comments</h2>
-            <Button>
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Add Comment
-            </Button>
-          </div>
-          
-          {/* Placeholder for comments */}
-          <div className="text-center py-8 text-gray-500">
-            <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>No comments yet. Be the first to share your thoughts!</p>
-          </div>
+          <CommentSectionWrapper
+            postId={blog._id}
+            postType="blog"
+            onAddComment={handleAddComment}
+            onEditComment={handleEditComment}
+            onDeleteComment={handleDeleteComment}
+            onLikeComment={handleLikeComment}
+          />
         </div>
       </div>
     </div>

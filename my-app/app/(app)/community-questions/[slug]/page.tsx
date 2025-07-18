@@ -8,14 +8,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Calendar, 
   User, 
-  MessageCircle, 
+  MessageSquare, 
   Users, 
   ArrowLeft,
   Share,
-  Bookmark
+  Bookmark,
+  Edit,
+  Settings
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getCurrentUser } from "@/lib/auth/middleware";
+import EditCommunityButton from "@/components/community/EditCommunityButton";
+import CommentSectionWrapper from "@/components/comments/CommentSectionWrapper";
+import { editCommunity } from "@/action/editCommunity";
+import { addComment, editComment, deleteComment, likeComment, getComments } from "@/action/comments";
 
 interface CommunityQuestionWithModerator extends CommunityQuestion {
   moderator: Teacher;
@@ -44,10 +51,83 @@ export default async function CommunityQuestionPage({
   params: { slug: string } 
 }) {
   const communityQuestion = await getCommunityQuestion(params.slug);
+  const currentUser = await getCurrentUser();
 
   if (!communityQuestion) {
     notFound();
   }
+
+  const canEdit = currentUser && (
+    currentUser._id === communityQuestion.moderator?._id || 
+    currentUser.role === "admin"
+  );
+
+  const handleEditCommunity = async (data: {
+    title: string;
+    description: string;
+    slug: string;
+    imageBase64?: string;
+    imageFilename?: string;
+    imageContentType?: string;
+  }) => {
+    'use server';
+    
+    const imageData = data.imageBase64 ? {
+      base64: data.imageBase64,
+      fileName: data.imageFilename!,
+      contentType: data.imageContentType!,
+    } : null;
+
+    const result = await editCommunity(
+      communityQuestion._id,
+      data.title,
+      data.description,
+      data.slug,
+      imageData
+    );
+
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+
+    return result;
+  };
+
+  const handleAddComment = async (content: string) => {
+    'use server';
+    const result = await addComment(communityQuestion._id, 'community', content);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    return result;
+  };
+
+  const handleEditComment = async (commentId: string, content: string) => {
+    'use server';
+    const result = await editComment(commentId, content);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    return result;
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    'use server';
+    const result = await deleteComment(commentId);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    return result;
+  };
+
+  const handleLikeComment = async (commentId: string) => {
+    'use server';
+    const result = await likeComment(commentId);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    return result;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -107,6 +187,12 @@ export default async function CommunityQuestionPage({
 
             {/* Action Buttons */}
             <div className="flex gap-2">
+              {canEdit && (
+                <EditCommunityButton 
+                  community={communityQuestion}
+                  onEdit={handleEditCommunity}
+                />
+              )}
               <Button variant="outline" size="sm">
                 <Share className="w-4 h-4 mr-2" />
                 Share
@@ -155,21 +241,16 @@ export default async function CommunityQuestionPage({
           </div>
         </div>
 
-        {/* Discussion Section */}
+        {/* Comments Section */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Discussion</h2>
-            <Button>
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Start Discussion
-            </Button>
-          </div>
-          
-          {/* Placeholder for comments/discussions */}
-          <div className="text-center py-8 text-gray-500">
-            <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>No discussions yet. Be the first to start a conversation!</p>
-          </div>
+          <CommentSectionWrapper
+            postId={communityQuestion._id}
+            postType="community"
+            onAddComment={handleAddComment}
+            onEditComment={handleEditComment}
+            onDeleteComment={handleDeleteComment}
+            onLikeComment={handleLikeComment}
+          />
         </div>
       </div>
     </div>
