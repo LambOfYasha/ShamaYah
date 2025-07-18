@@ -14,7 +14,7 @@ const client = createClient({
 interface CreateCommentParams {
   content: string
   postId: string
-  postType: 'communityQuestion' | 'blogPost'
+  postType: 'communityQuestion' | 'blog'
   parentCommentId?: string
 }
 
@@ -98,7 +98,7 @@ export async function createComment({
   }
 }
 
-export async function getComments(postId: string, postType: 'communityQuestion' | 'blogPost') {
+export async function getComments(postId: string, postType: 'communityQuestion' | 'blog') {
   try {
     const comments = await client.fetch(`
       *[_type == "comment" && post._ref == $postId && !defined(parentComment)] | order(createdAt desc) {

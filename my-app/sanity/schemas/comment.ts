@@ -24,7 +24,7 @@ export default defineType({
       type: 'reference',
       to: [
         { type: 'communityQuestion' },
-        { type: 'blogPost' }
+        { type: 'blog' }
       ],
       validation: (Rule) => Rule.required(),
     }),
