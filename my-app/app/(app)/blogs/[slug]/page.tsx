@@ -97,9 +97,9 @@ export default async function BlogPage({
     return result;
   };
 
-  const handleAddComment = async (content: string) => {
+  const handleAddComment = async (content: string, parentCommentId?: string) => {
     'use server';
-    const result = await addComment(blog._id, 'blog', content);
+    const result = await addComment(blog._id, 'blog', content, parentCommentId);
     if ("error" in result) {
       throw new Error(result.error);
     }

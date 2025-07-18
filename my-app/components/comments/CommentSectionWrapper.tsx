@@ -22,7 +22,7 @@ interface Comment {
 interface CommentSectionWrapperProps {
   postId: string;
   postType: 'community' | 'blog';
-  onAddComment: (content: string) => Promise<void>;
+  onAddComment: (content: string, parentCommentId?: string) => Promise<void>;
   onEditComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
   onLikeComment: (commentId: string) => Promise<void>;
@@ -39,31 +39,28 @@ export default function CommentSectionWrapper({
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchComments() {
-      try {
-        const result = await getComments(postId, postType);
-        if ("success" in result) {
-          setComments(result.comments);
-        }
-      } catch (error) {
-        console.error('Failed to fetch comments:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchComments();
-  }, [postId, postType]);
-
-  const handleAddComment = async (content: string) => {
+  const fetchComments = async () => {
     try {
-      await onAddComment(content);
-      // Refresh comments after adding
       const result = await getComments(postId, postType);
       if ("success" in result) {
         setComments(result.comments);
       }
+    } catch (error) {
+      console.error('Failed to fetch comments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchComments();
+  }, [postId, postType]);
+
+  const handleAddComment = async (content: string, parentCommentId?: string) => {
+    try {
+      await onAddComment(content, parentCommentId);
+      // Refresh comments after adding
+      await fetchComments();
     } catch (error) {
       console.error('Failed to add comment:', error);
     }
@@ -73,10 +70,7 @@ export default function CommentSectionWrapper({
     try {
       await onEditComment(commentId, content);
       // Refresh comments after editing
-      const result = await getComments(postId, postType);
-      if ("success" in result) {
-        setComments(result.comments);
-      }
+      await fetchComments();
     } catch (error) {
       console.error('Failed to edit comment:', error);
     }
@@ -85,8 +79,8 @@ export default function CommentSectionWrapper({
   const handleDeleteComment = async (commentId: string) => {
     try {
       await onDeleteComment(commentId);
-      // Remove comment from state after deleting
-      setComments(prev => prev.filter(comment => comment._id !== commentId));
+      // Refresh comments after deleting
+      await fetchComments();
     } catch (error) {
       console.error('Failed to delete comment:', error);
     }
@@ -95,14 +89,29 @@ export default function CommentSectionWrapper({
   const handleLikeComment = async (commentId: string) => {
     try {
       await onLikeComment(commentId);
-      // Update comment like status
-      setComments(prev => prev.map(comment => 
-        comment._id === commentId 
-          ? { ...comment, isLiked: !comment.isLiked, likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1 }
-          : comment
-      ));
+      // Update comment like status optimistically
+      setComments(prev => {
+        const updateCommentLikes = (comments: Comment[]): Comment[] => {
+          return comments.map(comment => {
+            if (comment._id === commentId) {
+              return { 
+                ...comment, 
+                isLiked: !comment.isLiked, 
+                likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1 
+              };
+            }
+            if (comment.replies) {
+              return { ...comment, replies: updateCommentLikes(comment.replies) };
+            }
+            return comment;
+          });
+        };
+        return updateCommentLikes(prev);
+      });
     } catch (error) {
       console.error('Failed to like comment:', error);
+      // Refresh comments on error to get correct state
+      await fetchComments();
     }
   };
 

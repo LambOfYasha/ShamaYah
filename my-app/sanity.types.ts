@@ -67,22 +67,32 @@ export type Comment = {
     _ref: string;
     _type: "reference";
     _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "post";
+    [internalGroqTypeReferenceTo]?: "communityQuestion";
   } | {
     _ref: string;
     _type: "reference";
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "blog";
   };
+  postType?: "community" | "blog";
   parentComment?: {
     _ref: string;
     _type: "reference";
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "comment";
   };
+  replies?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "comment";
+  }>;
+  likes?: number;
+  likedBy?: Array<string>;
   isReported?: boolean;
   isDeleted?: boolean;
   createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Blog = {

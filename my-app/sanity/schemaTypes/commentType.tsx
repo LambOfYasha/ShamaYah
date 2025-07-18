@@ -52,6 +52,13 @@ export const commentType = defineType({
       description: 'The parent comment if this is a reply',
     }),
     defineField({
+      name: 'replies',
+      title: 'Replies',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'comment'}]}],
+      description: 'Child comments/replies to this comment',
+    }),
+    defineField({
       name: 'likes',
       title: 'Likes',
       type: 'number',

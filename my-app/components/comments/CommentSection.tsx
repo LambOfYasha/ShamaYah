@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import NestedComment from './NestedComment';
 
 interface Comment {
   _id: string;
@@ -42,7 +43,7 @@ interface CommentSectionProps {
   postId: string;
   postType: 'community' | 'blog';
   comments: Comment[];
-  onAddComment: (content: string) => Promise<void>;
+  onAddComment: (content: string, parentCommentId?: string) => Promise<void>;
   onEditComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
   onLikeComment: (commentId: string) => Promise<void>;
@@ -119,6 +120,11 @@ export default function CommentSection({
     return user && (comment.author._id === user.id || user.publicMetadata?.role === 'admin');
   };
 
+  const handleCommentAdded = () => {
+    // This will be handled by the parent component to refresh comments
+    window.location.reload();
+  };
+
   return (
     <div className="space-y-6">
       {/* Comment Form */}
@@ -169,113 +175,16 @@ export default function CommentSection({
         ) : (
           <div className="space-y-4">
             {comments.map((comment) => (
-              <Card key={comment._id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={comment.author.imageURL} />
-                      <AvatarFallback>
-                        {comment.author.username?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">
-                            {comment.author.username}
-                          </span>
-                          <Badge variant="outline" className="text-xs">
-                            {comment.author._id === user?.id ? 'You' : 'Member'}
-                          </Badge>
-                        </div>
-                        
-                        {(canEditComment(comment) || canDeleteComment(comment)) && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {canEditComment(comment) && (
-                                <DropdownMenuItem onClick={() => startEditing(comment)}>
-                                  <Edit className="w-4 h-4 mr-2" />
-                                  Edit
-                                </DropdownMenuItem>
-                              )}
-                              {canDeleteComment(comment) && (
-                                <DropdownMenuItem 
-                                  onClick={() => handleDeleteComment(comment._id)}
-                                  className="text-red-600"
-                                >
-                                  <Trash2 className="w-4 h-4 mr-2" />
-                                  Delete
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
-                      </div>
-
-                      {editingComment === comment._id ? (
-                        <div className="space-y-2">
-                          <Textarea
-                            value={editContent}
-                            onChange={(e) => setEditContent(e.target.value)}
-                            className="min-h-[80px]"
-                          />
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleEditComment(comment._id)}
-                              disabled={isSubmitting}
-                            >
-                              Save
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => {
-                                setEditingComment(null);
-                                setEditContent('');
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <p className="text-gray-700 mb-3">{comment.content}</p>
-                          
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <span>
-                              {new Date(comment.createdAt).toLocaleDateString()}
-                            </span>
-                            {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
-                              <span className="text-xs">(edited)</span>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => onLikeComment(comment._id)}
-                              className="flex items-center gap-1"
-                            >
-                              <Heart className={`w-4 h-4 ${comment.isLiked ? 'text-red-500 fill-current' : ''}`} />
-                              {comment.likes}
-                            </Button>
-                            <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                              <Reply className="w-4 h-4" />
-                              Reply
-                            </Button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <NestedComment
+                key={comment._id}
+                comment={comment}
+                postId={postId}
+                postType={postType === 'community' ? 'communityQuestion' : 'blogPost'}
+                onCommentAdded={handleCommentAdded}
+                onEditComment={onEditComment}
+                onDeleteComment={onDeleteComment}
+                onLikeComment={onLikeComment}
+              />
             ))}
           </div>
         )}

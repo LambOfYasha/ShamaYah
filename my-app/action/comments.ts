@@ -8,7 +8,8 @@ import { sanityFetch } from "@/sanity/lib/live";
 export async function addComment(
     postId: string,
     postType: 'community' | 'blog',
-    content: string
+    content: string,
+    parentCommentId?: string
 ) {
     try {
         const user = await getUser();
@@ -18,7 +19,7 @@ export async function addComment(
         }
 
         // Create the comment document
-        const commentDoc = {
+        const commentDoc: any = {
             _type: "comment",
             content,
             author: {
@@ -32,10 +33,30 @@ export async function addComment(
             postType,
             createdAt: new Date().toISOString(),
             likes: 0,
-            isLiked: false,
+            likedBy: [],
         };
 
+        // Add parent comment reference if this is a reply
+        if (parentCommentId) {
+            commentDoc.parentComment = {
+                _type: "reference",
+                _ref: parentCommentId,
+            };
+        }
+
         const createdComment = await adminClient.create(commentDoc);
+
+        // If this is a reply, update the parent comment's replies array
+        if (parentCommentId) {
+            await adminClient
+                .patch(parentCommentId)
+                .setIfMissing({ replies: [] })
+                .append('replies', [{
+                    _type: 'reference',
+                    _ref: createdComment._id,
+                }])
+                .commit();
+        }
 
         return { success: true, comment: createdComment };
     } catch (error) {
@@ -204,7 +225,7 @@ export async function getComments(
         const userId = user && !("error" in user) ? user._id : null;
 
         const commentsQuery = defineQuery(`
-            *[_type == "comment" && post._ref == $postId && postType == $postType] | order(createdAt asc) {
+            *[_type == "comment" && post._ref == $postId && postType == $postType && !defined(parentComment)] | order(createdAt asc) {
                 _id,
                 content,
                 createdAt,
@@ -215,7 +236,33 @@ export async function getComments(
                     username,
                     imageURL
                 },
-                "isLiked": $userId in likedBy
+                "isLiked": $userId in likedBy,
+                "replies": *[_type == "comment" && parentComment._ref == ^._id] | order(createdAt asc) {
+                    _id,
+                    content,
+                    createdAt,
+                    updatedAt,
+                    likes,
+                    "author": author->{
+                        _id,
+                        username,
+                        imageURL
+                    },
+                    "isLiked": $userId in likedBy,
+                    "replies": *[_type == "comment" && parentComment._ref == ^._id] | order(createdAt asc) {
+                        _id,
+                        content,
+                        createdAt,
+                        updatedAt,
+                        likes,
+                        "author": author->{
+                            _id,
+                            username,
+                            imageURL
+                        },
+                        "isLiked": $userId in likedBy
+                    }
+                }
             }
         `);
 

@@ -93,9 +93,9 @@ export default async function CommunityQuestionPage({
     return result;
   };
 
-  const handleAddComment = async (content: string) => {
+  const handleAddComment = async (content: string, parentCommentId?: string) => {
     'use server';
-    const result = await addComment(communityQuestion._id, 'community', content);
+    const result = await addComment(communityQuestion._id, 'community', content, parentCommentId);
     if ("error" in result) {
       throw new Error(result.error);
     }
