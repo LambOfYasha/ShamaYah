@@ -59,14 +59,17 @@ export default async function CommunityQuestionPage({
     notFound();
   }
 
-  const canEdit = currentUser && (
-    currentUser._id === communityQuestion.moderator?._id || 
-    currentUser.role === "admin"
+  // Use the same user object for permission checks
+  const user = await getCurrentUser();
+
+  const canEdit = user && (
+    user._id === communityQuestion.moderator?._id || 
+    user.role === "admin"
   );
 
-  const canDelete = currentUser && (
-    currentUser._id === communityQuestion.moderator?._id || 
-    currentUser.role === "admin"
+  const canDelete = user && (
+    user._id === communityQuestion.moderator?._id || 
+    user.role === "admin"
   );
 
   const handleEditCommunity = async (data: {
@@ -102,8 +105,10 @@ export default async function CommunityQuestionPage({
 
   const handleDeleteCommunity = async () => {
     'use server';
+    console.log("handleDeleteCommunity called with community ID:", communityQuestion._id);
     const result = await deleteCommunity(communityQuestion._id);
     if ("error" in result) {
+      console.error("Delete community error:", result.error);
       throw new Error(result.error);
     }
     return result;

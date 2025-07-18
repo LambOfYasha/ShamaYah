@@ -34,13 +34,26 @@ interface BlogWithAuthor extends Blog {
 async function getBlog(slug: string): Promise<BlogWithAuthor | null> {
   const query = defineQuery(`
     *[_type == "blog" && slug.current == $slug][0] {
-      ...,
-      "author": author->
+      _id,
+      title,
+      description,
+      slug,
+      content,
+      image,
+      author->{
+        _id,
+        username,
+        imageURL,
+        role
+      },
+      createdAt,
+      _createdAt
     }
   `);
 
   try {
     const result = await client.fetch(query, { slug });
+    console.log("getBlog result:", result);
     return result;
   } catch (error) {
     console.error("Error fetching blog:", error);
@@ -60,16 +73,27 @@ export default async function BlogPage({
     notFound();
   }
 
-  const canEdit = currentUser && (
-    currentUser._id === blog.author?._id || 
-    currentUser.role === "admin" ||
-    currentUser.role === "teacher"
+  // Use the same user object for permission checks
+  const user = await getCurrentUser();
+
+  console.log("Blog page - Blog ID:", blog._id);
+  console.log("Blog page - Blog author ID:", blog.author?._id);
+  console.log("Blog page - User ID:", user._id);
+  console.log("Blog page - User role:", user.role);
+
+  const canEdit = user && (
+    user._id === blog.author?._id || 
+    user.role === "admin" ||
+    user.role === "teacher"
   );
 
-  const canDelete = currentUser && (
-    currentUser._id === blog.author?._id || 
-    currentUser.role === "admin"
+  const canDelete = user && (
+    user._id === blog.author?._id || 
+    user.role === "admin"
   );
+
+  console.log("Blog page - Can edit:", canEdit);
+  console.log("Blog page - Can delete:", canDelete);
 
   const handleEditBlog = async (data: {
     title: string;
@@ -106,8 +130,10 @@ export default async function BlogPage({
 
   const handleDeleteBlog = async () => {
     'use server';
+    console.log("handleDeleteBlog called with blog ID:", blog._id);
     const result = await deleteBlog(blog._id);
     if ("error" in result) {
+      console.error("Delete blog error:", result.error);
       throw new Error(result.error);
     }
     return result;
