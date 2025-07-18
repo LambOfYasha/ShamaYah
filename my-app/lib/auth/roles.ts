@@ -35,6 +35,7 @@ export const ROLE_PERMISSIONS = {
     canManageUsers: false,
     canManageTeachers: false,
     canAccessAdminPanel: false,
+    canManageBlogs: false,
   },
   [ROLES.TEACHER]: {
     canCreatePosts: true,
@@ -44,6 +45,7 @@ export const ROLE_PERMISSIONS = {
     canManageUsers: false,
     canManageTeachers: false,
     canAccessAdminPanel: false,
+    canManageBlogs: true,
   },
   [ROLES.MODERATOR]: {
     canCreatePosts: true,
@@ -53,6 +55,7 @@ export const ROLE_PERMISSIONS = {
     canManageUsers: false,
     canManageTeachers: false,
     canAccessAdminPanel: false,
+    canManageBlogs: false,
   },
   [ROLES.SENIOR_TEACHER]: {
     canCreatePosts: true,
@@ -62,6 +65,7 @@ export const ROLE_PERMISSIONS = {
     canManageUsers: false,
     canManageTeachers: true,
     canAccessAdminPanel: false,
+    canManageBlogs: true,
   },
   [ROLES.LEAD_TEACHER]: {
     canCreatePosts: true,
@@ -71,6 +75,7 @@ export const ROLE_PERMISSIONS = {
     canManageUsers: true,
     canManageTeachers: true,
     canAccessAdminPanel: true,
+    canManageBlogs: true,
   },
   [ROLES.ADMIN]: {
     canCreatePosts: true,
@@ -80,6 +85,7 @@ export const ROLE_PERMISSIONS = {
     canManageUsers: true,
     canManageTeachers: true,
     canAccessAdminPanel: true,
+    canManageBlogs: true,
   },
 } as const;
 

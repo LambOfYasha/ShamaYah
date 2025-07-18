@@ -22,13 +22,13 @@ export default function RootLayout({
         <body className="antialiased">
           <SidebarProvider>
             <Sidebar>
-              <AppSidebar />
+            <AppSidebar />
             </Sidebar>
             <SidebarInset>
               <Header />
               <div className="flex flex-col">{children}</div>
             </SidebarInset>
-          </SidebarProvider>
+        </SidebarProvider>
 
           <SanityLiveWrapper /> 
            

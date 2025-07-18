@@ -9,7 +9,8 @@ import {
   MessageSquare, 
   BarChart3, 
   Settings,
-  ArrowRight
+  ArrowRight,
+  BookOpen
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -107,6 +108,29 @@ export default async function AdminPage() {
                 <Button asChild className="w-full">
                   <Link href="/admin/communities">
                     Manage Communities
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </RoleGuard>
+
+          {/* Blog Management */}
+          <RoleGuard permission="canManageBlogs">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <BookOpen className="h-5 w-5 text-emerald-600" />
+                  <CardTitle>Blog Management</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Create and manage blog posts and articles
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/blogs">
+                    Manage Blogs
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>

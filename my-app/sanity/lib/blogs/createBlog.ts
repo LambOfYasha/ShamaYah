@@ -1,0 +1,137 @@
+import { ImageData } from "@/action/createBlog"
+import { defineQuery } from "groq"
+import { sanityFetch } from "../live"
+import { adminClient } from "../adminClient"
+import { Blog } from "@/sanity.types"
+
+export async function createBlog(
+    title: string,
+    authorId: string,
+    imageData: ImageData | null,
+    customSlug?: string,
+    customDescription?: string,
+    content?: string
+) {
+    console.log(`Creating blog: ${title} with author: ${authorId}`)
+    try {
+        // Check if blog with this title already exists
+        const checkExistingQuery = defineQuery(
+            `*[_type == "blog" && title == $title][0]
+            {
+                _id,
+            }
+        `)
+
+        const existingBlog = await sanityFetch({
+            query: checkExistingQuery,
+            params: { title },
+        })
+        
+        if (existingBlog.data) {
+            console.log(`Blog with title ${title} already exists`)
+            return { error: "Blog with this title already exists" }
+        }
+
+        // Check if slug already exists if custom slug is provided
+        if (customSlug) {
+            const checkSlugQuery = defineQuery(
+                `*[_type == "blog" && slug.current == $slug][0]
+                {
+                    _id,
+                }
+            `)
+
+            const existingSlug = await sanityFetch({
+                query: checkSlugQuery,
+                params: {slug: customSlug}
+            })
+
+            if (existingSlug.data) {
+                console.log(`Blog with slug "${customSlug}" already exists`)
+                return { error: "A blog with this URL already exists" }
+            }
+        }
+
+        // Create slug from title or use custom slug
+        const slug = customSlug || title.toLowerCase().replace(/\s+/g, "-")
+
+        // Upload image if provided
+        let imageAsset
+        if (imageData) {
+            try {
+                // Extract base64 data (remove data:image/jpeg;base64, part)
+                const base64Data = imageData.base64.split(",")[1]
+
+                // Convert base64 to buffer
+                const buffer = Buffer.from(base64Data, "base64")
+
+                // Upload to sanity
+                imageAsset = await adminClient.assets.upload("image", buffer, {
+                    filename: imageData.fileName,
+                    contentType: imageData.contentType,
+                })
+
+                console.log("image asset:", imageAsset)
+            } catch (error) {
+                console.error("failed to upload image", error)
+                // Continue without image if upload fails
+            }
+        }
+        
+        // Create the blog
+        const blogDoc: Partial<Blog> = {
+            _type: "blog",
+            title: title,
+            description: customDescription || `A blog post about ${title}`,
+            slug: {
+                current: slug,
+                _type: "slug",
+            },
+            author: {
+                _type: "reference",
+                _ref: authorId,
+            },
+            createdAt: new Date().toISOString(),
+        }
+
+        // Add content if provided
+        if (content) {
+            blogDoc.content = [
+                {
+                    _type: "block",
+                    _key: "content",
+                    children: [
+                        {
+                            _type: "span",
+                            _key: "content-text",
+                            text: content,
+                        }
+                    ],
+                    style: "normal"
+                }
+            ]
+        }
+
+        // Add image if available
+        if (imageAsset) {
+            blogDoc.image = {
+                _type: "image",
+                asset: {
+                    _type: "reference",
+                    _ref: imageAsset._id,
+                },
+            }
+        }
+
+        // Create blog
+        const createdBlog = await adminClient.create(blogDoc as Blog)
+
+        console.log(`created blog: ${createdBlog._id}`)
+
+        return { createdBlog }
+
+     } catch (error) {
+        console.error("failed to create blog", error)
+        return { error: "failed to create blog" }
+    }
+} 

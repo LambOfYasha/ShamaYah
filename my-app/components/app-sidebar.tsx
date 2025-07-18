@@ -1,8 +1,8 @@
 "use client"
 // Client component for the sidebar
 import * as React from "react"
-import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings } from "lucide-react"
-import { useAuth } from "@clerk/nextjs"
+import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings, BookOpen } from "lucide-react"
+import { useAuth, useUser } from "@clerk/nextjs"
 
 import { SearchForm } from "@/components/search-form"
 import {
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import CreateCommunityButton from "./header/CreateCommunityButton"
+import CreateBlogButton from "./header/CreateBlogButton"
 
 // Member navigation items
 const memberNavigation = [
@@ -48,6 +49,11 @@ const memberNavigation = [
     icon: Users,
   },
   {
+    title: "Blog",
+    url: "/dashboard/blogs",
+    icon: BookOpen,
+  },
+  {
     title: "Settings",
     url: "/dashboard/settings",
     icon: Settings,
@@ -56,9 +62,39 @@ const memberNavigation = [
 
 export default function AppSidebar() {
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
   const [communities, setCommunities] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [hasFetched, setHasFetched] = React.useState(false);
+  const [userRole, setUserRole] = React.useState<string | null>(null);
+
+  // Fetch user role on client side
+  React.useEffect(() => {
+    async function fetchUserRole() {
+      if (user) {
+        try {
+          console.log('Fetching user role for user:', user.id);
+          const response = await fetch('/api/user/role');
+          console.log('Role API response status:', response.status);
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Role API response data:', data);
+            setUserRole(data.role);
+          } else {
+            console.error('Failed to fetch user role:', response.status);
+            const errorData = await response.json();
+            console.error('Error data:', errorData);
+          }
+        } catch (error) {
+          console.error('Failed to fetch user role:', error);
+        }
+      } else {
+        console.log('No user found, skipping role fetch');
+      }
+    }
+
+    fetchUserRole();
+  }, [user]);
 
   // Fetch communities on client side
   React.useEffect(() => {
@@ -88,6 +124,12 @@ export default function AppSidebar() {
     fetchCommunities();
   }, [hasFetched]); // Only depend on hasFetched to prevent infinite loops
 
+  // Check if user can create blogs (admin or teacher)
+  const canCreateBlogs = userRole === "admin" || userRole === "teacher";
+  
+  console.log('User role:', userRole);
+  console.log('Can create blogs:', canCreateBlogs);
+
   return (
     <>
       <SidebarHeader>
@@ -95,8 +137,8 @@ export default function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
-                {/* TODO: Add logo */}
-              </Link>
+          {/* TODO: Add logo */}
+          </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -110,6 +152,14 @@ export default function AppSidebar() {
                 <CreateCommunityButton />
               </SidebarMenuButton>
             </SidebarMenuItem>
+            {/* Only show CreateBlogButton for admins and teachers */}
+            {canCreateBlogs && (
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <CreateBlogButton />
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
           </SidebarMenu>
         </SidebarGroup>
         
@@ -151,6 +201,14 @@ export default function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
+                  <Link href="/dashboard/blogs">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Blog
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
                   <Link href="/dashboard/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
@@ -164,38 +222,38 @@ export default function AppSidebar() {
         {/* Community Questions */}
         <SidebarGroup>
           <SidebarMenu>
-            <Collapsible
+              <Collapsible
               defaultOpen={true}
-              className="group/collapsible"
-            >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton>
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
                     Community Questions{" "}
-                    <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-                    <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
+                      <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                      <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
                 {!loading && communities.length > 0 && (
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
                       {communities.map((community: any) => (
                         <SidebarMenuSubItem key={community._id}>
-                          <SidebarMenuSubButton
-                            asChild
+                            <SidebarMenuSubButton
+                              asChild
                             isActive={false}
-                          >
+                            >
                             <Link href={`/community-questions/${community.slug}`}>
                               {community.title || "Untitled"}
                             </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
                 )}
-              </SidebarMenuItem>
-            </Collapsible>
+                </SidebarMenuItem>
+              </Collapsible>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
