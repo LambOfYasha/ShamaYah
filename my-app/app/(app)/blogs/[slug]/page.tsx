@@ -129,25 +129,19 @@ export default async function BlogPage({
   };
 
   const handleDeleteBlog = async () => {
-    'use server';
     console.log("=== BLOG PAGE DELETE HANDLER ===");
     console.log("handleDeleteBlog called with blog ID:", blog._id);
     
-    try {
-      const result = await deleteBlog(blog._id);
-      console.log("Delete result:", result);
-      
-      if ("error" in result) {
-        console.error("Delete blog error:", result.error);
-        throw new Error(result.error);
-      }
-      
-      console.log("Delete successful");
-      return result;
-    } catch (error) {
-      console.error("Delete blog handler error:", error);
-      throw error;
+    const result = await deleteBlog(blog._id);
+    console.log("Delete result:", result);
+    
+    if ("error" in result) {
+      console.error("Delete blog error:", result.error);
+      throw new Error(result.error);
     }
+    
+    console.log("Delete successful");
+    return result;
   };
 
   const handleAddComment = async (content: string, parentCommentId?: string) => {

@@ -29,11 +29,22 @@ export default function DeleteCommunityButton({ communityId, communityTitle, onD
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await onDelete();
+      console.log('DeleteCommunityButton: Starting delete process');
+      const result = await onDelete();
+      console.log('DeleteCommunityButton: Delete result:', result);
+      
+      if (result && 'error' in result) {
+        console.error('DeleteCommunityButton: Delete failed:', result.error);
+        alert(`Failed to delete community: ${result.error}`);
+        return;
+      }
+      
+      console.log('DeleteCommunityButton: Delete successful, redirecting');
       // Redirect to communities page after successful deletion
       router.push('/dashboard/communities');
     } catch (error) {
-      console.error('Failed to delete community:', error);
+      console.error('DeleteCommunityButton: Failed to delete community:', error);
+      alert(`Failed to delete community: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsDeleting(false);
     }

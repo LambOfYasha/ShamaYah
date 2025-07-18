@@ -3,6 +3,7 @@
 import { getUser } from "@/lib/user/getUser";
 import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
+import { sanityFetch } from "@/sanity/lib/live";
 
 export async function deleteCommunity(communityId: string) {
     try {
@@ -27,11 +28,11 @@ export async function deleteCommunity(communityId: string) {
             return { error: user.error };
         }
 
-        // Check if user has permission to delete this community using admin client
+        // Check if user has permission to delete this community question
         const communityQuery = defineQuery(`
             *[_type == "communityQuestion" && _id == $communityId][0] {
                 _id,
-                moderator->{_id},
+                author->{_id},
                 title
             }
         `);
@@ -46,12 +47,12 @@ export async function deleteCommunity(communityId: string) {
             return { error: "Community question not found" };
         }
 
-        console.log("Community moderator ID:", community.moderator?._id);
+        console.log("Community author ID:", community.author?._id);
         console.log("Current user ID:", user._id);
         console.log("Current user role:", user.role);
 
-        // Check if user is the moderator or an admin/teacher
-        if (community.moderator?._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
+        // Check if user is the author or an admin/teacher
+        if (community.author?._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
             console.error("User does not have permission to delete this community question");
             return { error: "You don't have permission to delete this community question" };
         }
@@ -100,7 +101,7 @@ export async function deleteCommunity(communityId: string) {
         return { success: true };
     } catch (error) {
         console.error("=== DELETE COMMUNITY ERROR ===");
-        console.error("Failed to delete community:", error);
+        console.error("Failed to delete community question:", error);
         console.error("Error type:", typeof error);
         console.error("Error message:", error instanceof Error ? error.message : String(error));
         console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
@@ -122,9 +123,6 @@ export async function deleteCommunity(communityId: string) {
             }
             if (error.message.includes("referenced")) {
                 return { error: "Cannot delete community question with existing references - please try again" };
-            }
-            if (error.message.includes("timeout")) {
-                return { error: "Request timeout - please try again" };
             }
         }
         

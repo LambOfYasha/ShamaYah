@@ -30,13 +30,20 @@ export default function DeleteBlogButton({ blogId, blogTitle, onDelete }: Delete
     setIsDeleting(true);
     try {
       console.log('DeleteBlogButton: Starting delete process');
-      await onDelete();
+      const result = await onDelete();
+      console.log('DeleteBlogButton: Delete result:', result);
+      
+      if (result && 'error' in result) {
+        console.error('DeleteBlogButton: Delete failed:', result.error);
+        alert(`Failed to delete blog: ${result.error}`);
+        return;
+      }
+      
       console.log('DeleteBlogButton: Delete successful, redirecting');
       // Redirect to blogs page after successful deletion
       router.push('/dashboard/blogs');
     } catch (error) {
       console.error('DeleteBlogButton: Failed to delete blog:', error);
-      // You could add a toast notification here to show the error to the user
       alert(`Failed to delete blog: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsDeleting(false);

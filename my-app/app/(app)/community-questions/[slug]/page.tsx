@@ -104,7 +104,6 @@ export default async function CommunityQuestionPage({
   };
 
   const handleDeleteCommunity = async () => {
-    'use server';
     console.log("handleDeleteCommunity called with community ID:", communityQuestion._id);
     const result = await deleteCommunity(communityQuestion._id);
     if ("error" in result) {
