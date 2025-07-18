@@ -64,35 +64,28 @@ export default function AppSidebar() {
   const { isSignedIn } = useAuth();
   const { user } = useUser();
   const [communities, setCommunities] = React.useState([]);
+  const [blogs, setBlogs] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [blogsLoading, setBlogsLoading] = React.useState(true);
   const [hasFetched, setHasFetched] = React.useState(false);
+  const [hasFetchedBlogs, setHasFetchedBlogs] = React.useState(false);
   const [userRole, setUserRole] = React.useState<string | null>(null);
 
   // Fetch user role on client side
   React.useEffect(() => {
-    console.log('Sidebar: Role fetching useEffect triggered');
-    console.log('Sidebar: User object:', user);
-    
     async function fetchUserRole() {
       if (user) {
         try {
-          console.log('Sidebar: Fetching user role for user:', user.id);
           const response = await fetch('/api/user/role');
-          console.log('Sidebar: Role API response status:', response.status);
           if (response.ok) {
             const data = await response.json();
-            console.log('Sidebar: Role API response data:', data);
             setUserRole(data.role);
           } else {
-            console.error('Sidebar: Failed to fetch user role:', response.status);
-            const errorData = await response.json();
-            console.error('Sidebar: Error data:', errorData);
+            console.error('Failed to fetch user role:', response.status);
           }
         } catch (error) {
-          console.error('Sidebar: Failed to fetch user role:', error);
+          console.error('Failed to fetch user role:', error);
         }
-      } else {
-        console.log('Sidebar: No user found, skipping role fetch');
       }
     }
 
@@ -127,13 +120,37 @@ export default function AppSidebar() {
     fetchCommunities();
   }, [hasFetched]); // Only depend on hasFetched to prevent infinite loops
 
+  // Fetch blogs on client side
+  React.useEffect(() => {
+    // Prevent multiple fetches
+    if (hasFetchedBlogs) return;
+
+    async function fetchBlogs() {
+      try {
+        setBlogsLoading(true);
+        const response = await fetch('/api/blogs');
+        if (response.ok) {
+          const data = await response.json();
+          setBlogs(data);
+        } else {
+          console.error('Failed to fetch blogs:', response.status);
+          setBlogs([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch blogs:', error);
+        setBlogs([]);
+      } finally {
+        setBlogsLoading(false);
+        setHasFetchedBlogs(true);
+      }
+    }
+
+    fetchBlogs();
+  }, [hasFetchedBlogs]); // Only depend on hasFetchedBlogs to prevent infinite loops
+
   // Check if user can create blogs (admin or teacher)
   const canCreateBlogs = userRole === "admin" || userRole === "teacher";
   
-  console.log('Sidebar: User role:', userRole);
-  console.log('Sidebar: Can create blogs:', canCreateBlogs);
-  console.log('Sidebar: isSignedIn:', isSignedIn);
-
   return (
     <>
       <SidebarHeader>
@@ -258,6 +275,44 @@ export default function AppSidebar() {
                 )}
                 </SidebarMenuItem>
               </Collapsible>
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Teacher's Blog */}
+        <SidebarGroup>
+          <SidebarMenu>
+            <Collapsible
+              defaultOpen={true}
+              className="group/collapsible"
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton>
+                    Teacher's Blog{" "}
+                    <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                    <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                {!blogsLoading && blogs.length > 0 && (
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {blogs.map((blog: any) => (
+                        <SidebarMenuSubItem key={blog._id}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={false}
+                          >
+                            <Link href={`/blogs/${blog.slug}`}>
+                              {blog.title || "Untitled Blog"}
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                )}
+              </SidebarMenuItem>
+            </Collapsible>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
