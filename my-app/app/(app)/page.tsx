@@ -1,6 +1,9 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 import { 
   Users, 
   MessageSquare, 
@@ -9,10 +12,13 @@ import {
   ArrowRight,
   Heart,
   Search,
-  Globe
+  Globe,
+  LayoutDashboard
 } from "lucide-react";
 
 export default function HomePage() {
+  const { isSignedIn, isLoaded } = useUser();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Hero Section */}
@@ -27,12 +33,26 @@ export default function HomePage() {
               Connect with fellow believers, explore theological discussions, and grow in your faith through meaningful conversations and shared experiences.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="text-lg px-8 py-3">
-                <Link href="/sign-in">
-                  Get Started
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+              {isLoaded && (
+                <>
+                  {isSignedIn ? (
+                    <Button asChild size="lg" className="text-lg px-8 py-3">
+                      <Link href="/dashboard">
+                        <LayoutDashboard className="mr-2 h-5 w-5" />
+                        Go to Dashboard
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button asChild size="lg" className="text-lg px-8 py-3">
+                      <Link href="/sign-in">
+                        Get Started
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Link>
+                    </Button>
+                  )}
+                </>
+              )}
               <Button asChild variant="outline" size="lg" className="text-lg px-8 py-3">
                 <Link href="/about">
                   Learn More
@@ -186,12 +206,26 @@ export default function HomePage() {
             Start your journey of faith and fellowship today. Connect with believers, ask questions, and grow in your relationship with Christ.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-3">
-              <Link href="/sign-in">
-                Sign Up Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+            {isLoaded && (
+              <>
+                {isSignedIn ? (
+                  <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-3">
+                    <Link href="/dashboard">
+                      <LayoutDashboard className="mr-2 h-5 w-5" />
+                      Go to Dashboard
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-3">
+                    <Link href="/sign-in">
+                      Sign Up Now
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                )}
+              </>
+            )}
             <Button asChild size="lg" variant="outline" className="text-lg px-8 py-3 border-white text-white hover:bg-white hover:text-blue-600">
               <Link href="/about">
                 Learn More
