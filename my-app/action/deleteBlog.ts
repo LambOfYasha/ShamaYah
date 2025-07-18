@@ -3,7 +3,6 @@
 import { getUser } from "@/lib/user/getUser";
 import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
-import { sanityFetch } from "@/sanity/lib/live";
 
 export async function deleteBlog(blogId: string) {
     try {
@@ -28,7 +27,7 @@ export async function deleteBlog(blogId: string) {
             return { error: user.error };
         }
 
-        // Check if user has permission to delete this blog
+        // Check if user has permission to delete this blog using admin client
         const blogQuery = defineQuery(`
             *[_type == "blog" && _id == $blogId][0] {
                 _id,
@@ -38,24 +37,21 @@ export async function deleteBlog(blogId: string) {
         `);
 
         console.log("Fetching blog with ID:", blogId);
-        const blog = await sanityFetch({
-            query: blogQuery,
-            params: { blogId },
-        });
+        const blog = await adminClient.fetch(blogQuery, { blogId });
 
         console.log("Blog query result:", blog);
 
-        if (!blog.data) {
+        if (!blog) {
             console.error("Blog not found with ID:", blogId);
             return { error: "Blog not found" };
         }
 
-        console.log("Blog author ID:", blog.data.author?._id);
+        console.log("Blog author ID:", blog.author?._id);
         console.log("Current user ID:", user._id);
         console.log("Current user role:", user.role);
 
         // Check if user is the author or an admin/teacher
-        if (blog.data.author?._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
+        if (blog.author?._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
             console.error("User does not have permission to delete this blog");
             return { error: "You don't have permission to delete this blog" };
         }
@@ -72,18 +68,15 @@ export async function deleteBlog(blogId: string) {
             }
         `);
 
-        const comments = await sanityFetch({
-            query: commentsQuery,
-            params: { blogId },
-        });
+        const comments = await adminClient.fetch(commentsQuery, { blogId });
 
         console.log("Found comments:", comments);
 
-        if (comments.data && comments.data.length > 0) {
-            console.log(`Found ${comments.data.length} comments to delete`);
+        if (comments && comments.length > 0) {
+            console.log(`Found ${comments.length} comments to delete`);
             
             // Delete all comments (this will also handle nested comments due to referential integrity)
-            for (const comment of comments.data) {
+            for (const comment of comments) {
                 console.log("Deleting comment:", comment._id);
                 try {
                     await adminClient.delete(comment._id);
@@ -129,6 +122,9 @@ export async function deleteBlog(blogId: string) {
             }
             if (error.message.includes("referenced")) {
                 return { error: "Cannot delete blog with existing references - please try again" };
+            }
+            if (error.message.includes("timeout")) {
+                return { error: "Request timeout - please try again" };
             }
         }
         

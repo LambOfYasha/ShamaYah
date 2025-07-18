@@ -3,7 +3,6 @@
 import { getUser } from "@/lib/user/getUser";
 import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
-import { sanityFetch } from "@/sanity/lib/live";
 
 export async function deleteCommunity(communityId: string) {
     try {
@@ -28,34 +27,31 @@ export async function deleteCommunity(communityId: string) {
             return { error: user.error };
         }
 
-        // Check if user has permission to delete this community question
+        // Check if user has permission to delete this community using admin client
         const communityQuery = defineQuery(`
             *[_type == "communityQuestion" && _id == $communityId][0] {
                 _id,
-                author->{_id},
+                moderator->{_id},
                 title
             }
         `);
 
         console.log("Fetching community question with ID:", communityId);
-        const community = await sanityFetch({
-            query: communityQuery,
-            params: { communityId },
-        });
+        const community = await adminClient.fetch(communityQuery, { communityId });
 
         console.log("Community query result:", community);
 
-        if (!community.data) {
+        if (!community) {
             console.error("Community question not found with ID:", communityId);
             return { error: "Community question not found" };
         }
 
-        console.log("Community author ID:", community.data.author?._id);
+        console.log("Community moderator ID:", community.moderator?._id);
         console.log("Current user ID:", user._id);
         console.log("Current user role:", user.role);
 
-        // Check if user is the author or an admin/teacher
-        if (community.data.author?._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
+        // Check if user is the moderator or an admin/teacher
+        if (community.moderator?._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
             console.error("User does not have permission to delete this community question");
             return { error: "You don't have permission to delete this community question" };
         }
@@ -72,18 +68,15 @@ export async function deleteCommunity(communityId: string) {
             }
         `);
 
-        const comments = await sanityFetch({
-            query: commentsQuery,
-            params: { communityId },
-        });
+        const comments = await adminClient.fetch(commentsQuery, { communityId });
 
         console.log("Found comments:", comments);
 
-        if (comments.data && comments.data.length > 0) {
-            console.log(`Found ${comments.data.length} comments to delete`);
+        if (comments && comments.length > 0) {
+            console.log(`Found ${comments.length} comments to delete`);
             
             // Delete all comments (this will also handle nested comments due to referential integrity)
-            for (const comment of comments.data) {
+            for (const comment of comments) {
                 console.log("Deleting comment:", comment._id);
                 try {
                     await adminClient.delete(comment._id);
@@ -107,7 +100,7 @@ export async function deleteCommunity(communityId: string) {
         return { success: true };
     } catch (error) {
         console.error("=== DELETE COMMUNITY ERROR ===");
-        console.error("Failed to delete community question:", error);
+        console.error("Failed to delete community:", error);
         console.error("Error type:", typeof error);
         console.error("Error message:", error instanceof Error ? error.message : String(error));
         console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
@@ -129,6 +122,9 @@ export async function deleteCommunity(communityId: string) {
             }
             if (error.message.includes("referenced")) {
                 return { error: "Cannot delete community question with existing references - please try again" };
+            }
+            if (error.message.includes("timeout")) {
+                return { error: "Request timeout - please try again" };
             }
         }
         

@@ -179,7 +179,7 @@ export default function CommentSection({
                 key={comment._id}
                 comment={comment}
                 postId={postId}
-                postType={postType === 'community' ? 'communityQuestion' : 'blog'}
+                postType={postType === 'community' ? 'communityQuestion' : 'blogPost'}
                 onCommentAdded={handleCommentAdded}
                 onEditComment={onEditComment}
                 onDeleteComment={onDeleteComment}
