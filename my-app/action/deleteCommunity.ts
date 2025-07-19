@@ -4,6 +4,7 @@ import { getUser } from "@/lib/user/getUser";
 import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
 import { sanityFetch } from "@/sanity/lib/live";
+import { cleanupFavoritesForDeletedPost } from "./embeddedComments";
 
 export async function deleteCommunity(communityId: string) {
     try {
@@ -60,6 +61,15 @@ export async function deleteCommunity(communityId: string) {
         console.log("Permission check passed, proceeding with deletion");
 
         console.log("Deleting community question with ID:", communityId);
+        
+        // Clean up favorites before deleting the community question
+        console.log("Cleaning up favorites for community question:", communityId);
+        const cleanupResult = await cleanupFavoritesForDeletedPost(communityId);
+        if ("error" in cleanupResult) {
+            console.warn("Warning: Failed to cleanup favorites:", cleanupResult.error);
+        } else {
+            console.log(`Cleaned up ${cleanupResult.cleanedCount} favorites for community question:`, communityId);
+        }
         
         // Now delete the community question
         const deleteResult = await adminClient.delete(communityId);

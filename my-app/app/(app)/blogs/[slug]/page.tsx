@@ -23,6 +23,7 @@ import { getCurrentUser } from "@/lib/auth/middleware";
 import EditBlogButton from "@/components/blog/EditBlogButton";
 import DeleteBlogButton from "@/components/blog/DeleteBlogButton";
 import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedCommentSectionWrapper";
+import FavoriteButton from "@/components/ui/favorite-button";
 import { editBlog } from "@/action/editBlog";
 
 interface BlogWithAuthor extends Blog {
@@ -203,10 +204,12 @@ export default async function BlogPage({
                 <Share className="w-4 h-4 mr-2" />
                 Share
               </Button>
-              <Button variant="outline" size="sm">
-                <Bookmark className="w-4 h-4 mr-2" />
-                Save
-              </Button>
+              <FavoriteButton 
+                postId={blog._id}
+                postType="blog"
+                size="sm"
+                variant="outline"
+              />
             </div>
           </div>
 

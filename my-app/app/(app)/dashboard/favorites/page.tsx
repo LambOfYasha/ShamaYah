@@ -20,48 +20,22 @@ import {
   Trash2,
   Eye
 } from "lucide-react";
+import { getUserFavoritesAction } from "@/action/embeddedCommentActions";
+import Link from "next/link";
+import DeleteFavoriteButton from "@/components/ui/delete-favorite-button";
+import ClearAllFavoritesButton from "@/components/ui/clear-all-favorites-button";
 
 export default async function FavoritesPage() {
   const user = await getCurrentUser();
-
-  // Mock data - replace with actual data fetching
-  const favorites = [
-    {
-      _id: "1",
-      type: "post",
-      title: "What is the significance of baptism?",
-      content: "I've been studying baptism and would like to understand its theological significance...",
-      author: "dr_smith",
-      community: "Biblical Studies",
-      savedAt: "2024-01-15",
-      tags: ["baptism", "theology"],
-    },
-    {
-      _id: "2",
-      type: "comment",
-      title: "Great insight on prayer",
-      content: "This comment really helped me understand the power of prayer in daily life...",
-      author: "jane_doe",
-      community: "Spiritual Life",
-      savedAt: "2024-01-14",
-      tags: ["prayer", "spirituality"],
-    },
-    {
-      _id: "3",
-      type: "post",
-      title: "Church history resources",
-      content: "Looking for good resources on early church history...",
-      author: "prof_johnson",
-      community: "Church History",
-      savedAt: "2024-01-13",
-      tags: ["history", "resources"],
-    },
-  ];
+  
+  // Get real favorites data
+  const favoritesResult = await getUserFavoritesAction();
+  const favorites = favoritesResult.favorites || [];
 
   const stats = {
     totalFavorites: favorites.length,
-    posts: favorites.filter(f => f.type === 'post').length,
-    comments: favorites.filter(f => f.type === 'comment').length,
+    posts: favorites.filter(f => !f.commentPath).length,
+    comments: favorites.filter(f => f.commentPath).length,
   };
 
   return (
@@ -72,10 +46,9 @@ export default async function FavoritesPage() {
             <h1 className="text-3xl font-bold">My Favorites</h1>
             <p className="text-gray-600">Your saved posts and comments</p>
           </div>
-          <Button variant="outline">
-            <Trash2 className="w-4 h-4 mr-2" />
+          <ClearAllFavoritesButton variant="outline">
             Clear All
-          </Button>
+          </ClearAllFavoritesButton>
         </div>
 
         {/* Stats */}
@@ -139,58 +112,69 @@ export default async function FavoritesPage() {
 
         {/* Favorites List */}
         <div className="space-y-4">
-          {favorites.map((favorite) => (
-            <Card key={favorite._id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      {favorite.type === 'post' ? (
-                        <FileText className="w-4 h-4 text-blue-600" />
-                      ) : (
-                        <MessageSquare className="w-4 h-4 text-green-600" />
-                      )}
-                      <Badge variant="outline" className="text-xs">
-                        {favorite.type}
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        {favorite.community}
-                      </Badge>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold mb-2">{favorite.title}</h3>
-                    <p className="text-gray-600 mb-3 line-clamp-2">
-                      {favorite.content}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span>by {favorite.author}</span>
-                        <span>•</span>
-                        <span>Saved {favorite.savedAt}</span>
+          {favorites.map((favorite) => {
+            const post = favorite.post;
+            const isComment = favorite.commentPath;
+            const postType = post._type === 'communityQuestion' ? 'community' : 'blog';
+            const postUrl = postType === 'community' 
+              ? `/community-questions/${post.slug?.current}` 
+              : `/blogs/${post.slug?.current}`;
+            
+            return (
+              <Card key={favorite._id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        {isComment ? (
+                          <MessageSquare className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <FileText className="w-4 h-4 text-blue-600" />
+                        )}
+                        <Badge variant="outline" className="text-xs">
+                          {isComment ? 'Comment' : 'Post'}
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {postType === 'community' ? 'Community' : 'Blog'}
+                        </Badge>
                       </div>
                       
-                      <div className="flex items-center space-x-2">
-                        <div className="flex space-x-1">
-                          {favorite.tags.map((tag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
+                      <h3 className="text-lg font-semibold mb-2">
+                        <Link href={postUrl} className="hover:text-blue-600">
+                          {post.title}
+                        </Link>
+                      </h3>
+                      <p className="text-gray-600 mb-3 line-clamp-2">
+                        {post.description}
+                      </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span>by {post.author?.username || post.moderator?.username}</span>
+                          <span>•</span>
+                          <span>Saved {new Date(favorite.savedAt).toLocaleDateString()}</span>
                         </div>
-                        <Button size="sm" variant="outline">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button size="sm" variant="outline" className="text-red-600">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Link href={postUrl}>
+                            <Button size="sm" variant="outline">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                          <DeleteFavoriteButton 
+                            favoriteId={favorite._id}
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {favorites.length === 0 && (
@@ -201,9 +185,11 @@ export default async function FavoritesPage() {
               <p className="text-gray-600 mb-4">
                 Start saving posts and comments you find interesting
               </p>
-              <Button>
-                Browse Posts
-              </Button>
+              <Link href="/dashboard/blogs">
+                <Button>
+                  Browse Posts
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         )}

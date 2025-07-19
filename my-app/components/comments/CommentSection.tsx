@@ -35,8 +35,6 @@ interface Comment {
   authorRole: string;
   parentCommentId?: string;
   replies: Comment[];
-  likes: number;
-  likedBy: string[];
   createdAt: string;
   updatedAt?: string;
 }
@@ -48,7 +46,9 @@ interface CommentSectionProps {
   onAddComment: (content: string, parentCommentId?: string) => Promise<void>;
   onEditComment: (commentPath: string, content: string) => Promise<void>;
   onDeleteComment: (commentPath: string) => Promise<void>;
-  onLikeComment: (commentPath: string) => Promise<void>;
+  onAddFavorite: (commentPath: string) => Promise<void>;
+  onRemoveFavorite: (commentPath: string) => Promise<void>;
+  onCheckFavorite: (commentPath: string) => Promise<boolean>;
   onCommentAdded?: () => void;
 }
 
@@ -59,7 +59,9 @@ export default function CommentSection({
   onAddComment,
   onEditComment,
   onDeleteComment,
-  onLikeComment,
+  onAddFavorite,
+  onRemoveFavorite,
+  onCheckFavorite,
   onCommentAdded
 }: CommentSectionProps) {
   const { user } = useUser();
@@ -191,7 +193,9 @@ export default function CommentSection({
                 onAddComment={onAddComment}
                 onEditComment={onEditComment}
                 onDeleteComment={onDeleteComment}
-                onLikeComment={onLikeComment}
+                onAddFavorite={onAddFavorite}
+                onRemoveFavorite={onRemoveFavorite}
+                onCheckFavorite={onCheckFavorite}
                 commentPath={index.toString()}
               />
             ))}

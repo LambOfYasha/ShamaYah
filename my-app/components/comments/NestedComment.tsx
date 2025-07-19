@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRole } from '@/hooks/useRole'
 import { Button } from '@/components/ui/button'
@@ -28,8 +28,6 @@ interface Comment {
   authorRole: string
   parentCommentId?: string
   replies: Comment[]
-  likes: number
-  likedBy: string[]
   createdAt: string
   updatedAt?: string
 }
@@ -43,7 +41,9 @@ interface NestedCommentProps {
   onAddComment: (content: string, parentCommentId?: string) => Promise<void>
   onEditComment: (commentPath: string, content: string) => Promise<void>
   onDeleteComment: (commentPath: string) => Promise<void>
-  onLikeComment: (commentPath: string) => Promise<void>
+  onAddFavorite: (commentPath: string) => Promise<void>
+  onRemoveFavorite: (commentPath: string) => Promise<void>
+  onCheckFavorite: (commentPath: string) => Promise<boolean>
   level?: number
   commentPath?: string
 }
@@ -57,7 +57,9 @@ export default function NestedComment({
   onAddComment,
   onEditComment,
   onDeleteComment,
-  onLikeComment,
+  onAddFavorite,
+  onRemoveFavorite,
+  onCheckFavorite,
   level = 0,
   commentPath
 }: NestedCommentProps) {
@@ -68,6 +70,28 @@ export default function NestedComment({
   const [replyContent, setReplyContent] = useState('')
   const [editContent, setEditContent] = useState(comment.content)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [isCheckingFavorite, setIsCheckingFavorite] = useState(false)
+
+  // Check if comment is favorited when component mounts
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (user) {
+        setIsCheckingFavorite(true)
+        try {
+          const favoritePath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
+          const favorited = await onCheckFavorite(favoritePath)
+          setIsFavorited(favorited)
+        } catch (error) {
+          console.error('Failed to check favorite status:', error)
+        } finally {
+          setIsCheckingFavorite(false)
+        }
+      }
+    }
+
+    checkFavoriteStatus()
+  }, [user, commentIndex, commentPath, level, onCheckFavorite])
 
   const handleReply = async () => {
     if (!user || !replyContent.trim()) return
@@ -117,6 +141,27 @@ export default function NestedComment({
       onCommentAdded()
     } catch (error) {
       console.error('Failed to delete comment:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleToggleFavorite = async () => {
+    if (!user) return
+
+    setIsSubmitting(true)
+    try {
+      const favoritePath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
+      
+      if (isFavorited) {
+        await onRemoveFavorite(favoritePath)
+        setIsFavorited(false)
+      } else {
+        await onAddFavorite(favoritePath)
+        setIsFavorited(true)
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error)
     } finally {
       setIsSubmitting(false)
     }
@@ -222,14 +267,12 @@ export default function NestedComment({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => {
-                        const likePath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
-                        onLikeComment(likePath)
-                      }}
+                      onClick={handleToggleFavorite}
+                      disabled={isSubmitting || isCheckingFavorite}
                       className="flex items-center gap-1"
                     >
-                      <Heart className={`w-4 h-4 ${comment.likedBy.includes(user?.id || '') ? 'text-red-500 fill-current' : ''}`} />
-                      {comment.likes}
+                      <Heart className={`w-4 h-4 ${isFavorited ? 'text-red-500 fill-current' : ''}`} />
+                      {isCheckingFavorite ? '...' : (isFavorited ? 'Favorited' : 'Favorite')}
                     </Button>
                     {level < maxLevel && (
                       <Button
@@ -294,7 +337,9 @@ export default function NestedComment({
               onAddComment={onAddComment}
               onEditComment={onEditComment}
               onDeleteComment={onDeleteComment}
-              onLikeComment={onLikeComment}
+              onAddFavorite={onAddFavorite}
+              onRemoveFavorite={onRemoveFavorite}
+              onCheckFavorite={onCheckFavorite}
               level={level + 1}
               commentPath={commentPath ? `${commentPath}.${commentIndex}` : commentIndex.toString()}
             />

@@ -22,6 +22,7 @@ import { getCurrentUser } from "@/lib/auth/middleware";
 import EditCommunityButton from "@/components/community/EditCommunityButton";
 import DeleteCommunityButton from "@/components/community/DeleteCommunityButton";
 import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedCommentSectionWrapper";
+import FavoriteButton from "@/components/ui/favorite-button";
 import { editCommunity } from "@/action/editCommunity";
 
 interface CommunityQuestionWithModerator extends CommunityQuestion {
@@ -179,10 +180,12 @@ export default async function CommunityQuestionPage({
                 <Share className="w-4 h-4 mr-2" />
                 Share
               </Button>
-              <Button variant="outline" size="sm">
-                <Bookmark className="w-4 h-4 mr-2" />
-                Save
-              </Button>
+              <FavoriteButton 
+                postId={communityQuestion._id}
+                postType="community"
+                size="sm"
+                variant="outline"
+              />
             </div>
           </div>
 

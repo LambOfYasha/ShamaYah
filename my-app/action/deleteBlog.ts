@@ -4,6 +4,7 @@ import { getUser } from "@/lib/user/getUser";
 import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
 import { sanityFetch } from "@/sanity/lib/live";
+import { cleanupFavoritesForDeletedPost } from "./embeddedComments";
 
 export async function deleteBlog(blogId: string) {
     try {
@@ -60,6 +61,15 @@ export async function deleteBlog(blogId: string) {
         console.log("Permission check passed, proceeding with deletion");
 
         console.log("Deleting blog with ID:", blogId);
+        
+        // Clean up favorites before deleting the blog
+        console.log("Cleaning up favorites for blog:", blogId);
+        const cleanupResult = await cleanupFavoritesForDeletedPost(blogId);
+        if ("error" in cleanupResult) {
+            console.warn("Warning: Failed to cleanup favorites:", cleanupResult.error);
+        } else {
+            console.log(`Cleaned up ${cleanupResult.cleanedCount} favorites for blog:`, blogId);
+        }
         
         // Now delete the blog
         const deleteResult = await adminClient.delete(blogId);

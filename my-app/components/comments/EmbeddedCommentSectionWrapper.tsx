@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import CommentSection from './CommentSection';
 import { getEmbeddedComments } from '@/action/embeddedComments';
-import { addCommentAction, editCommentAction, deleteCommentAction, likeCommentAction } from '@/action/embeddedCommentActions';
+import { addCommentAction, editCommentAction, deleteCommentAction, addFavoriteAction, removeFavoriteAction, checkFavoriteAction } from '@/action/embeddedCommentActions';
 
 interface EmbeddedComment {
   content: string;
@@ -16,8 +16,6 @@ interface EmbeddedComment {
   authorRole: string;
   parentCommentId?: string;
   replies: EmbeddedComment[];
-  likes: number;
-  likedBy: string[];
   createdAt: string;
   updatedAt?: string;
 }
@@ -81,13 +79,33 @@ export default function EmbeddedCommentSectionWrapper({
     }
   };
 
-  const handleLikeComment = async (commentPath: string) => {
+  const handleAddFavorite = async (commentPath: string) => {
     try {
-      await likeCommentAction(postId, postType, commentPath);
-      // Refresh comments after liking
+      await addFavoriteAction(postId, postType, commentPath);
+      // Refresh comments after adding favorite
       await fetchComments();
     } catch (error) {
-      console.error('Failed to like comment:', error);
+      console.error('Failed to add favorite:', error);
+    }
+  };
+
+  const handleRemoveFavorite = async (commentPath: string) => {
+    try {
+      await removeFavoriteAction(postId, postType, commentPath);
+      // Refresh comments after removing favorite
+      await fetchComments();
+    } catch (error) {
+      console.error('Failed to remove favorite:', error);
+    }
+  };
+
+  const handleCheckFavorite = async (commentPath: string) => {
+    try {
+      const result = await checkFavoriteAction(postId, postType, commentPath);
+      return result.isFavorited;
+    } catch (error) {
+      console.error('Failed to check favorite:', error);
+      return false;
     }
   };
 
@@ -127,7 +145,9 @@ export default function EmbeddedCommentSectionWrapper({
       onAddComment={handleAddComment}
       onEditComment={handleEditComment}
       onDeleteComment={handleDeleteComment}
-      onLikeComment={handleLikeComment}
+      onAddFavorite={handleAddFavorite}
+      onRemoveFavorite={handleRemoveFavorite}
+      onCheckFavorite={handleCheckFavorite}
       onCommentAdded={fetchComments}
     />
   );

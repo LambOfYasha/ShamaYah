@@ -19,9 +19,15 @@ export const favoriteType = defineType({
       name: 'post',
       title: 'Post',
       type: 'reference',
-      to: [{type: 'post'}, {type: 'blog'}],
+      to: [{type: 'post'}, {type: 'blog'}, {type: 'communityQuestion'}],
       description: 'The post that was saved',
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'commentPath',
+      title: 'Comment Path',
+      type: 'string',
+      description: 'The path to the specific comment (e.g., "0" for first comment, "0.1" for first reply of first comment). Leave empty for post-level favorites.',
     }),
     defineField({
       name: 'savedAt',
