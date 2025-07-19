@@ -49,6 +49,7 @@ interface CommentSectionProps {
   onEditComment: (commentIndex: number, content: string) => Promise<void>;
   onDeleteComment: (commentIndex: number) => Promise<void>;
   onLikeComment: (commentIndex: number) => Promise<void>;
+  onCommentAdded?: () => void;
 }
 
 export default function CommentSection({
@@ -58,7 +59,8 @@ export default function CommentSection({
   onAddComment,
   onEditComment,
   onDeleteComment,
-  onLikeComment
+  onLikeComment,
+  onCommentAdded
 }: CommentSectionProps) {
   const { user } = useUser();
   const [newComment, setNewComment] = useState('');
@@ -123,8 +125,10 @@ export default function CommentSection({
   };
 
   const handleCommentAdded = () => {
-    // This will be handled by the parent component to refresh comments
-    window.location.reload();
+    // Call the parent's onCommentAdded callback to refresh comments
+    if (onCommentAdded) {
+      onCommentAdded();
+    }
   };
 
   return (
@@ -184,9 +188,11 @@ export default function CommentSection({
                 postId={postId}
                 postType={postType === 'community' ? 'communityQuestion' : 'blogPost'}
                 onCommentAdded={handleCommentAdded}
+                onAddComment={onAddComment}
                 onEditComment={onEditComment}
                 onDeleteComment={onDeleteComment}
                 onLikeComment={onLikeComment}
+                commentPath={index.toString()}
               />
             ))}
           </div>

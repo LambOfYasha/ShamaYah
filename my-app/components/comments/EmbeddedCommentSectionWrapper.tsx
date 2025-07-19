@@ -128,6 +128,7 @@ export default function EmbeddedCommentSectionWrapper({
       onEditComment={handleEditComment}
       onDeleteComment={handleDeleteComment}
       onLikeComment={handleLikeComment}
+      onCommentAdded={fetchComments}
     />
   );
 } 

@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { addEmbeddedComment } from '@/action/embeddedComments'
+
 
 interface Comment {
   content: string
@@ -39,10 +39,12 @@ interface NestedCommentProps {
   postId: string
   postType: 'communityQuestion' | 'blogPost'
   onCommentAdded: () => void
+  onAddComment: (content: string, parentCommentId?: string) => Promise<void>
   onEditComment: (commentIndex: number, content: string) => Promise<void>
   onDeleteComment: (commentIndex: number) => Promise<void>
   onLikeComment: (commentIndex: number) => Promise<void>
   level?: number
+  commentPath?: string
 }
 
 export default function NestedComment({ 
@@ -51,10 +53,12 @@ export default function NestedComment({
   postId, 
   postType, 
   onCommentAdded,
+  onAddComment,
   onEditComment,
   onDeleteComment,
   onLikeComment,
-  level = 0 
+  level = 0,
+  commentPath
 }: NestedCommentProps) {
   const { user } = useUser()
   const [isReplying, setIsReplying] = useState(false)
@@ -68,7 +72,12 @@ export default function NestedComment({
 
     setIsSubmitting(true)
     try {
-      await addEmbeddedComment(postId, postType === 'communityQuestion' ? 'community' : 'blog', replyContent, commentIndex.toString())
+      // Create the path to this comment for the reply
+      // For top-level comments, use just the commentIndex
+      // For nested comments, use the commentPath (which already includes the full path)
+      const replyPath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
+
+      await onAddComment(replyContent, replyPath)
       setReplyContent('')
       setIsReplying(false)
       onCommentAdded()
@@ -265,17 +274,20 @@ export default function NestedComment({
       {/* Render nested replies */}
       {comment.replies && comment.replies.length > 0 && level < maxLevel && (
         <div className="space-y-2">
-          {comment.replies.map((reply) => (
+          {comment.replies.map((reply, replyIndex) => (
             <NestedComment
-              key={reply._id}
+              key={`${reply.authorId}-${reply.createdAt}-${replyIndex}`}
               comment={reply}
+              commentIndex={replyIndex}
               postId={postId}
               postType={postType}
               onCommentAdded={onCommentAdded}
+              onAddComment={onAddComment}
               onEditComment={onEditComment}
               onDeleteComment={onDeleteComment}
               onLikeComment={onLikeComment}
               level={level + 1}
+              commentPath={commentPath ? `${commentPath}.${commentIndex}` : commentIndex.toString()}
             />
           ))}
         </div>
