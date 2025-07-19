@@ -118,42 +118,144 @@ export async function editComment(
 export async function deleteComment(
     commentId: string
 ) {
+    console.log("=== DELETE COMMENT FUNCTION ENTRY ===");
+    console.log("CommentId received:", commentId);
+    
     try {
+        console.log("=== DELETE COMMENT DEBUG START ===");
+        console.log("Starting deleteComment with commentId:", commentId);
+        
+        if (!commentId || typeof commentId !== 'string' || commentId.trim() === '') {
+            console.error("Invalid comment ID provided:", commentId);
+            return { error: "Invalid comment ID" };
+        }
+        
+        // Check environment variables
+        if (!process.env.SANITY_ADMIN_API_TOKEN) {
+            console.error("SANITY_ADMIN_API_TOKEN is not set");
+            return { error: "Admin token not configured" };
+        }
+
+        console.log("Environment variables check passed");
+        
         const user = await getUser();
+        console.log("User result:", user);
 
         if ("error" in user) {
+            console.error("User error:", user.error);
             return { error: user.error };
+        }
+
+        if (!user || !user._id) {
+            console.error("User not found or missing ID");
+            return { error: "User authentication failed" };
         }
 
         // Check if user has permission to delete this comment
         const commentQuery = defineQuery(`
-            *[_type == "comment" && _id == $commentId][0] {
+            *[_type == "comment" && _id == $commentId && (isDeleted == false || isDeleted == null)][0] {
                 _id,
                 author->{_id}
             }
         `);
 
-        const comment = await sanityFetch({
-            query: commentQuery,
-            params: { commentId },
-        });
+        console.log("Fetching comment with ID:", commentId);
+        
+        // Test admin client connection first
+        try {
+            const testQuery = defineQuery(`*[_type == "comment"][0]{_id}`);
+            const testResult = await adminClient.fetch(testQuery);
+            console.log("Admin client test successful:", testResult ? "Found document" : "No documents");
+        } catch (testError) {
+            console.error("Admin client test failed:", testError);
+            return { error: "Database connection failed - please check your configuration" };
+        }
+        
+        let comment;
+        try {
+            comment = await sanityFetch({
+                query: commentQuery,
+                params: { commentId },
+            });
+            console.log("Comment query result:", comment);
+        } catch (queryError) {
+            console.error("Error fetching comment:", queryError);
+            return { error: "Failed to fetch comment - please try again" };
+        }
 
         if (!comment.data) {
+            console.error("Comment not found with ID:", commentId);
             return { error: "Comment not found" };
         }
 
+        console.log("Comment author ID:", comment.data.author?._id);
+        console.log("Current user ID:", user._id);
+        console.log("Current user role:", user.role);
+
         // Check if user is the author or an admin
         if (comment.data.author?._id !== user._id && user.role !== "admin") {
+            console.error("User does not have permission to delete this comment");
             return { error: "You don't have permission to delete this comment" };
         }
 
-        // Delete the comment
-        await adminClient.delete(commentId);
+        console.log("Permission check passed, proceeding with soft deletion");
 
+        // Soft delete the comment
+        console.log("Soft deleting comment with ID:", commentId);
+        try {
+            const softDeleteResult = await adminClient
+                .patch(commentId)
+                .set({
+                    isDeleted: true,
+                    deletedAt: new Date().toISOString(),
+                    deletedBy: user._id
+                })
+                .commit();
+            
+            console.log("Soft delete result:", softDeleteResult);
+            
+            if (!softDeleteResult) {
+                console.error("Soft delete operation returned null/undefined");
+                return { error: "Delete operation failed - no result returned" };
+            }
+            
+            console.log("Soft delete operation completed successfully");
+        } catch (deleteError) {
+            console.error("Error during soft deletion:", deleteError);
+            console.error("Error type:", typeof deleteError);
+            console.error("Error message:", deleteError instanceof Error ? deleteError.message : String(deleteError));
+            
+            if (deleteError instanceof Error) {
+                if (deleteError.message.includes("not found")) {
+                    return { error: "Comment not found or already deleted" };
+                }
+                if (deleteError.message.includes("referenced")) {
+                    return { error: "Cannot delete comment with existing references" };
+                }
+                if (deleteError.message.includes("permission")) {
+                    return { error: "Permission denied - please check your access rights" };
+                }
+                if (deleteError.message.includes("token")) {
+                    return { error: "Authentication failed - please check your Sanity token" };
+                }
+                if (deleteError.message.includes("network")) {
+                    return { error: "Network error - please check your connection" };
+                }
+            }
+            return { error: "Failed to delete comment - please try again" };
+        }
+
+        console.log("=== DELETE COMMENT DEBUG END ===");
         return { success: true };
     } catch (error) {
+        console.error("=== DELETE COMMENT ERROR ===");
         console.error("Failed to delete comment:", error);
-        return { error: "Failed to delete comment" };
+        console.error("Error type:", typeof error);
+        console.error("Error message:", error instanceof Error ? error.message : String(error));
+        console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
+        console.error("=== END ERROR ===");
+        
+        return { error: "Failed to delete comment - please try again" };
     }
 }
 
@@ -225,7 +327,7 @@ export async function getComments(
         const userId = user && !("error" in user) ? user._id : null;
 
         const commentsQuery = defineQuery(`
-            *[_type == "comment" && post._ref == $postId && postType == $postType && !defined(parentComment)] | order(createdAt asc) {
+            *[_type == "comment" && post._ref == $postId && postType == $postType && !defined(parentComment) && (isDeleted == false || isDeleted == null)] | order(createdAt asc) {
                 _id,
                 content,
                 createdAt,
@@ -237,7 +339,7 @@ export async function getComments(
                     imageURL
                 },
                 "isLiked": $userId in likedBy,
-                "replies": *[_type == "comment" && parentComment._ref == ^._id] | order(createdAt asc) {
+                "replies": *[_type == "comment" && parentComment._ref == ^._id && (isDeleted == false || isDeleted == null)] | order(createdAt asc) {
                     _id,
                     content,
                     createdAt,
@@ -249,7 +351,7 @@ export async function getComments(
                         imageURL
                     },
                     "isLiked": $userId in likedBy,
-                    "replies": *[_type == "comment" && parentComment._ref == ^._id] | order(createdAt asc) {
+                    "replies": *[_type == "comment" && parentComment._ref == ^._id && (isDeleted == false || isDeleted == null)] | order(createdAt asc) {
                         _id,
                         content,
                         createdAt,

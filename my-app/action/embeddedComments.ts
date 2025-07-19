@@ -213,7 +213,7 @@ export async function deleteEmbeddedComment(postId: string, postType: 'blog' | '
         
         // Get the current post
         const postQuery = defineQuery(`
-            *[_type == $sanityPostType && _id == $postId][0] {
+            *[_type == $sanityPostType && _id == $postId && (isDeleted == false || isDeleted == null)][0] {
                 _id,
                 comments
             }

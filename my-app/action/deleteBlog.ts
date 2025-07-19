@@ -7,6 +7,9 @@ import { sanityFetch } from "@/sanity/lib/live";
 import { cleanupFavoritesForDeletedPost } from "./embeddedComments";
 
 export async function deleteBlog(blogId: string) {
+    console.log("=== DELETE BLOG FUNCTION ENTRY ===");
+    console.log("BlogId received:", blogId);
+    
     try {
         console.log("=== DELETE BLOG DEBUG START ===");
         console.log("Starting deleteBlog with blogId:", blogId);
@@ -71,9 +74,50 @@ export async function deleteBlog(blogId: string) {
             console.log(`Cleaned up ${cleanupResult.cleanedCount} favorites for blog:`, blogId);
         }
         
-        // Now delete the blog
-        const deleteResult = await adminClient.delete(blogId);
-        console.log("Delete result:", deleteResult);
+        // Soft delete the blog (mark as deleted instead of hard delete)
+        console.log("Soft deleting blog with ID:", blogId);
+        try {
+            const softDeleteResult = await adminClient
+                .patch(blogId)
+                .set({
+                    isDeleted: true,
+                    deletedAt: new Date().toISOString(),
+                    deletedBy: user._id
+                })
+                .commit();
+            
+            console.log("Soft delete result:", softDeleteResult);
+            
+            if (!softDeleteResult) {
+                console.error("Soft delete operation returned null/undefined");
+                return { error: "Delete operation failed - no result returned" };
+            }
+            
+            console.log("Soft delete operation completed successfully");
+        } catch (deleteError) {
+            console.error("Error during soft deletion:", deleteError);
+            console.error("Error type:", typeof deleteError);
+            console.error("Error message:", deleteError instanceof Error ? deleteError.message : String(deleteError));
+            
+            if (deleteError instanceof Error) {
+                if (deleteError.message.includes("not found")) {
+                    return { error: "Blog not found or already deleted" };
+                }
+                if (deleteError.message.includes("referenced")) {
+                    return { error: "Cannot delete blog with existing references" };
+                }
+                if (deleteError.message.includes("permission")) {
+                    return { error: "Permission denied - please check your access rights" };
+                }
+                if (deleteError.message.includes("token")) {
+                    return { error: "Authentication failed - please check your Sanity token" };
+                }
+                if (deleteError.message.includes("network")) {
+                    return { error: "Network error - please check your connection" };
+                }
+            }
+            return { error: "Failed to delete blog - please try again" };
+        }
 
         console.log("=== DELETE BLOG DEBUG END ===");
         return { success: true };
@@ -104,7 +148,7 @@ export async function deleteBlog(blogId: string) {
             }
         }
         
-        return { error: "Failed to delete blog" };
+        return { error: "Failed to delete blog - please try again" };
     }
 }
 

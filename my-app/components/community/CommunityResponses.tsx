@@ -10,6 +10,8 @@ import { getCommunityResponses } from '@/action/postActions';
 import ApproveResponseButton from '@/components/ui/approve-response-button';
 import AddResponseForm from '@/components/community/AddResponseForm';
 import FavoriteButton from '@/components/ui/favorite-button';
+import EditResponseButton from '@/components/ui/edit-response-button';
+import DeleteResponseButton from '@/components/ui/delete-response-button';
 import Link from 'next/link';
 
 interface CommunityResponsesProps {
@@ -63,6 +65,16 @@ export default function CommunityResponses({ communityQuestionId, user, communit
   }, [communityQuestionId]);
 
   const canApprove = user && (user.role === 'teacher' || user.role === 'admin');
+  const canEdit = (response: Response) => user && (
+    user._id === response.author._id || 
+    user.role === 'admin' || 
+    user.role === 'teacher'
+  );
+  const canDelete = (response: Response) => user && (
+    user._id === response.author._id || 
+    user.role === 'admin' || 
+    user.role === 'teacher'
+  );
 
   if (loading) {
     return (
@@ -159,6 +171,23 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                     size="sm"
                     variant="outline"
                   />
+                  {canEdit(response) && (
+                    <EditResponseButton
+                      responseId={response._id}
+                      currentTitle={response.title}
+                      currentBody={response.body}
+                      size="sm"
+                      variant="outline"
+                    />
+                  )}
+                  {canDelete(response) && (
+                    <DeleteResponseButton
+                      responseId={response._id}
+                      responseTitle={response.title}
+                      size="sm"
+                      variant="outline"
+                    />
+                  )}
                   {canApprove && (
                     <ApproveResponseButton
                       responseId={response._id}

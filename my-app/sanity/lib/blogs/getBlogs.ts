@@ -24,7 +24,7 @@ async function typedSanityFetch<T>(query: string): Promise<T> {
 }
 
 export async function getBlogs(): Promise<BlogWithAuthor[]> {
-    const getBlogsQuery = defineQuery(`*[_type == "blog"] {
+    const getBlogsQuery = defineQuery(`*[_type == "blog" && (isDeleted == false || isDeleted == null)] {
         ...,
         title,
         "slug": slug.current,

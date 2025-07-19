@@ -7,6 +7,9 @@ import { sanityFetch } from "@/sanity/lib/live";
 import { cleanupFavoritesForDeletedPost } from "./embeddedComments";
 
 export async function deleteCommunity(communityId: string) {
+    console.log("=== DELETE COMMUNITY FUNCTION ENTRY ===");
+    console.log("CommunityId received:", communityId);
+    
     try {
         console.log("=== DELETE COMMUNITY DEBUG START ===");
         console.log("Starting deleteCommunity with communityId:", communityId);
@@ -58,7 +61,7 @@ export async function deleteCommunity(communityId: string) {
 
         // Check if user has permission to delete this community question
         const communityQuery = defineQuery(`
-            *[_type == "communityQuestion" && _id == $communityId][0] {
+            *[_type == "communityQuestion" && _id == $communityId && (isDeleted == false || isDeleted == null)][0] {
                 _id,
                 moderator->{_id},
                 title,
@@ -118,12 +121,13 @@ export async function deleteCommunity(communityId: string) {
 
         console.log("Permission check passed, proceeding with deletion");
 
-        // Check if there are any responses for this community question
+        // Check if there are any responses for this community question (including soft-deleted ones)
         console.log("Checking for responses to this community question:", communityId);
         const responsesQuery = defineQuery(`
-            *[_type == "post" && communityQuestion._ref == $communityId && isDeleted == false] {
+            *[_type == "post" && communityQuestion._ref == $communityId] {
                 _id,
-                title
+                title,
+                isDeleted
             }
         `);
         
@@ -134,11 +138,11 @@ export async function deleteCommunity(communityId: string) {
             if (responses && responses.length > 0) {
                 console.log(`Found ${responses.length} responses for this community question`);
                 
-                // Delete all responses first
-                console.log("Deleting responses before deleting community question");
+                // Handle all responses (both active and soft-deleted)
+                console.log("Processing responses before deleting community question");
                 for (const response of responses) {
                     try {
-                        console.log("Deleting response:", response._id);
+                        console.log("Processing response:", response._id, "isDeleted:", response.isDeleted);
                         
                         // Clean up favorites for this response first
                         console.log("Cleaning up favorites for response:", response._id);
@@ -149,10 +153,23 @@ export async function deleteCommunity(communityId: string) {
                             console.log(`Cleaned up ${responseCleanupResult.cleanedCount} favorites for response:`, response._id);
                         }
                         
-                        await adminClient.delete(response._id);
-                        console.log("Successfully deleted response:", response._id);
+                        // If response is not already soft-deleted, soft delete it
+                        if (!response.isDeleted) {
+                            console.log("Soft deleting response:", response._id);
+                            await adminClient
+                                .patch(response._id)
+                                .set({
+                                    isDeleted: true,
+                                    deletedAt: new Date().toISOString(),
+                                    deletedBy: user._id
+                                })
+                                .commit();
+                            console.log("Successfully soft deleted response:", response._id);
+                        } else {
+                            console.log("Response already soft-deleted:", response._id);
+                        }
                     } catch (responseDeleteError) {
-                        console.error("Error deleting response:", response._id, responseDeleteError);
+                        console.error("Error processing response:", response._id, responseDeleteError);
                         // Continue with other responses even if one fails
                     }
                 }
@@ -204,20 +221,28 @@ export async function deleteCommunity(communityId: string) {
             console.warn("Warning: Exception during post-level favorites cleanup:", postFavoritesError);
         }
         
-        // Now delete the community question
+        // Soft delete the community question (mark as deleted instead of hard delete)
         try {
-            console.log("Attempting to delete community question with ID:", communityId);
-            const deleteResult = await adminClient.delete(communityId);
-            console.log("Delete result:", deleteResult);
+            console.log("Soft deleting community question with ID:", communityId);
+            const softDeleteResult = await adminClient
+                .patch(communityId)
+                .set({
+                    isDeleted: true,
+                    deletedAt: new Date().toISOString(),
+                    deletedBy: user._id
+                })
+                .commit();
             
-            if (!deleteResult) {
-                console.error("Delete operation returned null/undefined");
+            console.log("Soft delete result:", softDeleteResult);
+            
+            if (!softDeleteResult) {
+                console.error("Soft delete operation returned null/undefined");
                 return { error: "Delete operation failed - no result returned" };
             }
             
-            console.log("Delete operation completed successfully");
+            console.log("Soft delete operation completed successfully");
         } catch (deleteError) {
-            console.error("Error during deletion:", deleteError);
+            console.error("Error during soft deletion:", deleteError);
             console.error("Error type:", typeof deleteError);
             console.error("Error message:", deleteError instanceof Error ? deleteError.message : String(deleteError));
             
@@ -270,6 +295,6 @@ export async function deleteCommunity(communityId: string) {
             }
         }
         
-        return { error: "Failed to delete community question" };
+        return { error: "Failed to delete community question - please try again" };
     }
 } 

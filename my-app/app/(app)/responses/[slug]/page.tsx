@@ -13,6 +13,8 @@ import Link from 'next/link';
 import { PortableText } from '@portabletext/react';
 import ApproveResponseButton from '@/components/ui/approve-response-button';
 import FavoriteButton from '@/components/ui/favorite-button';
+import EditResponseButton from '@/components/ui/edit-response-button';
+import DeleteResponseButton from '@/components/ui/delete-response-button';
 import { formatDistanceToNow } from 'date-fns';
 import { Metadata } from 'next';
 
@@ -141,6 +143,8 @@ export default async function ResponsePage({ params }: { params: { slug: string 
 
   const canApprove = user && (user.role === 'admin' || user.role === 'teacher');
   const isAuthor = user && user._id === response.author._id;
+  const canEdit = user && (user._id === response.author._id || user.role === 'admin' || user.role === 'teacher');
+  const canDelete = user && (user._id === response.author._id || user.role === 'admin' || user.role === 'teacher');
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -293,10 +297,22 @@ export default async function ResponsePage({ params }: { params: { slug: string 
                 </Link>
               </div>
               <div className="flex items-center gap-2">
-                {isAuthor && (
-                  <Button variant="outline" size="sm">
-                    Edit Response
-                  </Button>
+                {canEdit && (
+                  <EditResponseButton
+                    responseId={response._id}
+                    currentTitle={response.title}
+                    currentBody={response.body}
+                    size="sm"
+                    variant="outline"
+                  />
+                )}
+                {canDelete && (
+                  <DeleteResponseButton
+                    responseId={response._id}
+                    responseTitle={response.title}
+                    size="sm"
+                    variant="outline"
+                  />
                 )}
                 {canApprove && (
                   <ApproveResponseButton

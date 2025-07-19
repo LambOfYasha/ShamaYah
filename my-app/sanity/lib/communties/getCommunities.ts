@@ -25,7 +25,7 @@ async function typedSanityFetch<T>(query: string): Promise<T> {
 
 export async function getCommunities(): Promise<CommunityWithModerator[]> {
     
-const getCommunitiesQuery = defineQuery(`*[_type == "communityQuestion"] {
+const getCommunitiesQuery = defineQuery(`*[_type == "communityQuestion" && (isDeleted == false || isDeleted == null)] {
         ...,
         title,
         "slug": slug.current,

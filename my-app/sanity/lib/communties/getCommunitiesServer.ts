@@ -18,7 +18,7 @@ interface CommunityWithModerator {
 }
 
 export async function getCommunitiesServer(): Promise<CommunityWithModerator[]> {
-    const getCommunitiesQuery = defineQuery(`*[_type == "communityQuestion"] {
+    const getCommunitiesQuery = defineQuery(`*[_type == "communityQuestion" && (isDeleted == false || isDeleted == null)] {
         ...,
         title,
         "slug": slug.current,
