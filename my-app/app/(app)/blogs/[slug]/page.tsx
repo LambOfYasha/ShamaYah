@@ -22,9 +22,8 @@ import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth/middleware";
 import EditBlogButton from "@/components/blog/EditBlogButton";
 import DeleteBlogButton from "@/components/blog/DeleteBlogButton";
-import CommentSectionWrapper from "@/components/comments/CommentSectionWrapper";
+import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedCommentSectionWrapper";
 import { editBlog } from "@/action/editBlog";
-import { addComment, editComment, deleteComment, likeComment, getComments } from "@/action/comments";
 
 interface BlogWithAuthor extends Blog {
   author: Teacher;
@@ -129,41 +128,7 @@ export default async function BlogPage({
 
 
 
-  const handleAddComment = async (content: string, parentCommentId?: string) => {
-    'use server';
-    const result = await addComment(blog._id, 'blog', content, parentCommentId);
-    if ("error" in result) {
-      throw new Error(result.error);
-    }
-    return result;
-  };
 
-  const handleEditComment = async (commentId: string, content: string) => {
-    'use server';
-    const result = await editComment(commentId, content);
-    if ("error" in result) {
-      throw new Error(result.error);
-    }
-    return result;
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    'use server';
-    const result = await deleteComment(commentId);
-    if ("error" in result) {
-      throw new Error(result.error);
-    }
-    return result;
-  };
-
-  const handleLikeComment = async (commentId: string) => {
-    'use server';
-    const result = await likeComment(commentId);
-    if ("error" in result) {
-      throw new Error(result.error);
-    }
-    return result;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -309,13 +274,9 @@ export default async function BlogPage({
 
         {/* Comments Section */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <CommentSectionWrapper
+          <EmbeddedCommentSectionWrapper
             postId={blog._id}
             postType="blog"
-            onAddComment={handleAddComment}
-            onEditComment={handleEditComment}
-            onDeleteComment={handleDeleteComment}
-            onLikeComment={handleLikeComment}
           />
         </div>
       </div>

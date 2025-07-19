@@ -21,9 +21,8 @@ import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth/middleware";
 import EditCommunityButton from "@/components/community/EditCommunityButton";
 import DeleteCommunityButton from "@/components/community/DeleteCommunityButton";
-import CommentSectionWrapper from "@/components/comments/CommentSectionWrapper";
+import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedCommentSectionWrapper";
 import { editCommunity } from "@/action/editCommunity";
-import { addComment, editComment, deleteComment, likeComment, getComments } from "@/action/comments";
 
 interface CommunityQuestionWithModerator extends CommunityQuestion {
   moderator: Teacher;
@@ -104,41 +103,7 @@ export default async function CommunityQuestionPage({
 
 
 
-  const handleAddComment = async (content: string, parentCommentId?: string) => {
-    'use server';
-    const result = await addComment(communityQuestion._id, 'community', content, parentCommentId);
-    if ("error" in result) {
-      throw new Error(result.error);
-    }
-    return result;
-  };
 
-  const handleEditComment = async (commentId: string, content: string) => {
-    'use server';
-    const result = await editComment(commentId, content);
-    if ("error" in result) {
-      throw new Error(result.error);
-    }
-    return result;
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    'use server';
-    const result = await deleteComment(commentId);
-    if ("error" in result) {
-      throw new Error(result.error);
-    }
-    return result;
-  };
-
-  const handleLikeComment = async (commentId: string) => {
-    'use server';
-    const result = await likeComment(commentId);
-    if ("error" in result) {
-      throw new Error(result.error);
-    }
-    return result;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -260,13 +225,9 @@ export default async function CommunityQuestionPage({
 
         {/* Comments Section */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <CommentSectionWrapper
+          <EmbeddedCommentSectionWrapper
             postId={communityQuestion._id}
             postType="community"
-            onAddComment={handleAddComment}
-            onEditComment={handleEditComment}
-            onDeleteComment={handleDeleteComment}
-            onLikeComment={handleLikeComment}
           />
         </div>
       </div>

@@ -14,36 +14,40 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { addComment } from '@/action/comments'
+import { addEmbeddedComment } from '@/action/embeddedComments'
 
 interface Comment {
-  _id: string
   content: string
   author: {
-    _id: string
-    username: string
-    imageURL?: string
+    _type: 'reference'
+    _ref: string
   }
+  authorId: string
+  authorUsername: string
+  authorRole: string
+  parentCommentId?: string
+  replies: Comment[]
+  likes: number
+  likedBy: string[]
   createdAt: string
   updatedAt?: string
-  likes: number
-  isLiked: boolean
-  replies?: Comment[]
 }
 
 interface NestedCommentProps {
   comment: Comment
+  commentIndex: number
   postId: string
   postType: 'communityQuestion' | 'blogPost'
   onCommentAdded: () => void
-  onEditComment: (commentId: string, content: string) => Promise<void>
-  onDeleteComment: (commentId: string) => Promise<void>
-  onLikeComment: (commentId: string) => Promise<void>
+  onEditComment: (commentIndex: number, content: string) => Promise<void>
+  onDeleteComment: (commentIndex: number) => Promise<void>
+  onLikeComment: (commentIndex: number) => Promise<void>
   level?: number
 }
 
 export default function NestedComment({ 
   comment, 
+  commentIndex,
   postId, 
   postType, 
   onCommentAdded,
@@ -64,7 +68,7 @@ export default function NestedComment({
 
     setIsSubmitting(true)
     try {
-      await addComment(postId, postType === 'communityQuestion' ? 'community' : 'blog', replyContent, comment._id)
+      await addEmbeddedComment(postId, postType === 'communityQuestion' ? 'community' : 'blog', replyContent, commentIndex.toString())
       setReplyContent('')
       setIsReplying(false)
       onCommentAdded()
@@ -80,7 +84,7 @@ export default function NestedComment({
 
     setIsSubmitting(true)
     try {
-      await onEditComment(comment._id, editContent.trim())
+      await onEditComment(commentIndex, editContent.trim())
       setIsEditing(false)
     } catch (error) {
       console.error('Failed to edit comment:', error)
@@ -94,7 +98,7 @@ export default function NestedComment({
 
     setIsSubmitting(true)
     try {
-      await onDeleteComment(comment._id)
+      await onDeleteComment(commentIndex)
       onCommentAdded()
     } catch (error) {
       console.error('Failed to delete comment:', error)
@@ -103,8 +107,8 @@ export default function NestedComment({
     }
   }
 
-  const canEdit = user && comment.author._id === user.id
-  const canDelete = user && (comment.author._id === user.id || user.publicMetadata?.role === 'admin')
+  const canEdit = user && comment.authorId === user.id
+  const canDelete = user && (comment.authorId === user.id || user.publicMetadata?.role === 'admin')
   const maxLevel = 3 // Maximum nesting level
 
   return (
@@ -113,9 +117,9 @@ export default function NestedComment({
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={comment.author.imageURL} />
+              <AvatarImage src={comment.authorUsername} />
               <AvatarFallback>
-                {comment.author.username?.charAt(0) || 'U'}
+                {comment.authorUsername?.charAt(0) || 'U'}
               </AvatarFallback>
             </Avatar>
             
@@ -123,10 +127,10 @@ export default function NestedComment({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm">
-                    {comment.author.username}
+                    {comment.authorUsername}
                   </span>
                   <Badge variant="outline" className="text-xs">
-                    {comment.author._id === user?.id ? 'You' : 'Member'}
+                    {comment.authorId === user?.id ? 'You' : comment.authorRole}
                   </Badge>
                 </div>
                 
@@ -203,10 +207,10 @@ export default function NestedComment({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onLikeComment(comment._id)}
+                      onClick={() => onLikeComment(commentIndex)}
                       className="flex items-center gap-1"
                     >
-                      <Heart className={`w-4 h-4 ${comment.isLiked ? 'text-red-500 fill-current' : ''}`} />
+                      <Heart className={`w-4 h-4 ${comment.likedBy.includes(user?.id || '') ? 'text-red-500 fill-current' : ''}`} />
                       {comment.likes}
                     </Button>
                     {level < maxLevel && (

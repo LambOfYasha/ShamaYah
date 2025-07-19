@@ -59,38 +59,6 @@ export async function deleteCommunity(communityId: string) {
 
         console.log("Permission check passed, proceeding with deletion");
 
-        // First, find and delete all comments associated with this community question
-        console.log("Finding all comments for community question:", communityId);
-        const commentsQuery = defineQuery(`
-            *[_type == "comment" && post._ref == $communityId] {
-                _id,
-                parentComment,
-                replies
-            }
-        `);
-
-        const comments = await adminClient.fetch(commentsQuery, { communityId });
-
-        console.log("Found comments:", comments);
-
-        if (comments && comments.length > 0) {
-            console.log(`Found ${comments.length} comments to delete`);
-            
-            // Delete all comments (this will also handle nested comments due to referential integrity)
-            for (const comment of comments) {
-                console.log("Deleting comment:", comment._id);
-                try {
-                    await adminClient.delete(comment._id);
-                    console.log("Successfully deleted comment:", comment._id);
-                } catch (commentError) {
-                    console.error("Error deleting comment:", comment._id, commentError);
-                    // Continue with other comments even if one fails
-                }
-            }
-        } else {
-            console.log("No comments found for this community question");
-        }
-
         console.log("Deleting community question with ID:", communityId);
         
         // Now delete the community question

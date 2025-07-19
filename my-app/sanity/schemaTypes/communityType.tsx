@@ -60,6 +60,13 @@ export const communityType = defineType({
             initialValue: new Date().toISOString(),
             validation: (Rule) => Rule.required(),
         }),
+        defineField({
+            name: 'comments',
+            title: 'Comments',
+            type: 'array',
+            of: [{type: 'embeddedComment'}],
+            description: 'Comments on this community question',
+        }),
     ],
     preview: {
         select: {

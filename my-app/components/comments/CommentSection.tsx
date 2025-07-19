@@ -25,18 +25,20 @@ import {
 import NestedComment from './NestedComment';
 
 interface Comment {
-  _id: string;
   content: string;
   author: {
-    _id: string;
-    username: string;
-    imageURL?: string;
+    _type: 'reference';
+    _ref: string;
   };
+  authorId: string;
+  authorUsername: string;
+  authorRole: string;
+  parentCommentId?: string;
+  replies: Comment[];
+  likes: number;
+  likedBy: string[];
   createdAt: string;
   updatedAt?: string;
-  likes: number;
-  isLiked: boolean;
-  replies?: Comment[];
 }
 
 interface CommentSectionProps {
@@ -44,9 +46,9 @@ interface CommentSectionProps {
   postType: 'community' | 'blog';
   comments: Comment[];
   onAddComment: (content: string, parentCommentId?: string) => Promise<void>;
-  onEditComment: (commentId: string, content: string) => Promise<void>;
-  onDeleteComment: (commentId: string) => Promise<void>;
-  onLikeComment: (commentId: string) => Promise<void>;
+  onEditComment: (commentIndex: number, content: string) => Promise<void>;
+  onDeleteComment: (commentIndex: number) => Promise<void>;
+  onLikeComment: (commentIndex: number) => Promise<void>;
 }
 
 export default function CommentSection({
@@ -79,12 +81,12 @@ export default function CommentSection({
     }
   };
 
-  const handleEditComment = async (commentId: string) => {
+  const handleEditComment = async (commentIndex: number) => {
     if (!editContent.trim()) return;
 
     setIsSubmitting(true);
     try {
-      await onEditComment(commentId, editContent.trim());
+      await onEditComment(commentIndex, editContent.trim());
       setEditingComment(null);
       setEditContent('');
     } catch (error) {
@@ -94,12 +96,12 @@ export default function CommentSection({
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
+  const handleDeleteComment = async (commentIndex: number) => {
     if (!confirm('Are you sure you want to delete this comment?')) return;
 
     setIsSubmitting(true);
     try {
-      await onDeleteComment(commentId);
+      await onDeleteComment(commentIndex);
     } catch (error) {
       console.error('Failed to delete comment:', error);
     } finally {
@@ -107,17 +109,17 @@ export default function CommentSection({
     }
   };
 
-  const startEditing = (comment: Comment) => {
-    setEditingComment(comment._id);
+  const startEditing = (comment: Comment, index: number) => {
+    setEditingComment(index.toString());
     setEditContent(comment.content);
   };
 
   const canEditComment = (comment: Comment) => {
-    return user && comment.author._id === user.id;
+    return user && comment.authorId === user.id;
   };
 
   const canDeleteComment = (comment: Comment) => {
-    return user && (comment.author._id === user.id || user.publicMetadata?.role === 'admin');
+    return user && (comment.authorId === user.id || user.publicMetadata?.role === 'admin');
   };
 
   const handleCommentAdded = () => {
@@ -174,10 +176,11 @@ export default function CommentSection({
           </Card>
         ) : (
           <div className="space-y-4">
-            {comments.map((comment) => (
+            {comments.map((comment, index) => (
               <NestedComment
-                key={comment._id}
+                key={`${comment.authorId}-${comment.createdAt}-${index}`}
                 comment={comment}
+                commentIndex={index}
                 postId={postId}
                 postType={postType === 'community' ? 'communityQuestion' : 'blogPost'}
                 onCommentAdded={handleCommentAdded}

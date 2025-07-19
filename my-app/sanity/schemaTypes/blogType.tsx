@@ -67,6 +67,13 @@ export const blogType = defineType({
             initialValue: new Date().toISOString(),
             validation: (Rule) => Rule.required(),
         }),
+        defineField({
+            name: 'comments',
+            title: 'Comments',
+            type: 'array',
+            of: [{type: 'embeddedComment'}],
+            description: 'Comments on this blog post',
+        }),
     ],
     preview: {
         select: {
