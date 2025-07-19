@@ -59,6 +59,13 @@ export const userType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'blog',
+      title: 'Blog',
+      type: 'reference',
+      description: 'The blog this user is a moderator of',
+      to: [{type: 'blog'}],
+    }),
+    defineField({
       name: 'communityQuestion',
       title: 'Community Question',
       type: 'reference',

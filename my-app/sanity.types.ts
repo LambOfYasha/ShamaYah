@@ -58,6 +58,33 @@ export type Favorite = {
   isActive?: boolean;
 };
 
+export type EmbeddedComment = {
+  _type: "embeddedComment";
+  content?: string;
+  author?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "user";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "teacher";
+  };
+  authorId?: string;
+  authorUsername?: string;
+  authorRole?: "user" | "teacher";
+  parentCommentId?: string;
+  replies?: Array<{
+    _key: string;
+  } & EmbeddedComment>;
+  likes?: number;
+  likedBy?: Array<string>;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type Comment = {
   _id: string;
   _type: "comment";
@@ -105,60 +132,6 @@ export type Comment = {
   likedBy?: Array<string>;
   createdAt?: string;
   updatedAt?: string;
-};
-
-export type Blog = {
-  _id: string;
-  _type: "blog";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  slug?: Slug;
-  description?: string;
-  image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-  };
-  content?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }>;
-  author?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "teacher";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "user";
-  };
-  createdAt?: string;
 };
 
 export type Post = {
@@ -234,6 +207,12 @@ export type User = {
   imageURL?: string;
   role?: "member" | "moderator" | "admin" | "teacher";
   joinedAt?: string;
+  blog?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "blog";
+  };
   communityQuestion?: {
     _ref: string;
     _type: "reference";
@@ -277,6 +256,66 @@ export type CommunityQuestion = {
     [internalGroqTypeReferenceTo]?: "teacher";
   };
   createdAt?: string;
+  comments?: Array<{
+    _key: string;
+  } & EmbeddedComment>;
+};
+
+export type Blog = {
+  _id: string;
+  _type: "blog";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  description?: string;
+  image?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  content?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  author?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "teacher";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "user";
+  };
+  createdAt?: string;
+  comments?: Array<{
+    _key: string;
+  } & EmbeddedComment>;
 };
 
 export type Teacher = {
@@ -413,7 +452,7 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = Tag | Favorite | Comment | Blog | Post | User | CommunityQuestion | Teacher | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = Tag | Favorite | EmbeddedComment | Comment | Post | User | CommunityQuestion | Blog | Teacher | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./app/(app)/blogs/[slug]/page.tsx
 // Variable: query
@@ -550,6 +589,12 @@ export type GetBlogsQueryResult = Array<{
     imageURL?: string;
     role?: "admin" | "member" | "moderator" | "teacher";
     joinedAt?: string;
+    blog?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "blog";
+    };
     communityQuestion?: {
       _ref: string;
       _type: "reference";
@@ -559,6 +604,9 @@ export type GetBlogsQueryResult = Array<{
     isReported?: boolean;
   } | null;
   createdAt?: string;
+  comments?: Array<{
+    _key: string;
+  } & EmbeddedComment>;
 }>;
 
 // Source: ./sanity/lib/communties/getCommunities.ts
@@ -612,6 +660,12 @@ export type GetCommunitiesQueryResult = Array<{
     imageURL?: string;
     role?: "admin" | "member" | "moderator" | "teacher";
     joinedAt?: string;
+    blog?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "blog";
+    };
     communityQuestion?: {
       _ref: string;
       _type: "reference";
@@ -621,6 +675,9 @@ export type GetCommunitiesQueryResult = Array<{
     isReported?: boolean;
   } | null;
   createdAt?: string;
+  comments?: Array<{
+    _key: string;
+  } & EmbeddedComment>;
 }>;
 
 // Query TypeMap
