@@ -20,7 +20,7 @@ export const favoriteType = defineType({
       title: 'Post',
       type: 'reference',
       to: [{type: 'post'}, {type: 'blog'}, {type: 'communityQuestion'}],
-      description: 'The post that was saved',
+      description: 'The post, blog, or community response that was saved',
       validation: (Rule) => Rule.required(),
     }),
     defineField({

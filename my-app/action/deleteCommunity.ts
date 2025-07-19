@@ -11,13 +11,35 @@ export async function deleteCommunity(communityId: string) {
         console.log("=== DELETE COMMUNITY DEBUG START ===");
         console.log("Starting deleteCommunity with communityId:", communityId);
         
+        if (!communityId || typeof communityId !== 'string' || communityId.trim() === '') {
+            console.error("Invalid community ID provided:", communityId);
+            return { error: "Invalid community ID" };
+        }
+
+        // Log the ID format to help debug
+        console.log("Community ID format check:");
+        console.log("- ID length:", communityId.length);
+        console.log("- ID starts with 'communityQuestion':", communityId.startsWith('communityQuestion'));
+        console.log("- ID format:", communityId);
+        
         // Check if admin token is available
         if (!process.env.SANITY_ADMIN_API_TOKEN) {
             console.error("SANITY_ADMIN_API_TOKEN is not set");
             return { error: "Admin token not configured" };
         }
 
+        if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+            console.error("NEXT_PUBLIC_SANITY_PROJECT_ID is not set");
+            return { error: "Project ID not configured" };
+        }
+
+        if (!process.env.NEXT_PUBLIC_SANITY_DATASET) {
+            console.error("NEXT_PUBLIC_SANITY_DATASET is not set");
+            return { error: "Dataset not configured" };
+        }
+
         console.log("Admin token is available");
+        console.log("Admin token length:", process.env.SANITY_ADMIN_API_TOKEN?.length || 0);
         console.log("Project ID:", process.env.NEXT_PUBLIC_SANITY_PROJECT_ID);
         console.log("Dataset:", process.env.NEXT_PUBLIC_SANITY_DATASET);
 
@@ -29,51 +51,195 @@ export async function deleteCommunity(communityId: string) {
             return { error: user.error };
         }
 
+        if (!user || !user._id) {
+            console.error("User not found or missing ID");
+            return { error: "User authentication failed" };
+        }
+
         // Check if user has permission to delete this community question
         const communityQuery = defineQuery(`
             *[_type == "communityQuestion" && _id == $communityId][0] {
                 _id,
-                author->{_id},
-                title
+                moderator->{_id},
+                title,
+                "hasModerator": defined(moderator)
             }
         `);
 
         console.log("Fetching community question with ID:", communityId);
-        const community = await adminClient.fetch(communityQuery, { communityId });
-
-        console.log("Community query result:", community);
+        
+        // Test admin client connection first
+        try {
+            const testQuery = defineQuery(`*[_type == "communityQuestion"][0]{_id}`);
+            const testResult = await adminClient.fetch(testQuery);
+            console.log("Admin client test successful:", testResult ? "Found document" : "No documents");
+        } catch (testError) {
+            console.error("Admin client test failed:", testError);
+            return { error: "Database connection failed - please check your configuration" };
+        }
+        
+        let community;
+        try {
+            community = await adminClient.fetch(communityQuery, { communityId });
+            console.log("Community query result:", community);
+        } catch (queryError) {
+            console.error("Error fetching community question:", queryError);
+            return { error: "Failed to fetch community question - please try again" };
+        }
 
         if (!community) {
             console.error("Community question not found with ID:", communityId);
             return { error: "Community question not found" };
         }
 
-        console.log("Community author ID:", community.author?._id);
+        console.log("Community moderator ID:", community.moderator?._id);
+        console.log("Community has moderator:", community.hasModerator);
         console.log("Current user ID:", user._id);
         console.log("Current user role:", user.role);
 
-        // Check if user is the author or an admin/teacher
-        if (community.author?._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
+        // Check if user is the moderator or an admin/teacher
+        const isModerator = community.moderator?._id === user._id;
+        const isAdmin = user.role === "admin";
+        const isTeacher = user.role === "teacher";
+        
+        console.log("Permission check - isModerator:", isModerator, "isAdmin:", isAdmin, "isTeacher:", isTeacher);
+        
+        // If no moderator is set, only allow admins and teachers to delete
+        if (!community.hasModerator) {
+            console.log("No moderator set for this community question");
+            if (!isAdmin && !isTeacher) {
+                console.error("User does not have permission to delete this community question (no moderator set)");
+                return { error: "Only admins and teachers can delete community questions without moderators" };
+            }
+        } else if (!isModerator && !isAdmin && !isTeacher) {
             console.error("User does not have permission to delete this community question");
             return { error: "You don't have permission to delete this community question" };
         }
 
         console.log("Permission check passed, proceeding with deletion");
 
+        // Check if there are any responses for this community question
+        console.log("Checking for responses to this community question:", communityId);
+        const responsesQuery = defineQuery(`
+            *[_type == "post" && communityQuestion._ref == $communityId && isDeleted == false] {
+                _id,
+                title
+            }
+        `);
+        
+        try {
+            const responses = await adminClient.fetch(responsesQuery, { communityId });
+            console.log("Found responses:", responses);
+            
+            if (responses && responses.length > 0) {
+                console.log(`Found ${responses.length} responses for this community question`);
+                
+                // Delete all responses first
+                console.log("Deleting responses before deleting community question");
+                for (const response of responses) {
+                    try {
+                        console.log("Deleting response:", response._id);
+                        
+                        // Clean up favorites for this response first
+                        console.log("Cleaning up favorites for response:", response._id);
+                        const responseCleanupResult = await cleanupFavoritesForDeletedPost(response._id);
+                        if ("error" in responseCleanupResult) {
+                            console.warn("Warning: Failed to cleanup favorites for response:", responseCleanupResult.error);
+                        } else {
+                            console.log(`Cleaned up ${responseCleanupResult.cleanedCount} favorites for response:`, response._id);
+                        }
+                        
+                        await adminClient.delete(response._id);
+                        console.log("Successfully deleted response:", response._id);
+                    } catch (responseDeleteError) {
+                        console.error("Error deleting response:", response._id, responseDeleteError);
+                        // Continue with other responses even if one fails
+                    }
+                }
+            } else {
+                console.log("No responses found for this community question");
+            }
+        } catch (responsesError) {
+            console.error("Error checking for responses:", responsesError);
+            // Continue with deletion even if we can't check responses
+        }
+
         console.log("Deleting community question with ID:", communityId);
         
         // Clean up favorites before deleting the community question
         console.log("Cleaning up favorites for community question:", communityId);
-        const cleanupResult = await cleanupFavoritesForDeletedPost(communityId);
-        if ("error" in cleanupResult) {
-            console.warn("Warning: Failed to cleanup favorites:", cleanupResult.error);
-        } else {
-            console.log(`Cleaned up ${cleanupResult.cleanedCount} favorites for community question:`, communityId);
+        try {
+            const cleanupResult = await cleanupFavoritesForDeletedPost(communityId);
+            if ("error" in cleanupResult) {
+                console.warn("Warning: Failed to cleanup favorites:", cleanupResult.error);
+            } else {
+                console.log(`Cleaned up ${cleanupResult.cleanedCount} favorites for community question:`, communityId);
+            }
+        } catch (cleanupError) {
+            console.warn("Warning: Exception during favorites cleanup:", cleanupError);
+            // Continue with deletion even if cleanup fails
+        }
+
+        // Also clean up any favorites that reference this community question as a post
+        console.log("Cleaning up post-level favorites for community question:", communityId);
+        try {
+            const postFavoritesQuery = defineQuery(`
+                *[_type == "favorite" && post._ref == $communityId && isActive == true] {
+                    _id
+                }
+            `);
+            
+            const postFavorites = await adminClient.fetch(postFavoritesQuery, { communityId });
+            if (postFavorites && postFavorites.length > 0) {
+                console.log(`Found ${postFavorites.length} post-level favorites to deactivate`);
+                for (const favorite of postFavorites) {
+                    await adminClient
+                        .patch(favorite._id)
+                        .set({ isActive: false })
+                        .commit();
+                }
+                console.log(`Successfully deactivated ${postFavorites.length} post-level favorites`);
+            }
+        } catch (postFavoritesError) {
+            console.warn("Warning: Exception during post-level favorites cleanup:", postFavoritesError);
         }
         
         // Now delete the community question
-        const deleteResult = await adminClient.delete(communityId);
-        console.log("Delete result:", deleteResult);
+        try {
+            console.log("Attempting to delete community question with ID:", communityId);
+            const deleteResult = await adminClient.delete(communityId);
+            console.log("Delete result:", deleteResult);
+            
+            if (!deleteResult) {
+                console.error("Delete operation returned null/undefined");
+                return { error: "Delete operation failed - no result returned" };
+            }
+            
+            console.log("Delete operation completed successfully");
+        } catch (deleteError) {
+            console.error("Error during deletion:", deleteError);
+            console.error("Error type:", typeof deleteError);
+            console.error("Error message:", deleteError instanceof Error ? deleteError.message : String(deleteError));
+            
+            if (deleteError instanceof Error) {
+                if (deleteError.message.includes("not found")) {
+                    return { error: "Community question not found or already deleted" };
+                }
+                if (deleteError.message.includes("referenced")) {
+                    return { error: "Cannot delete community question with existing references" };
+                }
+                if (deleteError.message.includes("permission")) {
+                    return { error: "Permission denied - please check your access rights" };
+                }
+                if (deleteError.message.includes("token")) {
+                    return { error: "Authentication failed - please check your Sanity token" };
+                }
+                if (deleteError.message.includes("network")) {
+                    return { error: "Network error - please check your connection" };
+                }
+            }
+            return { error: "Failed to delete community question - please try again" };
+        }
 
         console.log("=== DELETE COMMUNITY DEBUG END ===");
         return { success: true };

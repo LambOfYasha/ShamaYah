@@ -1,9 +1,9 @@
 import {defineField, defineType} from "sanity";
-import { FileText } from "lucide-react";
+import { FileText, CheckCircle } from "lucide-react";
 
 export const postType = defineType({
     name: 'post',
-    title: 'Post',
+    title: 'Community Response',
     type: 'document',
     icon: FileText,
     fields: [
@@ -13,6 +13,17 @@ export const postType = defineType({
       type: 'string',
       description: 'The title of the post',
       validation: (Rule) => Rule.required().min(3).max(100),
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      description: 'The slug of the response',
+      options: {
+        source: 'title',
+        maxLength: 96,
+      },
+      validation: (Rule) => Rule.required(),
     }),
 
     defineField({
@@ -35,9 +46,29 @@ export const postType = defineType({
       name: 'communityQuestion',
       title: 'Community Question',
       type: 'reference',
-      description: 'The community question the post belongs to',
+      description: 'The community question this response belongs to',
       to: [{type: 'communityQuestion'}],
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'isApproved',
+      title: 'Teacher Approved',
+      type: 'boolean',
+      description: 'Whether this response has been approved by a teacher or admin',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'approvedBy',
+      title: 'Approved By',
+      type: 'reference',
+      description: 'The teacher or admin who approved this response',
+      to: [{type: 'user'}, {type: 'teacher'}],
+    }),
+    defineField({
+      name: 'approvedAt',
+      title: 'Approved At',
+      type: 'datetime',
+      description: 'When this response was approved',
     }),
     defineField({
       name: 'body',
@@ -65,21 +96,21 @@ export const postType = defineType({
         name: 'isReported',
         title: 'Is Reported',
         type: 'boolean',
-        description: 'Whether the post has been reported',
+        description: 'Whether the response has been reported',
         initialValue: false,
     }),
     defineField({
         name: 'isDeleted',
         title: 'Is Deleted',
         type: 'boolean',
-        description: 'Whether the post has been deleted',
+        description: 'Whether the response has been deleted',
         initialValue: false,
     }),
     defineField({
         name: 'publishedAt',
         title: 'Published At',
         type: 'datetime',
-        description: 'The date and time the post was published',
+        description: 'The date and time the response was published',
         initialValue: new Date().toISOString(),
     }),
 ],
@@ -88,12 +119,14 @@ preview: {
         title: 'title',
         subtitle: 'author.username',
         media: 'image',
+        isApproved: 'isApproved',
+        communityQuestion: 'communityQuestion.title',
     },
-    prepare({title, subtitle, media}) {
+    prepare({title, subtitle, media, isApproved, communityQuestion}) {
         return {
             title,
-            subtitle,
-            media,
+            subtitle: `${subtitle} • ${communityQuestion}`,
+            media: isApproved ? CheckCircle : media,
         }
     }
 }

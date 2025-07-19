@@ -53,7 +53,7 @@ export async function checkCommentFavoriteAction(postId: string, postType: 'blog
 }
 
 // Post-level favorite functions
-export async function addPostFavoriteAction(postId: string, postType: 'blog' | 'community') {
+export async function addPostFavoriteAction(postId: string, postType: 'blog' | 'community' | 'response') {
     const result = await addPostFavorite(postId, postType);
     if ("error" in result) {
         throw new Error(result.error);
@@ -61,7 +61,7 @@ export async function addPostFavoriteAction(postId: string, postType: 'blog' | '
     return result;
 }
 
-export async function removePostFavoriteAction(postId: string, postType: 'blog' | 'community') {
+export async function removePostFavoriteAction(postId: string, postType: 'blog' | 'community' | 'response') {
     const result = await removePostFavorite(postId, postType);
     if ("error" in result) {
         throw new Error(result.error);
@@ -69,7 +69,7 @@ export async function removePostFavoriteAction(postId: string, postType: 'blog' 
     return result;
 }
 
-export async function checkPostFavoriteAction(postId: string, postType: 'blog' | 'community') {
+export async function checkPostFavoriteAction(postId: string, postType: 'blog' | 'community' | 'response') {
     const result = await checkPostFavorite(postId, postType);
     if ("error" in result) {
         throw new Error(result.error);

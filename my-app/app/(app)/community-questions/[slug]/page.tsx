@@ -23,6 +23,7 @@ import EditCommunityButton from "@/components/community/EditCommunityButton";
 import DeleteCommunityButton from "@/components/community/DeleteCommunityButton";
 import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedCommentSectionWrapper";
 import FavoriteButton from "@/components/ui/favorite-button";
+import CommunityResponses from "@/components/community/CommunityResponses";
 import { editCommunity } from "@/action/editCommunity";
 
 interface CommunityQuestionWithModerator extends CommunityQuestion {
@@ -224,6 +225,15 @@ export default async function CommunityQuestionPage({
               </p>
             )}
           </div>
+        </div>
+
+        {/* Community Responses Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <CommunityResponses 
+            communityQuestionId={communityQuestion._id} 
+            user={user}
+            communityQuestionTitle={communityQuestion.title}
+          />
         </div>
 
         {/* Comments Section */}

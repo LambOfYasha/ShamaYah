@@ -611,7 +611,7 @@ export async function getEmbeddedComments(postId: string, postType: 'blog' | 'co
 }
 
 // Post-level favorite functions
-export async function addPostFavorite(postId: string, postType: 'blog' | 'community') {
+export async function addPostFavorite(postId: string, postType: 'blog' | 'community' | 'response') {
     try {
         const user = await getUser();
         
@@ -620,7 +620,7 @@ export async function addPostFavorite(postId: string, postType: 'blog' | 'commun
         }
 
         // Map postType to actual Sanity document type
-        const sanityPostType = postType === 'community' ? 'communityQuestion' : postType;
+        const sanityPostType = postType === 'community' ? 'communityQuestion' : postType === 'response' ? 'post' : postType;
         
         // Check if post exists
         const postQuery = defineQuery(`
@@ -675,7 +675,7 @@ export async function addPostFavorite(postId: string, postType: 'blog' | 'commun
     }
 }
 
-export async function removePostFavorite(postId: string, postType: 'blog' | 'community') {
+export async function removePostFavorite(postId: string, postType: 'blog' | 'community' | 'response') {
     try {
         const user = await getUser();
         
@@ -712,7 +712,7 @@ export async function removePostFavorite(postId: string, postType: 'blog' | 'com
     }
 }
 
-export async function checkPostFavorite(postId: string, postType: 'blog' | 'community') {
+export async function checkPostFavorite(postId: string, postType: 'blog' | 'community' | 'response') {
     try {
         const user = await getUser();
         

@@ -7,7 +7,7 @@ import { addPostFavoriteAction, removePostFavoriteAction, checkPostFavoriteActio
 
 interface FavoriteButtonProps {
   postId: string;
-  postType: 'blog' | 'community';
+  postType: 'blog' | 'community' | 'response';
   className?: string;
   size?: 'sm' | 'md' | 'lg';
   variant?: 'default' | 'outline' | 'ghost';
