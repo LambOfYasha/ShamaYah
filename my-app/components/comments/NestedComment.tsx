@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useUser } from '@clerk/nextjs'
+import { useRole } from '@/hooks/useRole'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -40,9 +41,9 @@ interface NestedCommentProps {
   postType: 'communityQuestion' | 'blogPost'
   onCommentAdded: () => void
   onAddComment: (content: string, parentCommentId?: string) => Promise<void>
-  onEditComment: (commentIndex: number, content: string) => Promise<void>
-  onDeleteComment: (commentIndex: number) => Promise<void>
-  onLikeComment: (commentIndex: number) => Promise<void>
+  onEditComment: (commentPath: string, content: string) => Promise<void>
+  onDeleteComment: (commentPath: string) => Promise<void>
+  onLikeComment: (commentPath: string) => Promise<void>
   level?: number
   commentPath?: string
 }
@@ -61,6 +62,7 @@ export default function NestedComment({
   commentPath
 }: NestedCommentProps) {
   const { user } = useUser()
+  const { user: userWithRole } = useRole()
   const [isReplying, setIsReplying] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [replyContent, setReplyContent] = useState('')
@@ -93,7 +95,9 @@ export default function NestedComment({
 
     setIsSubmitting(true)
     try {
-      await onEditComment(commentIndex, editContent.trim())
+      // Create the path to this comment for editing
+      const editPath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
+      await onEditComment(editPath, editContent.trim())
       setIsEditing(false)
     } catch (error) {
       console.error('Failed to edit comment:', error)
@@ -107,7 +111,9 @@ export default function NestedComment({
 
     setIsSubmitting(true)
     try {
-      await onDeleteComment(commentIndex)
+      // Create the path to this comment for deletion
+      const deletePath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
+      await onDeleteComment(deletePath)
       onCommentAdded()
     } catch (error) {
       console.error('Failed to delete comment:', error)
@@ -116,8 +122,8 @@ export default function NestedComment({
     }
   }
 
-  const canEdit = user && comment.authorId === user.id
-  const canDelete = user && (comment.authorId === user.id || user.publicMetadata?.role === 'admin')
+  const canEdit = user && (comment.authorId === user.id || userWithRole?.role === 'admin' || userWithRole?.role === 'teacher')
+  const canDelete = user && (comment.authorId === user.id || userWithRole?.role === 'admin')
   const maxLevel = 3 // Maximum nesting level
 
   return (
@@ -216,7 +222,10 @@ export default function NestedComment({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onLikeComment(commentIndex)}
+                      onClick={() => {
+                        const likePath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
+                        onLikeComment(likePath)
+                      }}
                       className="flex items-center gap-1"
                     >
                       <Heart className={`w-4 h-4 ${comment.likedBy.includes(user?.id || '') ? 'text-red-500 fill-current' : ''}`} />

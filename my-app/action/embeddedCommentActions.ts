@@ -10,24 +10,24 @@ export async function addCommentAction(postId: string, postType: 'blog' | 'commu
     return result;
 }
 
-export async function editCommentAction(postId: string, postType: 'blog' | 'community', commentIndex: number, content: string) {
-    const result = await editEmbeddedComment(postId, postType, commentIndex, content);
+export async function editCommentAction(postId: string, postType: 'blog' | 'community', commentPath: string, content: string) {
+    const result = await editEmbeddedComment(postId, postType, commentPath, content);
     if ("error" in result) {
         throw new Error(result.error);
     }
     return result;
 }
 
-export async function deleteCommentAction(postId: string, postType: 'blog' | 'community', commentIndex: number) {
-    const result = await deleteEmbeddedComment(postId, postType, commentIndex);
+export async function deleteCommentAction(postId: string, postType: 'blog' | 'community', commentPath: string) {
+    const result = await deleteEmbeddedComment(postId, postType, commentPath);
     if ("error" in result) {
         throw new Error(result.error);
     }
     return result;
 }
 
-export async function likeCommentAction(postId: string, postType: 'blog' | 'community', commentIndex: number) {
-    const result = await likeEmbeddedComment(postId, postType, commentIndex);
+export async function likeCommentAction(postId: string, postType: 'blog' | 'community', commentPath: string) {
+    const result = await likeEmbeddedComment(postId, postType, commentPath);
     if ("error" in result) {
         throw new Error(result.error);
     }

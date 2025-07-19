@@ -46,9 +46,9 @@ interface CommentSectionProps {
   postType: 'community' | 'blog';
   comments: Comment[];
   onAddComment: (content: string, parentCommentId?: string) => Promise<void>;
-  onEditComment: (commentIndex: number, content: string) => Promise<void>;
-  onDeleteComment: (commentIndex: number) => Promise<void>;
-  onLikeComment: (commentIndex: number) => Promise<void>;
+  onEditComment: (commentPath: string, content: string) => Promise<void>;
+  onDeleteComment: (commentPath: string) => Promise<void>;
+  onLikeComment: (commentPath: string) => Promise<void>;
   onCommentAdded?: () => void;
 }
 

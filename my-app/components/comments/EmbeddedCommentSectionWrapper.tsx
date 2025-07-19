@@ -61,9 +61,9 @@ export default function EmbeddedCommentSectionWrapper({
     }
   };
 
-  const handleEditComment = async (commentIndex: number, content: string) => {
+  const handleEditComment = async (commentPath: string, content: string) => {
     try {
-      await editCommentAction(postId, postType, commentIndex, content);
+      await editCommentAction(postId, postType, commentPath, content);
       // Refresh comments after editing
       await fetchComments();
     } catch (error) {
@@ -71,9 +71,9 @@ export default function EmbeddedCommentSectionWrapper({
     }
   };
 
-  const handleDeleteComment = async (commentIndex: number) => {
+  const handleDeleteComment = async (commentPath: string) => {
     try {
-      await deleteCommentAction(postId, postType, commentIndex);
+      await deleteCommentAction(postId, postType, commentPath);
       // Refresh comments after deleting
       await fetchComments();
     } catch (error) {
@@ -81,9 +81,9 @@ export default function EmbeddedCommentSectionWrapper({
     }
   };
 
-  const handleLikeComment = async (commentIndex: number) => {
+  const handleLikeComment = async (commentPath: string) => {
     try {
-      await likeCommentAction(postId, postType, commentIndex);
+      await likeCommentAction(postId, postType, commentPath);
       // Refresh comments after liking
       await fetchComments();
     } catch (error) {
