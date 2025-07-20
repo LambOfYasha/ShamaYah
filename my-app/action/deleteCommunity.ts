@@ -1,9 +1,10 @@
 'use server';
 
-import { getUser } from "@/lib/user/getUser";
-import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
-import { sanityFetch } from "@/sanity/lib/live";
+import { adminClient } from "@/sanity/lib/adminClient";
+import { client } from "@/sanity/lib/client";
+import { getUser } from "@/lib/user/getUser";
+import { currentUser } from "@clerk/nextjs/server";
 import { cleanupFavoritesForDeletedPost } from "./embeddedComments";
 
 export async function deleteCommunity(communityId: string) {

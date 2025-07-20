@@ -1,4 +1,4 @@
-import {defineField, defineType} from "sanity";
+import {defineField, defineType, ValidationRule} from "sanity";
 import { BookIcon } from "lucide-react";
 
 
@@ -13,7 +13,7 @@ export const blogType = defineType({
             title: 'Title', 
             type: 'string',
             description: 'The title of the blog',
-            validation: (Rule) => Rule.required().min(3).max(100),
+            validation: (Rule: ValidationRule) => Rule.required().min(3).max(100),
         }),
         defineField({
             name: 'slug',
@@ -27,7 +27,7 @@ export const blogType = defineType({
             title: 'Description',
             type: 'text',
             description: 'The description of the blog',
-            validation: (Rule) => Rule.required(),
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'image',
@@ -49,7 +49,7 @@ export const blogType = defineType({
             type: 'array',
             description: 'The content of the blog',
             of: [{type: 'block'}],
-            validation: (Rule) => Rule.required(),
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'author',
@@ -57,7 +57,7 @@ export const blogType = defineType({
             type: 'reference',
             to: [{type: 'teacher'}, {type: 'user'}],
             description: 'The author of the blog (can be a teacher or user)',
-            validation: (Rule) => Rule.required(),
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'createdAt',
@@ -65,7 +65,7 @@ export const blogType = defineType({
             type: 'datetime',
             description: 'The date and time the blog was created',
             initialValue: new Date().toISOString(),
-            validation: (Rule) => Rule.required(),
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'comments',

@@ -1,5 +1,5 @@
 import { defineQuery } from "groq"
-import { sanityFetch } from "@/sanity/lib/live"
+import { client } from "@/sanity/lib/client"
 import { addUser} from "./addUser"
 import { currentUser } from "@clerk/nextjs/server"
 import { UserWithRole, UserRole } from "../auth/roles"
@@ -40,50 +40,44 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
         
         // Check for user first
         const existingUser = await Promise.race([
-            sanityFetch({
-                query: getUserQuery,
-                params: {
-                    id: loggedInUser.id,
-                },
+            client.fetch(getUserQuery, {
+                id: loggedInUser.id,
             }),
             new Promise((_, reject) => 
                 setTimeout(() => reject(new Error("Query timeout")), 15000)
             )
         ]) as any
 
-        if(existingUser.data?._id) {
-            console.log(`User already exists with ID: ${existingUser.data._id}`)
+        if(existingUser?._id) {
+            console.log(`User already exists with ID: ${existingUser._id}`)
             const user: UserWithRole = {
-                _id: existingUser.data._id,
-                username: existingUser.data.username,
-                imageURL: existingUser.data.imageURL,
-                email: existingUser.data.email,
-                role: existingUser.data.role || 'member',
+                _id: existingUser._id,
+                username: existingUser.username,
+                imageURL: existingUser.imageURL,
+                email: existingUser.email,
+                role: existingUser.role || 'member',
             }
             return user
         }
 
         // Check for teacher if user not found
         const existingTeacher = await Promise.race([
-            sanityFetch({
-                query: getTeacherQuery,
-                params: {
-                    id: loggedInUser.id,
-                },
+            client.fetch(getTeacherQuery, {
+                id: loggedInUser.id,
             }),
             new Promise((_, reject) => 
                 setTimeout(() => reject(new Error("Query timeout")), 15000)
             )
         ]) as any
 
-        if(existingTeacher.data?._id) {
-            console.log(`Teacher already exists with ID: ${existingTeacher.data._id}`)
+        if(existingTeacher?._id) {
+            console.log(`Teacher already exists with ID: ${existingTeacher._id}`)
             const teacher: UserWithRole = {
-                _id: existingTeacher.data._id,
-                username: existingTeacher.data.username,
-                imageURL: existingTeacher.data.imageURL,
-                email: existingTeacher.data.email,
-                role: existingTeacher.data.role || 'teacher',
+                _id: existingTeacher._id,
+                username: existingTeacher.username,
+                imageURL: existingTeacher.imageURL,
+                email: existingTeacher.email,
+                role: existingTeacher.role || 'teacher',
             }
             return teacher
         }

@@ -1,4 +1,4 @@
-import {defineField, defineType} from "sanity";
+import {defineField, defineType, ValidationRule} from "sanity";
 import { UsersIcon } from "lucide-react";
 
 export const communityType = defineType({
@@ -12,7 +12,7 @@ export const communityType = defineType({
             title: 'Title',
             type: 'string',
             description: 'The title of the community',
-            validation: (Rule) => Rule.required().min(3).max(100),
+            validation: (Rule: ValidationRule) => Rule.required().min(3).max(100),
         }),
         defineField({
             name: 'description',
@@ -28,7 +28,7 @@ export const communityType = defineType({
             options: {
                 source: 'title',
             },
-            validation: (Rule) => Rule.required(),
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'image',
@@ -50,7 +50,7 @@ export const communityType = defineType({
             type: 'reference',
             to: [{type: 'user'}, {type: 'teacher'}],
             description: 'The moderator of the community (can be a user or teacher)',
-            validation: (Rule) => Rule.required(),
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'createdAt',
@@ -58,7 +58,7 @@ export const communityType = defineType({
             type: 'datetime',
             description: 'The date and time the community was created',
             initialValue: new Date().toISOString(),
-            validation: (Rule) => Rule.required(),
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'comments',

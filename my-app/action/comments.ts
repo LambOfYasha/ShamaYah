@@ -3,7 +3,10 @@
 import { getUser } from "@/lib/user/getUser";
 import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
-import { sanityFetch } from "@/sanity/lib/live";
+import { client } from "@/sanity/lib/client";
+import { addUser} from "@/lib/user/addUser"
+import { currentUser } from "@clerk/nextjs/server"
+import { auth } from '@clerk/nextjs/server'
 
 export async function addComment(
     postId: string,
@@ -85,17 +88,14 @@ export async function editComment(
             }
         `);
 
-        const comment = await sanityFetch({
-            query: commentQuery,
-            params: { commentId },
-        });
+        const comment = await client.fetch(commentQuery, { commentId });
 
-        if (!comment.data) {
+        if (!comment) {
             return { error: "Comment not found" };
         }
 
         // Check if user is the author or an admin
-        if (comment.data.author?._id !== user._id && user.role !== "admin") {
+        if (comment.author?._id !== user._id && user.role !== "admin") {
             return { error: "You don't have permission to edit this comment" };
         }
 
@@ -173,27 +173,24 @@ export async function deleteComment(
         
         let comment;
         try {
-            comment = await sanityFetch({
-                query: commentQuery,
-                params: { commentId },
-            });
+            comment = await client.fetch(commentQuery, { commentId });
             console.log("Comment query result:", comment);
         } catch (queryError) {
             console.error("Error fetching comment:", queryError);
             return { error: "Failed to fetch comment - please try again" };
         }
 
-        if (!comment.data) {
+        if (!comment) {
             console.error("Comment not found with ID:", commentId);
             return { error: "Comment not found" };
         }
 
-        console.log("Comment author ID:", comment.data.author?._id);
+        console.log("Comment author ID:", comment.author?._id);
         console.log("Current user ID:", user._id);
         console.log("Current user role:", user.role);
 
         // Check if user is the author or an admin
-        if (comment.data.author?._id !== user._id && user.role !== "admin") {
+        if (comment.author?._id !== user._id && user.role !== "admin") {
             console.error("User does not have permission to delete this comment");
             return { error: "You don't have permission to delete this comment" };
         }
@@ -278,17 +275,14 @@ export async function likeComment(
             }
         `);
 
-        const comment = await sanityFetch({
-            query: commentQuery,
-            params: { commentId },
-        });
+        const comment = await client.fetch(commentQuery, { commentId });
 
-        if (!comment.data) {
+        if (!comment) {
             return { error: "Comment not found" };
         }
 
-        const currentLikes = comment.data.likes || 0;
-        const likedBy = comment.data.likedBy || [];
+        const currentLikes = comment.likes || 0;
+        const likedBy = comment.likedBy || [];
         const userLiked = likedBy.includes(user._id);
 
         // Toggle like
@@ -368,12 +362,9 @@ export async function getComments(
             }
         `);
 
-        const comments = await sanityFetch({
-            query: commentsQuery,
-            params: { postId, postType, userId },
-        });
+        const comments = await client.fetch(commentsQuery, { postId, postType, userId });
 
-        return { success: true, comments: comments.data || [] };
+        return { success: true, comments: comments || [] };
     } catch (error) {
         console.error("Failed to get comments:", error);
         return { error: "Failed to get comments" };

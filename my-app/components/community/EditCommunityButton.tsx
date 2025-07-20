@@ -192,10 +192,10 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
           return;
         }
       } else if (shouldRemoveImage) {
-        // Image should be removed - send null
-        imageBase64 = null;
-        fileName = null;
-        fileType = null;
+        // Image should be removed - send undefined
+        imageBase64 = undefined;
+        fileName = undefined;
+        fileType = undefined;
       }
       // If neither imageFile nor shouldRemoveImage, keep existing image unchanged
 
@@ -274,17 +274,17 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
                 title="Lowercase letters, numbers, and hyphens only"
               />
               <p className="text-sm text-gray-500">
-                This will be used in the URL: yourdomain.com/community-questions/{slug || "community-slug"}
+                This will be used in the URL: shama.com/community-questions/{slug || "community-slug"}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Question</Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe your community"
+                placeholder="Ask a question"
                 required
                 minLength={10}
                 maxLength={500}

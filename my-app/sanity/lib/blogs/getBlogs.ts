@@ -1,35 +1,48 @@
-import { sanityFetch } from "../live";
-import { defineQuery } from "groq";
-import type { Blog, Teacher } from "../../../sanity.types";
+import { defineQuery } from "groq"
+import { client } from "../client";
 
-// Type for the expanded blog data from GROQ query
-interface BlogWithAuthor {
+export interface BlogWithAuthor {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  content: any[];
+  author: {
     _id: string;
-    _type: "blog";
-    _createdAt: string;
-    _updatedAt: string;
-    _rev: string;
-    title?: string;
-    description?: string;
-    slug: string; // This comes from slug.current in the query
-    image?: Blog['image'];
-    content?: Blog['content'];
-    author: Teacher; // This is the expanded teacher data
-    createdAt?: string;
+    username: string;
+    imageURL?: string;
+  };
+  createdAt: string;
+  image?: {
+    asset: {
+      _ref: string;
+    };
+    alt?: string;
+  };
 }
 
-// Type-safe fetch function
-async function typedSanityFetch<T>(query: string): Promise<T> {
-    return sanityFetch<T>(query);
+const getBlogsQuery = defineQuery(`
+  *[_type == "blog"] | order(createdAt desc) {
+    _id,
+    title,
+    slug,
+    description,
+    content,
+    "author": author->{
+      _id,
+      username,
+      imageURL
+    },
+    createdAt,
+    image
+  }
+`)
+
+// Generic wrapper for client.fetch with proper typing
+async function typedClientFetch<T>(query: string): Promise<T> {
+  return client.fetch<T>(query);
 }
 
 export async function getBlogs(): Promise<BlogWithAuthor[]> {
-    const getBlogsQuery = defineQuery(`*[_type == "blog" && (isDeleted == false || isDeleted == null)] {
-        ...,
-        title,
-        "slug": slug.current,
-        "author": author->,
-    }  | order(createdAt desc)`);
-
-    return typedSanityFetch<BlogWithAuthor[]>(getBlogsQuery);
+  return typedClientFetch<BlogWithAuthor[]>(getBlogsQuery);
 } 

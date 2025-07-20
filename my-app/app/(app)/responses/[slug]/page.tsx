@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { defineQuery } from 'groq';
-import { sanityFetch } from '@/sanity/lib/live';
+import { client } from '@/sanity/lib/client';
 import { adminClient } from '@/sanity/lib/adminClient';
 import { getCurrentUser } from '@/lib/auth/middleware';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -122,7 +122,7 @@ export default async function ResponsePage({ params }: { params: { slug: string 
     console.error('Error fetching response with adminClient:', error);
     // Fallback to sanityFetch
     try {
-      response = await sanityFetch(responseQuery, { slug: params.slug });
+      response = await client.fetch(responseQuery, { slug: params.slug });
       console.log('Query result with sanityFetch:', response);
     } catch (fallbackError) {
       console.error('Error fetching response with sanityFetch:', fallbackError);

@@ -1,4 +1,4 @@
-import {defineField, defineType} from "sanity";
+import {defineField, defineType, ValidationRule} from "sanity";
 import { FileText, CheckCircle } from "lucide-react";
 
 export const postType = defineType({
@@ -12,7 +12,7 @@ export const postType = defineType({
       title: 'Title',  
       type: 'string',
       description: 'The title of the post',
-      validation: (Rule) => Rule.required().min(3).max(100),
+      validation: (Rule: ValidationRule) => Rule.required().min(3).max(100),
     }),
     defineField({
       name: 'slug',
@@ -23,7 +23,7 @@ export const postType = defineType({
         source: 'title',
         maxLength: 96,
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
 
     defineField({
@@ -39,7 +39,7 @@ export const postType = defineType({
       type: 'reference',
       to: [{type: 'user'}, {type: 'teacher'}],
       description: 'The author of the post (can be a user or teacher)',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
 
     defineField({
@@ -48,7 +48,7 @@ export const postType = defineType({
       type: 'reference',
       description: 'The community question this response belongs to',
       to: [{type: 'communityQuestion'}],
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'isApproved',
@@ -76,7 +76,7 @@ export const postType = defineType({
       type: 'array',
       description: 'The body of the post',
       of: [{type: 'block'}],
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'image',
@@ -122,7 +122,7 @@ preview: {
         isApproved: 'isApproved',
         communityQuestion: 'communityQuestion.title',
     },
-    prepare({title, subtitle, media, isApproved, communityQuestion}) {
+    prepare({title, subtitle, media, isApproved, communityQuestion}: {title?: string, subtitle?: string, media?: any, isApproved?: boolean, communityQuestion?: string}) {
         return {
             title,
             subtitle: `${subtitle} • ${communityQuestion}`,

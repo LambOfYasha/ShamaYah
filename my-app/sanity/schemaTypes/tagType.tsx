@@ -1,4 +1,4 @@
-import {defineField, defineType} from "sanity";
+import {defineField, defineType, ValidationRule} from "sanity";
 import { TagIcon } from "lucide-react";
 
 export const tagType = defineType({
@@ -12,7 +12,7 @@ export const tagType = defineType({
       title: 'Name',
       type: 'string',
       description: 'The name of the tag',
-      validation: (Rule) => Rule.required().min(2).max(50),
+      validation: (Rule: ValidationRule) => Rule.required().min(2).max(50),
     }),
     defineField({
       name: 'slug',
@@ -22,14 +22,14 @@ export const tagType = defineType({
       options: {
         source: 'name',
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'description',
       title: 'Description',
       type: 'text',
       description: 'A brief description of the tag',
-      validation: (Rule) => Rule.max(200),
+      validation: (Rule: ValidationRule) => Rule.max(200),
     }),
     defineField({
       name: 'color',
@@ -57,7 +57,7 @@ export const tagType = defineType({
       type: 'datetime',
       description: 'When the tag was created',
       initialValue: new Date().toISOString(),
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
   ],
   preview: {
@@ -66,7 +66,7 @@ export const tagType = defineType({
       description: 'description',
       color: 'color',
     },
-    prepare({title, description, color}) {
+    prepare({title, description, color}: {title?: string, description?: string, color?: string}) {
       return {
         title,
         subtitle: description || 'No description',

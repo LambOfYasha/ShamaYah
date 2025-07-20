@@ -1,4 +1,4 @@
-import {defineField, defineType} from "sanity";
+import {defineField, defineType, ValidationRule} from "sanity";
 
 export const embeddedCommentType = defineType({
   name: 'embeddedComment',
@@ -10,7 +10,7 @@ export const embeddedCommentType = defineType({
       title: 'Content',
       type: 'text',
       description: 'The comment content',
-      validation: (Rule) => Rule.required().min(1).max(1000),
+      validation: (Rule: ValidationRule) => Rule.required().min(1).max(1000),
     }),
     defineField({
       name: 'author',
@@ -18,21 +18,21 @@ export const embeddedCommentType = defineType({
       type: 'reference',
       to: [{type: 'user'}, {type: 'teacher'}],
       description: 'The author of the comment',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'authorId',
       title: 'Author ID',
       type: 'string',
       description: 'The Clerk ID of the author for quick access',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'authorUsername',
       title: 'Author Username',
       type: 'string',
       description: 'The username of the author for quick access',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'authorRole',
@@ -46,7 +46,7 @@ export const embeddedCommentType = defineType({
         ],
         layout: 'radio'
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'parentCommentId',
@@ -81,7 +81,7 @@ export const embeddedCommentType = defineType({
       type: 'datetime',
       description: 'When the comment was created',
       initialValue: new Date().toISOString(),
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'updatedAt',
@@ -96,9 +96,9 @@ export const embeddedCommentType = defineType({
       author: 'authorUsername',
       createdAt: 'createdAt',
     },
-    prepare({title, author, createdAt}) {
+    prepare({title, author, createdAt}: {title?: string, author?: string, createdAt?: string}) {
       return {
-        title: title?.slice(0, 50) + (title?.length > 50 ? '...' : ''),
+        title: title?.slice(0, 50) + (title && title.length > 50 ? '...' : ''),
         subtitle: `${author || 'Unknown'} • ${createdAt ? new Date(createdAt).toLocaleDateString() : 'Unknown date'}`,
       }
     }

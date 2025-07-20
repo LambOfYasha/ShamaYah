@@ -174,13 +174,13 @@ function CreateCommunityButton() {
   hover:bg-black transition-all duration-200 
   disabled:text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled={!user}>
         <Plus />
-        {user ? "Create Community" : "Sign in to create community"}
+        {user ? "Ask a Question" : "Sign in to ask a question"}
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create a Community</DialogTitle>
+          <DialogTitle>Ask a Question</DialogTitle>
           <DialogDescription>
-            Start a new community to bring people together around shared interests.
+            Ask a question to get help from the community.
           </DialogDescription>
 
           <form onSubmit={handleCreateCommunity} className="space-y-4 mt-2">
@@ -230,11 +230,11 @@ function CreateCommunityButton() {
 
             <div className="space-y-2">
               <label htmlFor="description" className="text-sm font-medium">
-                Description
+                Question
               </label>
               <Textarea
                 id="description"
-                placeholder="Describe your community"
+                placeholder="Ask a question"
                 className="w-full focus:ring-2 focus:ring-blue-500"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
