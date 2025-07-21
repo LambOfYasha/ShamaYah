@@ -335,6 +335,7 @@ export class ReportingService {
               data.blocked,
               `${(data.averageConfidence * 100).toFixed(1)}%`
             ])
+          ]
         }
       ]
     };
