@@ -4,29 +4,41 @@ import { getUser } from '../user/getUser';
 import { hasRoleOrHigher, UserRole } from './roles';
 
 export async function requireAuth() {
-  const { userId } = await auth();
-  
-  if (!userId) {
+  try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      console.log('No user ID found in auth context');
+      redirect('/sign-in');
+    }
+    
+    return userId;
+  } catch (error) {
+    console.error('Auth error in requireAuth:', error);
     redirect('/sign-in');
   }
-  
-  return userId;
 }
 
 export async function requireRole(requiredRole: UserRole) {
-  const userId = await requireAuth();
-  
-  const user = await getUser();
-  
-  if ('error' in user) {
+  try {
+    const userId = await requireAuth();
+    
+    const user = await getUser();
+    
+    if ('error' in user) {
+      console.log('User not found in database:', user.error);
+      redirect('/sign-in');
+    }
+    
+    if (!hasRoleOrHigher(user.role, requiredRole)) {
+      redirect('/unauthorized');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Auth error in requireRole:', error);
     redirect('/sign-in');
   }
-  
-  if (!hasRoleOrHigher(user.role, requiredRole)) {
-    redirect('/unauthorized');
-  }
-  
-  return user;
 }
 
 export async function requireTeacher() {
@@ -42,12 +54,18 @@ export async function requireAdmin() {
 }
 
 export async function getCurrentUser() {
-  const userId = await requireAuth();
-  const user = await getUser();
-  
-  if ('error' in user) {
+  try {
+    const userId = await requireAuth();
+    const user = await getUser();
+    
+    if ('error' in user) {
+      console.log('User not found in database:', user.error);
+      redirect('/sign-in');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Auth error in getCurrentUser:', error);
     redirect('/sign-in');
   }
-  
-  return user;
 } 

@@ -21,11 +21,11 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
         const loggedInUser = await currentUser()
 
         if(!loggedInUser) {
-            console.log("No user found")
-            return { error: "User not found" }
+            console.log("No user found - user not authenticated")
+            return { error: "User not authenticated" }
         }
 
-        console.log("User found", loggedInUser)
+        console.log("User found", loggedInUser.id)
 
         // Check for both user and teacher types
         const getUserQuery = defineQuery(
@@ -36,7 +36,7 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
             `*[_type == "teacher" && id == $id][0]`
         )
 
-        console.log("checking if user exists")
+        console.log("checking if user exists in database")
         
         // Check for user first
         const existingUser = await Promise.race([
@@ -82,13 +82,20 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
             return teacher
         }
 
-        console.log("User does not exist, creating new user")
+        console.log("User does not exist in database, creating new user")
+        
+        // Ensure we have required user data
+        if (!loggedInUser.fullName) {
+            console.error("User missing fullName")
+            return { error: "User profile incomplete" }
+        }
+
         const newUser = await addUser( {
             id: loggedInUser.id,
-            username: parseUsername(loggedInUser.fullName!),
+            username: parseUsername(loggedInUser.fullName),
             imageURL: loggedInUser.imageUrl,
             email: loggedInUser.primaryEmailAddress?.emailAddress || 
-            loggedInUser.emailAddresses[0].emailAddress,
+            loggedInUser.emailAddresses[0]?.emailAddress || '',
         })
 
         console.log("New user created", newUser._id)
@@ -105,6 +112,12 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
     } catch (error) {
         console.error("Error getting user", error)
         
+        // Handle specific Clerk errors
+        if (error && typeof error === 'object' && 'clerkError' in error) {
+            console.error("Clerk authentication error:", error)
+            return { error: "Authentication failed - please sign in again" }
+        }
+        
         // Provide more specific error messages
         if (error instanceof Error) {
             if (error.message.includes("timeout")) {
@@ -118,6 +131,6 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
             }
         }
         
-        return { error: "Error getting user" }
+        return { error: "Error getting user - please try again" }
     }
 }

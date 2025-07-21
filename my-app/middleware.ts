@@ -1,6 +1,33 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-const middleware = clerkMiddleware();
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/admin(.*)',
+  '/api/admin(.*)',
+  '/api/blogs(.*)',
+  '/api/communities(.*)',
+  '/api/reports(.*)',
+  '/api/search(.*)',
+  '/api/user(.*)',
+  '/api/webhooks(.*)',
+]);
+
+const middleware = clerkMiddleware({
+  beforeAuth: (req) => {
+    // Allow public routes to pass through
+    if (!isProtectedRoute(req)) {
+      return;
+    }
+  },
+  afterAuth: (auth, req) => {
+    // Handle protected routes
+    if (isProtectedRoute(req) && !auth.userId) {
+      const signInUrl = new URL('/sign-in', req.url);
+      signInUrl.searchParams.set('redirect_url', req.url);
+      return Response.redirect(signInUrl);
+    }
+  },
+});
 
 export default middleware;
 
