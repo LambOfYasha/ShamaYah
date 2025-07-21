@@ -45,7 +45,8 @@
     "styled-components": "^6.1.19",
     "svix": "^1.69.0",
     "tailwind-merge": "^2.0.0",
-    "vercel": "^44.5.0"
+    "vercel": "^44.5.0",
+    "xtend": "^4.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
