@@ -237,7 +237,6 @@ export default function NestedComment({
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={comment.authorUsername} />
               <AvatarFallback>
                 {comment.authorUsername?.charAt(0) || 'U'}
               </AvatarFallback>

@@ -25,6 +25,7 @@ import DeleteBlogButton from "@/components/blog/DeleteBlogButton";
 import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedCommentSectionWrapper";
 import FavoriteButton from "@/components/ui/favorite-button";
 import { editBlog } from "@/action/editBlog";
+import { urlFor } from "@/sanity/lib/image";
 
 interface BlogWithAuthor extends Omit<Blog, 'author'> {
   author?: Teacher;
@@ -59,6 +60,39 @@ async function getBlog(slug: string): Promise<BlogWithAuthor | null> {
     return null;
   }
 }
+
+// Utility function to get proper image URL
+const getImageUrl = (imageRef: string) => {
+  if (!imageRef) return null;
+  
+  // If it's already a full URL (http/https), return it
+  if (imageRef.startsWith('http')) {
+    return imageRef;
+  }
+  
+  // If it's a base64 data URL, return it directly
+  if (imageRef.startsWith('data:')) {
+    return imageRef;
+  }
+  
+  // If it's a Sanity asset reference, build the URL using the existing utility
+  if (imageRef.startsWith('image-')) {
+    try {
+      return urlFor({ _ref: imageRef }).url();
+    } catch (error) {
+      console.error('Error building Sanity image URL:', error);
+      return null;
+    }
+  }
+  
+  // If it's just a regular string that might be a Sanity asset ID
+  try {
+    return urlFor({ _ref: imageRef }).url();
+  } catch (error) {
+    console.error('Error building Sanity image URL:', error);
+    return null;
+  }
+};
 
 export default async function BlogPage({ 
   params 
@@ -266,12 +300,18 @@ export default async function BlogPage({
             <div className="flex items-center gap-4">
               {blog.author.imageURL && (
                 <div className="relative w-16 h-16 rounded-full overflow-hidden">
-                  <Image
-                    src={blog.author.imageURL}
-                    alt={blog.author.username || "Author"}
-                    fill
-                    className="object-cover"
-                  />
+                  {getImageUrl(blog.author.imageURL) ? (
+                    <Image
+                      src={getImageUrl(blog.author.imageURL)!}
+                      alt={blog.author.username || "Author"}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                      <User className="w-8 h-8 text-gray-600" />
+                    </div>
+                  )}
                 </div>
               )}
               <div>
