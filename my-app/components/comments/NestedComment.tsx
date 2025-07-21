@@ -18,18 +18,19 @@ import {
 import { ReportButton } from '@/components/ui/report-button'
 import { useModeration } from '@/hooks/useModeration'
 import { ModerationFeedback } from '@/components/ui/moderation-feedback'
+import { getImageUrl } from '@/lib/utils';
 
 interface Comment {
+  _id: string;
   content: string
   author: {
-    _type: 'reference'
-    _ref: string
+    _id: string
+    username: string
+    imageURL?: string
   }
-  authorId: string
-  authorUsername: string
   authorRole: string
   parentCommentId?: string
-  replies: Comment[]
+  replies?: Comment[]
   createdAt: string
   updatedAt?: string
 }
@@ -65,6 +66,9 @@ export default function NestedComment({
   level = 0,
   commentPath
 }: NestedCommentProps) {
+  console.log('NestedComment received comment:', comment);
+  console.log('NestedComment author data:', comment.author);
+  
   const { user } = useUser()
   const { user: userWithRole } = useRole()
   const [isReplying, setIsReplying] = useState(false)
@@ -227,8 +231,8 @@ export default function NestedComment({
     }
   }
 
-  const canEdit = user && (comment.authorId === user.id || userWithRole?.role === 'admin' || userWithRole?.role === 'teacher')
-  const canDelete = user && (comment.authorId === user.id || userWithRole?.role === 'admin')
+  const canEdit = user && (comment.author._id === user.id || userWithRole?.role === 'admin' || userWithRole?.role === 'teacher')
+  const canDelete = user && (comment.author._id === user.id || userWithRole?.role === 'admin')
   const maxLevel = 3 // Maximum nesting level
 
   return (
@@ -237,8 +241,14 @@ export default function NestedComment({
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <Avatar className="h-8 w-8">
+              {comment.author.imageURL && getImageUrl(comment.author.imageURL) ? (
+                <AvatarImage 
+                  src={getImageUrl(comment.author.imageURL)!} 
+                  alt={comment.author.username}
+                />
+              ) : null}
               <AvatarFallback>
-                {comment.authorUsername?.charAt(0) || 'U'}
+                {comment.author.username?.charAt(0) || 'U'}
               </AvatarFallback>
             </Avatar>
             
@@ -246,10 +256,10 @@ export default function NestedComment({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm">
-                    {comment.authorUsername}
+                    {comment.author.username}
                   </span>
                   <Badge variant="outline" className="text-xs">
-                    {comment.authorId === user?.id ? 'You' : comment.authorRole}
+                    {comment.author._id === user?.id ? 'You' : comment.authorRole}
                   </Badge>
                 </div>
                 
@@ -300,10 +310,8 @@ export default function NestedComment({
                   )}
                   
                   <ReportButton 
-                    postId={postId}
-                    postType={postType}
                     contentType="comment"
-                    contentId={commentPath || commentIndex.toString()}
+                    contentId={comment._id}
                     size="sm"
                   />
                 </div>
@@ -408,7 +416,7 @@ export default function NestedComment({
         <div className="space-y-2">
           {comment.replies.map((reply, replyIndex) => (
             <NestedComment
-              key={`${reply.authorId}-${reply.createdAt}-${replyIndex}`}
+              key={`${reply.author._id}-${reply.createdAt}-${replyIndex}`}
               comment={reply}
               commentIndex={replyIndex}
               postId={postId}
@@ -421,7 +429,7 @@ export default function NestedComment({
               onRemoveFavorite={onRemoveFavorite}
               onCheckFavorite={onCheckFavorite}
               level={level + 1}
-              commentPath={`${commentPath || commentIndex.toString()}.replies.${replyIndex}`}
+              commentPath={`${commentIndex}.${replyIndex}`}
             />
           ))}
         </div>

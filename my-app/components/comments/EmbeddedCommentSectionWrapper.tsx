@@ -6,13 +6,13 @@ import { getEmbeddedComments } from '@/action/embeddedComments';
 import { addCommentAction, editCommentAction, deleteCommentAction, addFavoriteAction, removeFavoriteAction, checkFavoriteAction } from '@/action/embeddedCommentActions';
 
 interface EmbeddedComment {
+  _id: string;
   content: string;
   author: {
-    _type: 'reference';
-    _ref: string;
+    _id: string;
+    username: string;
+    imageURL?: string;
   };
-  authorId: string;
-  authorUsername: string;
   authorRole: string;
   parentCommentId?: string;
   replies: EmbeddedComment[];
@@ -35,8 +35,10 @@ export default function EmbeddedCommentSectionWrapper({
   const fetchComments = async () => {
     try {
       const result = await getEmbeddedComments(postId, postType);
+      console.log('getEmbeddedComments result:', result);
       if ("success" in result) {
-        setComments(result.comments);
+        console.log('Comments received:', result.comments);
+        setComments(result.comments || []);
       }
     } catch (error) {
       console.error('Failed to fetch comments:', error);

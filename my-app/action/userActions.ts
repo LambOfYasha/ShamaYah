@@ -17,7 +17,7 @@ export interface UserData {
   postCount: number;
   commentCount: number;
   reportCount: number;
-  avatar?: string;
+  imageURL?: string;
 }
 
 export interface UserFilters {
@@ -87,7 +87,7 @@ export async function getAllUsers(filters: UserFilters = {}) {
       postCount,
       commentCount,
       reportCount,
-      avatar
+      imageURL
     }`;
 
     const users = await adminClient.fetch(query);
@@ -151,7 +151,7 @@ export async function getUserById(userId: string) {
       postCount,
       commentCount,
       reportCount,
-      avatar,
+      imageURL,
       bio,
       preferences
     }`, { userId });

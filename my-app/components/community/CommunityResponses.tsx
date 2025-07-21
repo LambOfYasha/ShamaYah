@@ -14,6 +14,7 @@ import EditResponseButton from '@/components/ui/edit-response-button';
 import DeleteResponseButton from '@/components/ui/delete-response-button';
 import { ReportButton } from '@/components/ui/report-button';
 import Link from 'next/link';
+import { getImageUrl } from '@/lib/utils';
 
 interface CommunityResponsesProps {
   communityQuestionId: string;
@@ -149,8 +150,18 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                   </CardTitle>
                   
                   <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <User className="w-4 h-4" />
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-6 h-6">
+                        {response.author.imageURL && getImageUrl(response.author.imageURL) ? (
+                          <AvatarImage 
+                            src={getImageUrl(response.author.imageURL)!} 
+                            alt={response.author.username}
+                          />
+                        ) : null}
+                        <AvatarFallback>
+                          <User className="w-3 h-3" />
+                        </AvatarFallback>
+                      </Avatar>
                       <span>{response.author.username}</span>
                     </div>
                     <div className="flex items-center gap-1">

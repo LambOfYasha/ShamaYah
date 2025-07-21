@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import NestedComment from './NestedComment';
+import { getImageUrl } from '@/lib/utils';
 
 interface Comment {
   _id: string;
@@ -27,10 +28,9 @@ interface Comment {
     username: string;
     imageURL?: string;
   };
+  authorRole: string;
   createdAt: string;
   updatedAt?: string;
-  likes: number;
-  isLiked: boolean;
   replies?: Comment[];
 }
 
@@ -41,7 +41,6 @@ interface CommentSectionProps {
   onAddComment: (content: string, parentCommentId?: string) => Promise<void>;
   onEditComment: (commentId: string, content: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
-  onLikeComment: (commentId: string) => Promise<void>;
   onAddFavorite?: (commentPath: string) => Promise<void>;
   onRemoveFavorite?: (commentPath: string) => Promise<void>;
   onCheckFavorite?: (commentPath: string) => Promise<boolean>;
@@ -55,7 +54,6 @@ export default function CommentSection({
   onAddComment,
   onEditComment,
   onDeleteComment,
-  onLikeComment,
   onAddFavorite,
   onRemoveFavorite,
   onCheckFavorite,
@@ -195,23 +193,26 @@ export default function CommentSection({
           </Card>
         ) : (
           <div className="space-y-4">
-            {comments.map((comment, index) => (
-              <NestedComment
-                key={`${comment.author._id}-${comment.createdAt}-${index}`}
-                comment={comment}
-                commentIndex={index}
-                postId={postId}
-                postType={postType === 'community' ? 'communityQuestion' : 'blogPost'}
-                onCommentAdded={onCommentAdded}
-                onAddComment={onAddComment}
-                onEditComment={onEditComment}
-                onDeleteComment={onDeleteComment}
-                onAddFavorite={onAddFavorite}
-                onRemoveFavorite={onRemoveFavorite}
-                onCheckFavorite={onCheckFavorite}
-                commentPath={index.toString()}
-              />
-            ))}
+            {comments.map((comment, index) => {
+              console.log('Rendering comment:', comment);
+              return (
+                <NestedComment
+                  key={`${comment.author._id}-${comment.createdAt}-${index}`}
+                  comment={comment}
+                  commentIndex={index}
+                  postId={postId}
+                  postType={postType === 'community' ? 'communityQuestion' : 'blogPost'}
+                  onCommentAdded={onCommentAdded || (() => {})}
+                  onAddComment={onAddComment}
+                  onEditComment={onEditComment}
+                  onDeleteComment={onDeleteComment}
+                  onAddFavorite={onAddFavorite || (async () => {})}
+                  onRemoveFavorite={onRemoveFavorite || (async () => {})}
+                  onCheckFavorite={onCheckFavorite || (async () => false)}
+                  commentPath={index.toString()}
+                />
+              );
+            })}
           </div>
         )}
       </div>

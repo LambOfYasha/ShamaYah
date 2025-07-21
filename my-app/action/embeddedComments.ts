@@ -16,16 +16,13 @@ export async function addEmbeddedComment(postId: string, postType: 'blog' | 'com
         const commentData = {
             content,
             author: {
-                _type: 'reference',
-                _ref: user._id,
-            },
-            authorId: user.id,
-            authorUsername: user.username,
+                _id: user._id,
+                username: user.username,
+                imageURL: user.imageURL,
+              },
             authorRole: user.role,
             parentCommentId: parentCommentPath,
             replies: [],
-            likes: 0,
-            likedBy: [],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         };
@@ -148,7 +145,7 @@ export async function editEmbeddedComment(postId: string, postType: 'blog' | 'co
                 const comment = parentComment;
                 
                 // Check if user is the author of the comment
-                if (comment.authorId !== user.id && user.role !== "admin" && user.role !== "teacher") {
+                if (comment.author._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
                     return { error: "You don't have permission to edit this comment" };
                 }
 
@@ -165,7 +162,7 @@ export async function editEmbeddedComment(postId: string, postType: 'blog' | 'co
                     const targetReply = parentComment.replies[replyIndex];
                     
                     // Check if user is the author of the comment
-                    if (targetReply.authorId !== user.id && user.role !== "admin" && user.role !== "teacher") {
+                    if (targetReply.author._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
                         return { error: "You don't have permission to edit this comment" };
                     }
 
@@ -672,9 +669,105 @@ export async function getEmbeddedComments(postId: string, postType: 'blog' | 'co
 
         // Ensure all comments have proper structure for replies
         const comments = post.comments || [];
-        const structuredComments = comments.map(comment => ({
-            ...comment,
-            replies: comment.replies || []
+        console.log('Raw comments from Sanity:', JSON.stringify(comments, null, 2));
+        
+        // Fetch user profile images for all comment authors
+        const structuredComments = await Promise.all(comments.map(async (comment: any) => {
+            console.log('Processing comment:', JSON.stringify(comment, null, 2));
+            console.log('Comment author field:', comment.author);
+            console.log('Comment authorId field:', comment.authorId);
+            
+            // Get user profile image and user data
+            let authorData = null;
+            try {
+                // Check if comment has author as a reference or direct object
+                const authorId = comment.authorId || (comment.author?._ref) || comment.author?._id;
+                console.log('Using authorId:', authorId);
+                
+                if (authorId) {
+                    const userQuery = defineQuery(`
+                        *[_type == "user" && _id == $authorId][0] {
+                            _id,
+                            username,
+                            imageURL
+                        }
+                    `);
+                    authorData = await adminClient.fetch(userQuery, { authorId });
+                    console.log('Author data for comment:', authorData);
+                } else {
+                    console.log('No authorId found, using comment.author directly');
+                    authorData = comment.author;
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+
+            // Process replies with user data
+            const processedReplies = await Promise.all((comment.replies || []).map(async (reply: any) => {
+                console.log('Processing reply:', JSON.stringify(reply, null, 2));
+                console.log('Reply author field:', reply.author);
+                console.log('Reply authorId field:', reply.authorId);
+                
+                let replyAuthorData = null;
+                try {
+                    // Check if reply has author as a reference or direct object
+                    const replyAuthorId = reply.authorId || (reply.author?._ref) || reply.author?._id;
+                    console.log('Using reply authorId:', replyAuthorId);
+                    
+                    if (replyAuthorId) {
+                        const replyUserQuery = defineQuery(`
+                            *[_type == "user" && _id == $authorId][0] {
+                                _id,
+                                username,
+                                imageURL
+                            }
+                        `);
+                        replyAuthorData = await adminClient.fetch(replyUserQuery, { authorId: replyAuthorId });
+                        console.log('Reply author data:', replyAuthorData);
+                    } else {
+                        console.log('No reply authorId found, using reply.author directly');
+                        replyAuthorData = reply.author;
+                    }
+                } catch (error) {
+                    console.error('Error fetching reply user data:', error);
+                }
+
+                const processedReply = {
+                    _id: reply._id || `${reply.authorId}-${reply.createdAt}`,
+                    content: reply.content,
+                    author: {
+                        _id: replyAuthorData?._id || reply.authorId,
+                        username: replyAuthorData?.username || reply.authorUsername || 'Unknown User',
+                        imageURL: replyAuthorData?.imageURL || null
+                    },
+                    authorRole: reply.authorRole || 'user',
+                    parentCommentId: reply.parentCommentId,
+                    replies: reply.replies || [],
+                    createdAt: reply.createdAt,
+                    updatedAt: reply.updatedAt
+                };
+                
+                console.log('Processed reply:', processedReply);
+                return processedReply;
+            }));
+
+            const structuredComment = {
+                _id: comment._id || `${comment.authorId}-${comment.createdAt}`,
+                content: comment.content,
+                author: {
+                    _id: authorData?._id || comment.authorId,
+                    username: authorData?.username || comment.authorUsername || 'Unknown User',
+                    imageURL: authorData?.imageURL || null
+                },
+                authorRole: comment.authorRole || 'user',
+                parentCommentId: comment.parentCommentId,
+                replies: processedReplies,
+                createdAt: comment.createdAt,
+                updatedAt: comment.updatedAt
+            };
+            
+            console.log('Structured comment:', structuredComment);
+            return structuredComment;
         }));
 
         return { success: true, comments: structuredComments };
@@ -1112,4 +1205,4 @@ export async function clearAllFavorites() {
         console.error("Error clearing all favorites:", error);
         return { error: "Failed to clear all favorites" };
     }
-} 
+}

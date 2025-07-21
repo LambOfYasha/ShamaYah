@@ -17,6 +17,7 @@ import EditResponseButton from '@/components/ui/edit-response-button';
 import DeleteResponseButton from '@/components/ui/delete-response-button';
 import { formatDistanceToNow } from 'date-fns';
 import { Metadata } from 'next';
+import { getImageUrl } from '@/lib/utils';
 
 interface Response {
   _id: string;
@@ -28,7 +29,7 @@ interface Response {
   author: {
     _id: string;
     username: string;
-    image?: string;
+    imageURL?: string;
     role: string;
   };
   communityQuestion: {
@@ -61,7 +62,7 @@ const responseQuery = defineQuery(`
     author->{
       _id,
       username,
-      image,
+      imageURL,
       role
     },
     communityQuestion->{
@@ -219,7 +220,12 @@ export default async function ResponsePage({ params }: { params: { slug: string 
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
               <Avatar className="w-12 h-12">
-                <AvatarImage src={response.author.image} />
+                {response.author.imageURL && getImageUrl(response.author.imageURL) ? (
+                  <AvatarImage 
+                    src={getImageUrl(response.author.imageURL)!} 
+                    alt={response.author.username}
+                  />
+                ) : null}
                 <AvatarFallback>
                   {response.author.username.charAt(0).toUpperCase()}
                 </AvatarFallback>

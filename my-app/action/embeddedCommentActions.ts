@@ -1,6 +1,6 @@
 'use server';
 
-import { addEmbeddedComment, editEmbeddedComment, deleteEmbeddedComment, likeEmbeddedComment, addFavorite, removeFavorite, checkFavorite, addPostFavorite, removePostFavorite, checkPostFavorite, getUserFavorites, cleanupFavoritesForDeletedPost, cleanupFavoritesForDeletedComment, updateCommentPathFavorites, deleteIndividualFavorite, clearAllFavorites } from './embeddedComments';
+import { addEmbeddedComment, editEmbeddedComment, deleteEmbeddedComment, addFavorite, removeFavorite, checkFavorite, addPostFavorite, removePostFavorite, checkPostFavorite, getUserFavorites, cleanupFavoritesForDeletedPost, cleanupFavoritesForDeletedComment, updateCommentPathFavorites, deleteIndividualFavorite, clearAllFavorites } from './embeddedComments';
 
 // Comment action functions
 export async function addCommentAction(postId: string, postType: 'blog' | 'community', content: string, parentCommentId?: string) {
@@ -29,27 +29,45 @@ export async function deleteCommentAction(postId: string, postType: 'blog' | 'co
 
 // Comment-level favorite functions
 export async function addCommentFavoriteAction(postId: string, postType: 'blog' | 'community', commentPath: string) {
-    const result = await addFavorite(postId, postType, commentPath);
-    if ("error" in result) {
-        throw new Error(result.error);
+    try {
+        const result = await addFavorite(postId, postType, commentPath);
+        if ("error" in result) {
+            console.error(`Error adding favorite for comment path "${commentPath}":`, result.error);
+            throw new Error(result.error);
+        }
+        return result;
+    } catch (error) {
+        console.error(`Failed to add favorite for comment path "${commentPath}":`, error);
+        throw error;
     }
-    return result;
 }
 
 export async function removeCommentFavoriteAction(postId: string, postType: 'blog' | 'community', commentPath: string) {
-    const result = await removeFavorite(postId, postType, commentPath);
-    if ("error" in result) {
-        throw new Error(result.error);
+    try {
+        const result = await removeFavorite(postId, postType, commentPath);
+        if ("error" in result) {
+            console.error(`Error removing favorite for comment path "${commentPath}":`, result.error);
+            throw new Error(result.error);
+        }
+        return result;
+    } catch (error) {
+        console.error(`Failed to remove favorite for comment path "${commentPath}":`, error);
+        throw error;
     }
-    return result;
 }
 
 export async function checkCommentFavoriteAction(postId: string, postType: 'blog' | 'community', commentPath: string) {
-    const result = await checkFavorite(postId, postType, commentPath);
-    if ("error" in result) {
-        throw new Error(result.error);
+    try {
+        const result = await checkFavorite(postId, postType, commentPath);
+        if ("error" in result) {
+            console.error(`Error checking favorite for comment path "${commentPath}":`, result.error);
+            throw new Error(result.error);
+        }
+        return result;
+    } catch (error) {
+        console.error(`Failed to check favorite for comment path "${commentPath}":`, error);
+        throw error;
     }
-    return result;
 }
 
 // Post-level favorite functions

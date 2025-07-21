@@ -38,6 +38,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Search, 
   Edit, 
@@ -53,9 +54,11 @@ import {
   Download,
   RefreshCw,
   GraduationCap,
-  Star
+  Star,
+  User
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getImageUrl } from '@/lib/utils';
 
 export interface BaseUserData {
   _id: string;
@@ -69,7 +72,7 @@ export interface BaseUserData {
   postCount: number;
   commentCount: number;
   reportCount: number;
-  avatar?: string;
+  imageURL?: string;
   bio?: string;
 }
 
@@ -488,9 +491,17 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <IconComponent className="w-4 h-4 text-blue-600" />
-                          </div>
+                          <Avatar className="w-8 h-8">
+                            {item.imageURL && getImageUrl(item.imageURL) ? (
+                              <AvatarImage 
+                                src={getImageUrl(item.imageURL)!} 
+                                alt={item.username}
+                              />
+                            ) : null}
+                            <AvatarFallback>
+                              <User className="w-4 h-4" />
+                            </AvatarFallback>
+                          </Avatar>
                           <div>
                             <div className="font-medium">{item.username}</div>
                             <div className="text-sm text-gray-500">ID: {item._id}</div>
