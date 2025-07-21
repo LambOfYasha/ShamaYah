@@ -79,10 +79,9 @@ export default async function DashboardPage() {
     ...userBlogs.slice(0, 3).map(blog => ({
       type: "post",
       title: blog.title,
-      time: new Date(blog._createdAt).toLocaleDateString(),
+      time: new Date(blog.createdAt).toLocaleDateString(),
       id: blog._id,
-      views: blog.viewCount || 0,
-      likes: blog.likeCount || 0
+      views: blog.viewCount || 0
     })),
     ...userCommunities.slice(0, 2).map(community => ({
       type: "community",
@@ -97,19 +96,18 @@ export default async function DashboardPage() {
   const engagementData = [
     { label: 'Posts', value: stats.postsCreated, color: 'bg-blue-500' },
     { label: 'Views', value: stats.totalViews, color: 'bg-green-500' },
-    { label: 'Likes', value: stats.totalLikes, color: 'bg-red-500' },
     { label: 'Comments', value: stats.commentsMade, color: 'bg-purple-500' }
   ];
 
   // Weekly activity (mock data for now)
   const weeklyActivity = [
-    { day: 'Mon', posts: 2, views: 45, likes: 12 },
-    { day: 'Tue', posts: 1, views: 32, likes: 8 },
-    { day: 'Wed', posts: 3, views: 67, likes: 18 },
-    { day: 'Thu', posts: 0, views: 23, likes: 5 },
-    { day: 'Fri', posts: 2, views: 54, likes: 15 },
-    { day: 'Sat', posts: 1, views: 38, likes: 9 },
-    { day: 'Sun', posts: 1, views: 41, likes: 11 }
+    { day: 'Mon', posts: 2, views: 45 },
+    { day: 'Tue', posts: 1, views: 32 },
+    { day: 'Wed', posts: 3, views: 67 },
+    { day: 'Thu', posts: 0, views: 23 },
+    { day: 'Fri', posts: 2, views: 54 },
+    { day: 'Sat', posts: 1, views: 38 },
+    { day: 'Sun', posts: 1, views: 41 }
   ];
 
   return (
@@ -295,7 +293,7 @@ export default async function DashboardPage() {
                 <CardTitle>Engagement Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {engagementData.map((item, index) => (
                     <div key={index} className="text-center">
                       <div className={`w-16 h-16 rounded-full ${item.color} flex items-center justify-center mx-auto mb-2`}>
@@ -357,7 +355,7 @@ export default async function DashboardPage() {
                       <div className="flex-1">
                         <p className="font-medium">{activity.title}</p>
                         <p className="text-sm text-gray-500">
-                          {activity.type === 'post' && `${activity.views} views • ${activity.likes} likes`}
+                          {activity.type === 'post' && `${activity.views} views`}
                           {activity.type === 'community' && `${activity.members} members`}
                         </p>
                       </div>
@@ -383,7 +381,7 @@ export default async function DashboardPage() {
                         <div className="flex-1">
                           <h4 className="font-medium">{blog.title}</h4>
                           <p className="text-sm text-gray-500">
-                            {blog.viewCount || 0} views • {blog.likeCount || 0} likes • {new Date(blog._createdAt).toLocaleDateString()}
+                            {blog.viewCount || 0} views • {new Date(blog.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -515,36 +513,7 @@ export default async function DashboardPage() {
               </Card>
             </div>
 
-            {/* Achievement Badges */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Achievements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center p-4 border rounded-lg">
-                    <Award className="w-8 h-8 mx-auto mb-2 text-yellow-600" />
-                    <p className="text-sm font-medium">First Post</p>
-                    <p className="text-xs text-gray-500">Created your first post</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <Star className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                    <p className="text-sm font-medium">Engaged</p>
-                    <p className="text-xs text-gray-500">100+ views on posts</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <Users className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                    <p className="text-sm font-medium">Community</p>
-                    <p className="text-xs text-gray-500">Joined 3+ communities</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <Heart className="w-8 h-8 mx-auto mb-2 text-red-600" />
-                    <p className="text-sm font-medium">Liked</p>
-                    <p className="text-xs text-gray-500">Received 50+ likes</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
           </TabsContent>
         </Tabs>
       </div>
