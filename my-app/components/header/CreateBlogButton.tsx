@@ -1,179 +1,149 @@
-'use client';
+'use client'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+  } from "@/components/ui/dialog"
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Plus, ImageIcon, X, AlertCircle } from "lucide-react";
-import { useState, useRef, useTransition } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
-import { createBlogPost } from "@/action/createBlog";
-import { validateImageFile, fileToBase64, sanitizeFilename } from "@/lib/utils";
+import React, { useState, useRef, useTransition } from 'react'
+import { useUser } from '@clerk/nextjs' 
+import { Input } from "../ui/input"
+import { Textarea } from "../ui/textarea"
+import { ImageIcon, Plus, X, BookOpen } from "lucide-react"
+import Image from "next/image"
+import { Label } from "../ui/label"
+import { Button } from "../ui/button"
+import { createBlogPost } from "@/action/createBlog"
+import { useRouter } from "next/navigation"
 
 function CreateBlogButton() {
-  const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [description, setDescription] = useState("");
-  const [content, setContent] = useState("");
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [imageError, setImageError] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
-  const { user } = useUser();
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setTitle(value);
-    
-    if (!slug || slug === generateSlug(title)) {
-      setSlug(generateSlug(value));
-    }
-  };
+  const { user } = useUser()
+  const [open, setOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [title, setTitle] = useState("")
+  const [slug, setSlug] = useState("")
+  const [description, setDescription] = useState("")
+  const [content, setContent] = useState("")
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
-  const generateSlug = (text: string) => {
-    return text.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "").slice(0, 50);
-  };
+const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value
+  setTitle(value)
+  
+  if (!slug || slug === generateSlug(title)) {
+    setSlug(generateSlug(value))
+  }
+}
 
-  const removeImage = () => {
-    setImagePreview(null);
-    setImageFile(null);
-    setImageError("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+const generateSlug = (text: string) => {
+  return text.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "").slice(0, 50)
+}
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    
-    if (file) {
-      // Clear previous errors
-      setImageError("");
-      
-      // Validate the file
-      const validation = validateImageFile(file);
-      if (!validation.isValid) {
-        setImageError(validation.error || "Invalid image file");
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-        return;
-      }
-      
-      try {
-        // Convert to base64
-        const base64 = await fileToBase64(file);
-        setImageFile(file);
-        setImagePreview(base64);
-      } catch (error) {
-        console.error("Failed to process image:", error);
-        setImageError("Failed to process image. Please try again.");
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      }
-    }
-  };
+const removeImage = () => {
+  setImagePreview(null)
+  setImageFile(null)
+  if (fileInputRef.current) {
+    fileInputRef.current.value = ""
+  }
+}
 
-  const resetForm = () => {
-    setTitle("");
-    setSlug("");
-    setDescription("");
-    setContent("");
-    setImagePreview(null);
-    setImageFile(null);
-    setImageError("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0]
+  
+  if (file) {
+    setImageFile(file)
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      setImagePreview(result)
+    } 
+    reader.readAsDataURL(file)
+  }
+}
 
-  const handleCreateBlog = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    // Clear previous errors
-    setErrorMessage("");
-    
-    // Validate required fields
-    if (!title.trim()) {
-      setErrorMessage("Title is required");
-      return;
-    }
+const resetForm = () => {
+  setTitle("")
+  setSlug("")
+  setDescription("")
+  setContent("")
+  setImagePreview(null)
+  setImageFile(null)
+  if (fileInputRef.current) {
+    fileInputRef.current.value = ""
+  }
+}
 
-    if (!slug.trim()) {
-      setErrorMessage("Slug is required");
-      return;
-    }
+const handleCreateBlog = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
+  if(!title.trim()) {
+    setErrorMessage("Title is required")
+    return
+  }
 
-    if (!description.trim()) {
-      setErrorMessage("Description is required");
-      return;
-    }
+  if(!slug.trim()) {
+    setErrorMessage("Slug is required")
+    return
+  }
 
-    if (!content.trim()) {
-      setErrorMessage("Content is required");
-      return;
-    }
+  if(!description.trim()) {
+    setErrorMessage("Description is required")
+    return
+  }
 
-    // Validate slug format
-    const slugRegex = /^[a-z0-9-]+$/;
-    if (!slugRegex.test(slug)) {
-      setErrorMessage("Slug can only contain lowercase letters, numbers, and hyphens");
-      return;
-    }
+  setErrorMessage("")
 
-    setErrorMessage("");
+  startTransition(async () => {
+    try {
+      let imageBase64: string | null = null
+      let fileName: string | null = null
+      let fileType: string | null = null
 
-    startTransition(async () => {
-      try {
-        let imageBase64: string | null = null;
-        let fileName: string | null = null;
-        let fileType: string | null = null;
-
-        if (imageFile) {
-          try {
-            imageBase64 = await fileToBase64(imageFile);
-            fileName = sanitizeFilename(imageFile.name);
-            fileType = imageFile.type;
-          } catch (error) {
-            console.error("Failed to process image:", error);
-            setErrorMessage("Failed to process image. Please try again.");
-            return;
+      if(imageFile) {
+        const reader = new FileReader()
+        imageBase64 = await new Promise<string>((resolve) => {
+          reader.onload = () => {
+            resolve(reader.result as string)
           }
-        }
+          reader.readAsDataURL(imageFile)
+        })
 
-        const result = await createBlogPost(
-          title.trim(),
-          imageBase64,
-          fileName,
-          fileType,
-          slug.trim(),
-          description.trim(),
-          content.trim()
-        );
-
-        console.log("created blog:", result);
-        
-        if ("error" in result && result.error) {
-          setErrorMessage(result.error);
-        } else if ("createdBlog" in result && result.createdBlog) {
-          setOpen(false);
-          resetForm();
-          router.push(`/blogs/${result.createdBlog.slug?.current}`);
-        }
-      } catch (err) {
-        console.error("failed to create blog", err);
-        setErrorMessage("Failed to create blog. Please try again.");
+        fileName = imageFile.name
+        fileType = imageFile.type
       }
-    });
-  };
+
+      const result = await createBlogPost(
+        title.trim(),
+        imageBase64,
+        fileName,
+        fileType,
+        slug.trim(),
+        description.trim(),
+        content.trim()
+      )  
+
+      console.log("created blog:", result)
+      
+      if ("error" in result && result.error) {
+        setErrorMessage(result.error)
+      } else if ("createdBlog" in result && result.createdBlog) {
+        setOpen(false)
+        resetForm()
+        router.push(`/blogs/${result.createdBlog.slug?.current}`)
+      }
+    } catch (err) {
+      console.error("failed to create blog", err)
+      setErrorMessage("failed to create blog")
+    }
+  })
+}
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -193,10 +163,7 @@ function CreateBlogButton() {
 
           <form onSubmit={handleCreateBlog} className="space-y-4 mt-2">
             {errorMessage && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
-                <AlertCircle className="w-4 h-4 text-red-500" />
-                <span className="text-red-700 text-sm">{errorMessage}</span>
-              </div>
+              <div className="text-red-500 text-sm">{errorMessage}</div>
             )}
 
             <div className="space-y-2">
@@ -300,9 +267,6 @@ function CreateBlogButton() {
                       <p className="text-xs text-gray-500">
                         Click to upload image
                       </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Max 5MB • JPEG, PNG, WebP, GIF
-                      </p>
                     </div>
                     <input 
                       id="blog-image"
@@ -314,13 +278,6 @@ function CreateBlogButton() {
                       className="hidden" 
                     />
                   </Label>
-                </div>
-              )}
-
-              {imageError && (
-                <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded-md">
-                  <AlertCircle className="w-4 h-4 text-red-500" />
-                  <span className="text-red-700 text-sm">{imageError}</span>
                 </div>
               )}
             </div>
@@ -336,7 +293,7 @@ function CreateBlogButton() {
         </DialogHeader>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
-export default CreateBlogButton; 
+export default CreateBlogButton 

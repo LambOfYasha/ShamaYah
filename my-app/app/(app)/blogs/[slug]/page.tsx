@@ -105,29 +105,11 @@ export default async function BlogPage({
   }) => {
     'use server';
     
-    console.log("handleEditBlog called with data:", {
-      title: data.title,
-      hasImageBase64: !!data.imageBase64,
-      imageFilename: data.imageFilename,
-      imageContentType: data.imageContentType
-    });
-    
-    // Determine imageData based on what was sent
-    let imageData = null;
-    if (data.imageBase64 && data.imageFilename && data.imageContentType) {
-      // New image uploaded
-      imageData = {
-        base64: data.imageBase64,
-        fileName: data.imageFilename,
-        contentType: data.imageContentType,
-      };
-    } else if (data.imageBase64 === null) {
-      // Image should be removed (explicitly sent null)
-      imageData = null;
-    }
-    // If imageBase64 is undefined, keep existing image unchanged
-
-    console.log("imageData being sent to editBlog:", imageData);
+    const imageData = data.imageBase64 ? {
+      base64: data.imageBase64,
+      fileName: data.imageFilename!,
+      contentType: data.imageContentType!,
+    } : null;
 
     const result = await editBlog(
       blog._id,
@@ -139,11 +121,9 @@ export default async function BlogPage({
     );
 
     if ("error" in result) {
-      console.error("editBlog returned error:", result.error);
       throw new Error(result.error);
     }
 
-    console.log("editBlog successful:", result);
     return result;
   };
 
