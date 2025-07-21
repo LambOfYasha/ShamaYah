@@ -185,6 +185,88 @@ export const userType = defineType({
       description: 'The community question this user is a moderator of',
       to: [{type: 'communityQuestion'}],
     }),
+    // Teacher-specific fields
+    defineField({
+      name: 'teacherRole',
+      title: 'Teacher Role',
+      type: 'string',
+      description: 'Specific role for teachers (only applies if role is teacher)',
+      options: {
+        list: [
+          {title: 'Teacher', value: 'teacher'},
+          {title: 'Senior Teacher', value: 'senior_teacher'},
+          {title: 'Lead Teacher', value: 'lead_teacher'},
+        ],
+        layout: 'radio'
+      },
+      hidden: ({document}) => document?.role !== 'teacher',
+    }),
+    defineField({
+      name: 'specializations',
+      title: 'Specializations',
+      type: 'array',
+      description: 'Academic specializations for teachers',
+      of: [{type: 'string'}],
+      options: {
+        list: [
+          'Theology',
+          'Biblical Studies',
+          'Church History',
+          'Systematic Theology',
+          'Pastoral Care',
+          'Ethics',
+          'Apologetics',
+          'Homiletics',
+          'Liturgy',
+          'Mission Studies',
+          'Christian Education',
+          'Counseling',
+          'Philosophy',
+          'Languages',
+          'Archaeology'
+        ]
+      },
+      hidden: ({document}) => document?.role !== 'teacher',
+    }),
+    defineField({
+      name: 'qualifications',
+      title: 'Qualifications',
+      type: 'array',
+      description: 'Academic qualifications and degrees',
+      of: [{type: 'string'}],
+      hidden: ({document}) => document?.role !== 'teacher',
+    }),
+    defineField({
+      name: 'experience',
+      title: 'Years of Experience',
+      type: 'number',
+      description: 'Number of years of teaching experience',
+      hidden: ({document}) => document?.role !== 'teacher',
+    }),
+    defineField({
+      name: 'rating',
+      title: 'Rating',
+      type: 'number',
+      description: 'Average rating from students (1-5)',
+      validation: (Rule) => Rule.min(1).max(5),
+      hidden: ({document}) => document?.role !== 'teacher',
+    }),
+    defineField({
+      name: 'totalStudents',
+      title: 'Total Students',
+      type: 'number',
+      description: 'Total number of students taught',
+      initialValue: 0,
+      hidden: ({document}) => document?.role !== 'teacher',
+    }),
+    defineField({
+      name: 'coursesCreated',
+      title: 'Courses Created',
+      type: 'number',
+      description: 'Number of courses created by this teacher',
+      initialValue: 0,
+      hidden: ({document}) => document?.role !== 'teacher',
+    }),
   ],
   preview: {
     select: {
