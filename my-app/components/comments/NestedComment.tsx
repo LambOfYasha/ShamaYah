@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ReportButton } from '@/components/ui/report-button'
 
 
 interface Comment {
@@ -285,6 +286,13 @@ export default function NestedComment({
                         Reply
                       </Button>
                     )}
+                    <ReportButton
+                      contentId={comment.author._ref}
+                      contentType="comment"
+                      contentTitle={comment.content.slice(0, 50)}
+                      size="sm"
+                      variant="ghost"
+                    />
                   </div>
                 </>
               )}

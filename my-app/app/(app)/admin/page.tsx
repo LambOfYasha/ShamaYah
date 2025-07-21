@@ -10,7 +10,8 @@ import {
   BarChart3, 
   Settings,
   ArrowRight,
-  BookOpen
+  BookOpen,
+  Flag
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -85,6 +86,29 @@ export default async function AdminPage() {
                 <Button asChild className="w-full">
                   <Link href="/admin/moderation">
                     Moderate Content
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </RoleGuard>
+
+          {/* Reports Management */}
+          <RoleGuard permission="canModerate">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <Flag className="h-5 w-5 text-red-600" />
+                  <CardTitle>Reports</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Review and manage user-submitted reports
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/reports">
+                    View Reports
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>

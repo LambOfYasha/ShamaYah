@@ -12,6 +12,7 @@ import AddResponseForm from '@/components/community/AddResponseForm';
 import FavoriteButton from '@/components/ui/favorite-button';
 import EditResponseButton from '@/components/ui/edit-response-button';
 import DeleteResponseButton from '@/components/ui/delete-response-button';
+import { ReportButton } from '@/components/ui/report-button';
 import Link from 'next/link';
 
 interface CommunityResponsesProps {
@@ -196,6 +197,13 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                       variant="outline"
                     />
                   )}
+                  <ReportButton
+                    contentId={response._id}
+                    contentType="post"
+                    contentTitle={response.title}
+                    size="sm"
+                    variant="outline"
+                  />
                 </div>
               </div>
             </CardHeader>
