@@ -158,10 +158,11 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  
+                {/* Action buttons - compact responsive layout */}
+                <div className="flex flex-wrap items-center gap-1 ml-4">
+                  {/* Always visible primary actions */}
                   <Link href={`/responses/${response._id}`}>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className="h-8 px-2">
                       <Eye className="w-4 h-4" />
                     </Button>
                   </Link>
@@ -171,7 +172,10 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                     postType="response"
                     size="sm"
                     variant="outline"
+                    className="h-8 px-2"
                   />
+
+                  {/* Conditional actions - compact on mobile */}
                   {canEdit(response) && (
                     <EditResponseButton
                       responseId={response._id}
@@ -179,6 +183,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                       currentBody={response.body}
                       size="sm"
                       variant="outline"
+                      className="h-8 px-2"
                     />
                   )}
                   {canDelete(response) && (
@@ -187,6 +192,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                       responseTitle={response.title}
                       size="sm"
                       variant="outline"
+                      className="h-8 px-2"
                     />
                   )}
                   {canApprove && (
@@ -195,6 +201,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                       isApproved={response.isApproved}
                       size="sm"
                       variant="outline"
+                      className="h-8 px-2"
                     />
                   )}
                   <ReportButton
@@ -203,6 +210,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                     contentTitle={response.title}
                     size="sm"
                     variant="outline"
+                    className="h-8 px-2"
                   />
                 </div>
               </div>
