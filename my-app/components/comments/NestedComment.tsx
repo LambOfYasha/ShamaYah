@@ -16,7 +16,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ReportButton } from '@/components/ui/report-button'
-
+import { useModeration } from '@/hooks/useModeration'
+import { ModerationFeedback } from '@/components/ui/moderation-feedback'
 
 interface Comment {
   content: string
@@ -74,6 +75,50 @@ export default function NestedComment({
   const [isFavorited, setIsFavorited] = useState(false)
   const [isCheckingFavorite, setIsCheckingFavorite] = useState(false)
 
+  // Initialize moderation for replies
+  const {
+    content: moderatedReplyContent,
+    updateContent: updateModeratedReplyContent,
+    moderationState: replyModerationState,
+    checkModeration: checkReplyModeration,
+    clearModeration: clearReplyModeration,
+    getModerationFeedback: getReplyModerationFeedback,
+    canSubmit: canSubmitReply
+  } = useModeration({
+    contentType: 'comment',
+    debounceMs: 1000,
+    autoCheck: true
+  });
+
+  // Initialize moderation for edits
+  const {
+    content: moderatedEditContent,
+    updateContent: updateModeratedEditContent,
+    moderationState: editModerationState,
+    checkModeration: checkEditModeration,
+    clearModeration: clearEditModeration,
+    getModerationFeedback: getEditModerationFeedback,
+    canSubmit: canSubmitEdit
+  } = useModeration({
+    contentType: 'comment',
+    debounceMs: 1000,
+    autoCheck: true
+  });
+
+  // Update moderated content when reply changes
+  const handleReplyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const content = e.target.value;
+    setReplyContent(content);
+    updateModeratedReplyContent(content);
+  };
+
+  // Update moderated content when edit changes
+  const handleEditChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const content = e.target.value;
+    setEditContent(content);
+    updateModeratedEditContent(content);
+  };
+
   // Check if comment is favorited when component mounts
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -97,6 +142,12 @@ export default function NestedComment({
   const handleReply = async () => {
     if (!user || !replyContent.trim()) return
 
+    // Check if content is appropriate before submitting
+    if (!canSubmitReply) {
+      alert('Please review the content guidelines before submitting.');
+      return;
+    }
+
     setIsSubmitting(true)
     try {
       // Create the path to this comment for the reply
@@ -106,6 +157,7 @@ export default function NestedComment({
 
       await onAddComment(replyContent, replyPath)
       setReplyContent('')
+      clearReplyModeration()
       setIsReplying(false)
       onCommentAdded()
     } catch (error) {
@@ -118,11 +170,18 @@ export default function NestedComment({
   const handleEdit = async () => {
     if (!editContent.trim()) return
 
+    // Check if content is appropriate before submitting
+    if (!canSubmitEdit) {
+      alert('Please review the content guidelines before submitting.');
+      return;
+    }
+
     setIsSubmitting(true)
     try {
       // Create the path to this comment for editing
       const editPath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
       await onEditComment(editPath, editContent.trim())
+      clearEditModeration()
       setIsEditing(false)
     } catch (error) {
       console.error('Failed to edit comment:', error)
@@ -195,46 +254,88 @@ export default function NestedComment({
                   </Badge>
                 </div>
                 
-                {(canEdit || canDelete) && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 px-2">
-                        <MoreHorizontal className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {canEdit && (
-                        <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                          <Edit className="h-3 w-3 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                      )}
-                      {canDelete && (
-                        <DropdownMenuItem 
-                          onClick={handleDelete}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="h-3 w-3 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleToggleFavorite}
+                    disabled={isCheckingFavorite || isSubmitting}
+                    className={`${isFavorited ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}
+                  >
+                    <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
+                  </Button>
+                  
+                  {user && level < maxLevel && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsReplying(!isReplying)}
+                      disabled={isSubmitting}
+                    >
+                      <Reply className="h-4 w-4" />
+                    </Button>
+                  )}
+                  
+                  {(canEdit || canDelete) && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {canEdit && (
+                          <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                        )}
+                        {canDelete && (
+                          <DropdownMenuItem onClick={handleDelete} className="text-red-600">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                  
+                  <ReportButton 
+                    postId={postId}
+                    postType={postType}
+                    contentType="comment"
+                    contentId={commentPath || commentIndex.toString()}
+                    size="sm"
+                  />
+                </div>
               </div>
               
               {isEditing ? (
                 <div className="space-y-2">
                   <Textarea
                     value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
+                    onChange={handleEditChange}
                     className="min-h-[80px]"
+                    placeholder="Edit your comment..."
                   />
+                  
+                  {/* Moderation Feedback for Edit */}
+                  {editContent.trim() && (
+                    <div className="mt-2">
+                      <ModerationFeedback
+                        isChecking={editModerationState.isChecking}
+                        result={editModerationState.result}
+                        error={editModerationState.error}
+                        showDetails={false}
+                      />
+                    </div>
+                  )}
+                  
                   <div className="flex gap-2">
                     <Button
                       size="sm"
                       onClick={handleEdit}
-                      disabled={isSubmitting || !editContent.trim()}
+                      disabled={isSubmitting || !canSubmitEdit}
                     >
                       {isSubmitting ? 'Saving...' : 'Save'}
                     </Button>
@@ -244,6 +345,7 @@ export default function NestedComment({
                       onClick={() => {
                         setIsEditing(false)
                         setEditContent(comment.content)
+                        clearEditModeration()
                       }}
                     >
                       Cancel
@@ -251,50 +353,7 @@ export default function NestedComment({
                   </div>
                 </div>
               ) : (
-                <>
-                  <p className="text-sm text-gray-700 mb-3">
-                    {comment.content}
-                  </p>
-                  
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span>
-                      {new Date(comment.createdAt).toLocaleDateString()}
-                    </span>
-                    {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
-                      <span className="text-xs text-gray-400">
-                        (edited)
-                      </span>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleToggleFavorite}
-                      disabled={isSubmitting || isCheckingFavorite}
-                      className="flex items-center gap-1"
-                    >
-                      <Heart className={`w-4 h-4 ${isFavorited ? 'text-red-500 fill-current' : ''}`} />
-                      {isCheckingFavorite ? '...' : (isFavorited ? 'Favorited' : 'Favorite')}
-                    </Button>
-                    {level < maxLevel && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsReplying(!isReplying)}
-                        className="h-8 px-2 text-xs"
-                      >
-                        <Reply className="h-3 w-3 mr-1" />
-                        Reply
-                      </Button>
-                    )}
-                    <ReportButton
-                      contentId={comment.author._ref}
-                      contentType="comment"
-                      contentTitle={comment.content.slice(0, 50)}
-                      size="sm"
-                      variant="ghost"
-                    />
-                  </div>
-                </>
+                <p className="text-gray-700 text-sm">{comment.content}</p>
               )}
               
               {isReplying && (
@@ -302,14 +361,27 @@ export default function NestedComment({
                   <Textarea
                     placeholder="Write a reply..."
                     value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
+                    onChange={handleReplyChange}
                     className="min-h-[80px]"
                   />
+                  
+                  {/* Moderation Feedback for Reply */}
+                  {replyContent.trim() && (
+                    <div className="mt-2">
+                      <ModerationFeedback
+                        isChecking={replyModerationState.isChecking}
+                        result={replyModerationState.result}
+                        error={replyModerationState.error}
+                        showDetails={false}
+                      />
+                    </div>
+                  )}
+                  
                   <div className="flex gap-2">
                     <Button
                       size="sm"
                       onClick={handleReply}
-                      disabled={isSubmitting || !replyContent.trim()}
+                      disabled={isSubmitting || !canSubmitReply}
                     >
                       {isSubmitting ? 'Posting...' : 'Post Reply'}
                     </Button>
@@ -319,6 +391,7 @@ export default function NestedComment({
                       onClick={() => {
                         setIsReplying(false)
                         setReplyContent('')
+                        clearReplyModeration()
                       }}
                     >
                       Cancel
@@ -349,7 +422,7 @@ export default function NestedComment({
               onRemoveFavorite={onRemoveFavorite}
               onCheckFavorite={onCheckFavorite}
               level={level + 1}
-              commentPath={commentPath ? `${commentPath}.${commentIndex}` : commentIndex.toString()}
+              commentPath={`${commentPath || commentIndex.toString()}.replies.${replyIndex}`}
             />
           ))}
         </div>

@@ -1,21 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { 
-  MessageSquare, 
-  Send, 
-  MoreVertical, 
-  Edit, 
-  Trash2,
-  Heart,
-  Reply
-} from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { MessageSquare, Send, User, Calendar, Heart, Reply, Edit, Trash2, MoreVertical } from 'lucide-react';
+import { useModeration } from '@/hooks/useModeration';
+import { ModerationFeedback } from '@/components/ui/moderation-feedback';
+import { formatDistanceToNow } from 'date-fns';
+import { useUser } from '@clerk/nextjs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,18 +20,18 @@ import {
 import NestedComment from './NestedComment';
 
 interface Comment {
+  _id: string;
   content: string;
   author: {
-    _type: 'reference';
-    _ref: string;
+    _id: string;
+    username: string;
+    imageURL?: string;
   };
-  authorId: string;
-  authorUsername: string;
-  authorRole: string;
-  parentCommentId?: string;
-  replies: Comment[];
   createdAt: string;
   updatedAt?: string;
+  likes: number;
+  isLiked: boolean;
+  replies?: Comment[];
 }
 
 interface CommentSectionProps {
@@ -44,11 +39,12 @@ interface CommentSectionProps {
   postType: 'community' | 'blog';
   comments: Comment[];
   onAddComment: (content: string, parentCommentId?: string) => Promise<void>;
-  onEditComment: (commentPath: string, content: string) => Promise<void>;
-  onDeleteComment: (commentPath: string) => Promise<void>;
-  onAddFavorite: (commentPath: string) => Promise<void>;
-  onRemoveFavorite: (commentPath: string) => Promise<void>;
-  onCheckFavorite: (commentPath: string) => Promise<boolean>;
+  onEditComment: (commentId: string, content: string) => Promise<void>;
+  onDeleteComment: (commentId: string) => Promise<void>;
+  onLikeComment: (commentId: string) => Promise<void>;
+  onAddFavorite?: (commentPath: string) => Promise<void>;
+  onRemoveFavorite?: (commentPath: string) => Promise<void>;
+  onCheckFavorite?: (commentPath: string) => Promise<boolean>;
   onCommentAdded?: () => void;
 }
 
@@ -59,6 +55,7 @@ export default function CommentSection({
   onAddComment,
   onEditComment,
   onDeleteComment,
+  onLikeComment,
   onAddFavorite,
   onRemoveFavorite,
   onCheckFavorite,
@@ -66,70 +63,55 @@ export default function CommentSection({
 }: CommentSectionProps) {
   const { user } = useUser();
   const [newComment, setNewComment] = useState('');
-  const [editingComment, setEditingComment] = useState<string | null>(null);
-  const [editContent, setEditContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize moderation for comments
+  const {
+    content: moderatedContent,
+    updateContent: updateModeratedContent,
+    moderationState,
+    checkModeration,
+    clearModeration,
+    getModerationFeedback,
+    canSubmit
+  } = useModeration({
+    contentType: 'comment',
+    debounceMs: 1000,
+    autoCheck: true
+  });
+
+  // Update moderated content when comment changes
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const content = e.target.value;
+    setNewComment(content);
+    updateModeratedContent(content);
+  };
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !user) return;
+    
+    if (!newComment.trim()) {
+      alert('Please enter a comment');
+      return;
+    }
+
+    // Check if content is appropriate before submitting
+    if (!canSubmit) {
+      alert('Please review the content guidelines before submitting.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
       await onAddComment(newComment.trim());
       setNewComment('');
+      clearModeration();
+      onCommentAdded?.();
     } catch (error) {
       console.error('Failed to add comment:', error);
+      alert('Failed to add comment. Please try again.');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleEditComment = async (commentIndex: number) => {
-    if (!editContent.trim()) return;
-
-    setIsSubmitting(true);
-    try {
-      await onEditComment(commentIndex, editContent.trim());
-      setEditingComment(null);
-      setEditContent('');
-    } catch (error) {
-      console.error('Failed to edit comment:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDeleteComment = async (commentIndex: number) => {
-    if (!confirm('Are you sure you want to delete this comment?')) return;
-
-    setIsSubmitting(true);
-    try {
-      await onDeleteComment(commentIndex);
-    } catch (error) {
-      console.error('Failed to delete comment:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const startEditing = (comment: Comment, index: number) => {
-    setEditingComment(index.toString());
-    setEditContent(comment.content);
-  };
-
-  const canEditComment = (comment: Comment) => {
-    return user && comment.authorId === user.id;
-  };
-
-  const canDeleteComment = (comment: Comment) => {
-    return user && (comment.authorId === user.id || user.publicMetadata?.role === 'admin');
-  };
-
-  const handleCommentAdded = () => {
-    // Call the parent's onCommentAdded callback to refresh comments
-    if (onCommentAdded) {
-      onCommentAdded();
     }
   };
 
@@ -146,17 +128,48 @@ export default function CommentSection({
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmitComment} className="space-y-4">
-              <Textarea
-                placeholder="Share your thoughts..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="min-h-[100px]"
-                disabled={isSubmitting}
-              />
+              <div>
+                <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Comment
+                </label>
+                <Textarea
+                  id="comment"
+                  placeholder="Share your thoughts..."
+                  value={newComment}
+                  onChange={handleCommentChange}
+                  className="min-h-[100px] resize-none"
+                  disabled={isSubmitting}
+                />
+                
+                {/* Moderation Feedback */}
+                {newComment.trim() && (
+                  <div className="mt-3">
+                    <ModerationFeedback
+                      isChecking={moderationState.isChecking}
+                      result={moderationState.result}
+                      error={moderationState.error}
+                      showDetails={false}
+                    />
+                  </div>
+                )}
+              </div>
+              
               <div className="flex justify-end">
-                <Button type="submit" disabled={!newComment.trim() || isSubmitting}>
-                  <Send className="w-4 h-4 mr-2" />
-                  {isSubmitting ? 'Posting...' : 'Post Comment'}
+                <Button 
+                  type="submit"
+                  disabled={!newComment.trim() || isSubmitting || !canSubmit}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Posting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Post Comment
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
@@ -184,12 +197,12 @@ export default function CommentSection({
           <div className="space-y-4">
             {comments.map((comment, index) => (
               <NestedComment
-                key={`${comment.authorId}-${comment.createdAt}-${index}`}
+                key={`${comment.author._id}-${comment.createdAt}-${index}`}
                 comment={comment}
                 commentIndex={index}
                 postId={postId}
                 postType={postType === 'community' ? 'communityQuestion' : 'blogPost'}
-                onCommentAdded={handleCommentAdded}
+                onCommentAdded={onCommentAdded}
                 onAddComment={onAddComment}
                 onEditComment={onEditComment}
                 onDeleteComment={onDeleteComment}

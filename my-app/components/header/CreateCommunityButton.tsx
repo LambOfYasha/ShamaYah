@@ -18,6 +18,8 @@ import { Label } from "../ui/label"
 import { Button } from "../ui/button"
 import { createCommunityQuestion } from "@/action/createCommunityQuestion"
 import { useRouter } from "next/navigation"
+import { useModeration } from "@/hooks/useModeration"
+import { ModerationFeedback } from "@/components/ui/moderation-feedback"
 
 function CreateCommunityButton() {
 
@@ -33,14 +35,41 @@ function CreateCommunityButton() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
-const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const value = e.target.value
-  setName(value)
-  
-  if (!slug || slug === generateSlug(name)) {
-    setSlug(generateSlug(value))
+  // Initialize moderation for community question content
+  const {
+    content: moderatedContent,
+    updateContent: updateModeratedContent,
+    moderationState,
+    checkModeration,
+    clearModeration,
+    getModerationFeedback,
+    canSubmit
+  } = useModeration({
+    contentType: 'community',
+    debounceMs: 1500,
+    autoCheck: true
+  });
+
+  // Update moderated content when name changes
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setName(value)
+    
+    if (!slug || slug === generateSlug(name)) {
+      setSlug(generateSlug(value))
+    }
+    
+    // Check both name and description together
+    updateModeratedContent(`${value}\n\n${description}`);
   }
-}
+
+  // Update moderated content when description changes
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newDescription = e.target.value;
+    setDescription(newDescription);
+    // Check both name and description together
+    updateModeratedContent(`${name}\n\n${newDescription}`);
+  };
 
 const generateSlug = (text: string) => {
   return text.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "").slice(0, 21)
@@ -68,17 +97,13 @@ reader.readAsDataURL(file)
 }
 }
 
-
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault()
-}
-
 const resetForm = () => {
   setName("")
   setSlug("")
   setDescription("")
   setImagePreview(null)
   setImageFile(null)
+  clearModeration()
   if (fileInputRef.current) {
     fileInputRef.current.value = ""
   }
@@ -93,6 +118,17 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
 
   if(!slug.trim()) {
     setErrorMessage("Slug is required")
+    return
+  }
+
+  if(!description.trim()) {
+    setErrorMessage("Description is required")
+    return
+  }
+
+  // Check if content is appropriate before submitting
+  if (!canSubmit) {
+    setErrorMessage("Please review the content guidelines before submitting.")
     return
   }
 
@@ -207,11 +243,24 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
           placeholder="Enter a description for your question"
           className="w-full focus:ring-2 focus:ring-blue-500"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={handleDescriptionChange}
           required
           minLength={10}
           maxLength={1000}
+          rows={4}
           />
+          
+          {/* Moderation Feedback */}
+          {(name.trim() || description.trim()) && (
+            <div className="mt-3">
+              <ModerationFeedback
+                isChecking={moderationState.isChecking}
+                result={moderationState.result}
+                error={moderationState.error}
+                showDetails={true}
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -261,7 +310,13 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
             )}
             </div>
 
-            <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isPending || !user}>Submit Question</Button>
+            <Button 
+              type="submit" 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+              disabled={isPending || !user || !canSubmit}
+            >
+              {isPending ? "Creating..." : "Create Question"}
+            </Button>
       </form>
     </DialogHeader>
   </DialogContent>

@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { createCommunityResponse } from '@/action/postActions';
+import { useModeration } from '@/hooks/useModeration';
+import { ModerationFeedback } from '@/components/ui/moderation-feedback';
 import { Plus, X } from 'lucide-react';
 
 interface AddResponseFormProps {
@@ -25,11 +27,32 @@ export default function AddResponseForm({
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
 
+  // Initialize moderation for response content
+  const {
+    content: moderatedContent,
+    updateContent: updateModeratedContent,
+    moderationState,
+    checkModeration,
+    clearModeration,
+    getModerationFeedback,
+    canSubmit
+  } = useModeration({
+    contentType: 'response',
+    debounceMs: 1500,
+    autoCheck: true
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!title.trim() || !body.trim()) {
       alert('Please fill in both title and content');
+      return;
+    }
+
+    // Check if content is appropriate before submitting
+    if (!canSubmit) {
+      alert('Please review the content guidelines before submitting.');
       return;
     }
 
@@ -49,9 +72,10 @@ export default function AddResponseForm({
       // Reset form and close dialog
       setTitle('');
       setBody('');
+      clearModeration();
       setIsOpen(false);
       
-      // Refresh the page to show the new response
+      // Call onSuccess callback to refresh the responses list
       onSuccess?.();
     } catch (error) {
       console.error('Error creating response:', error);
@@ -64,8 +88,18 @@ export default function AddResponseForm({
   const handleCancel = () => {
     setTitle('');
     setBody('');
+    clearModeration();
     setIsOpen(false);
   };
+
+  // Update moderated content when body changes
+  const handleBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newBody = e.target.value;
+    setBody(newBody);
+    updateModeratedContent(newBody);
+  };
+
+  const moderationFeedback = getModerationFeedback();
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -101,27 +135,42 @@ export default function AddResponseForm({
             <Textarea
               id="body"
               value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Write your detailed response here..."
-              rows={8}
+              onChange={handleBodyChange}
+              placeholder="Share your thoughts, insights, or answer to the community question..."
+              rows={6}
               required
             />
+            
+            {/* Moderation Feedback */}
+            {body.trim() && (
+              <div className="mt-3">
+                <ModerationFeedback
+                  isChecking={moderationState.isChecking}
+                  result={moderationState.result}
+                  error={moderationState.error}
+                  showDetails={true}
+                />
+              </div>
+            )}
           </div>
           
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={isLoading}
-            >
+          <div className="flex justify-end gap-3">
+            <Button type="button" variant="outline" onClick={handleCancel}>
+              <X className="w-4 h-4 mr-2" />
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
+            <Button 
+              type="submit" 
+              disabled={isLoading || !canSubmit}
             >
-              {isLoading ? 'Creating...' : 'Create Response'}
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Create Response'
+              )}
             </Button>
           </div>
         </form>

@@ -1,40 +1,32 @@
 'use client';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Edit, ImageIcon, X } from "lucide-react";
-import { useState, useRef } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { ImageIcon, Edit, X } from 'lucide-react';
+import Image from 'next/image';
+import { useModeration } from '@/hooks/useModeration';
+import { ModerationFeedback } from '@/components/ui/moderation-feedback';
 
-interface BlogData {
+interface Blog {
   _id: string;
   title: string;
+  slug: { current: string };
   description: string;
-  slug: {
-    _type: string;
-    current: string;
-  };
-  content?: string;
+  content: any[];
   image?: {
-    asset?: {
+    asset: {
       _ref: string;
     };
   };
 }
 
 interface EditBlogButtonProps {
-  blog: BlogData;
+  blog: Blog;
   onEdit: (data: {
     title: string;
     description: string;
@@ -48,27 +40,67 @@ interface EditBlogButtonProps {
 
 export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  
   const [title, setTitle] = useState(blog.title);
+  const [slug, setSlug] = useState(blog.slug.current);
   const [description, setDescription] = useState(blog.description);
-  const [slug, setSlug] = useState(blog.slug?.current || '');
-  const [content, setContent] = useState(blog.content || "");
+  const [content, setContent] = useState(
+    blog.content?.[0]?.children?.[0]?.text || ''
+  );
+  
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const generateSlug = (text: string) => {
-    return text.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "").slice(0, 50);
+  // Initialize moderation for blog content
+  const {
+    content: moderatedContent,
+    updateContent: updateModeratedContent,
+    moderationState,
+    checkModeration,
+    clearModeration,
+    getModerationFeedback,
+    canSubmit
+  } = useModeration({
+    contentType: 'blog',
+    debounceMs: 1500,
+    autoCheck: true
+  });
+
+  // Update moderated content when content changes
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value;
+    setContent(newContent);
+    updateModeratedContent(newContent);
+  };
+
+  // Update moderated content when description changes
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newDescription = e.target.value;
+    setDescription(newDescription);
+    // Check both content and description together
+    updateModeratedContent(`${newDescription}\n\n${content}`);
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setTitle(value);
     
-    if (!slug || slug === generateSlug(blog.title)) {
-      setSlug(generateSlug(value));
+    // Auto-generate slug if it matches the original title's slug
+    if (slug === blog.slug.current) {
+      const newSlug = value.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '').slice(0, 50);
+      setSlug(newSlug);
+    }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setImageFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -86,11 +118,16 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
     }
   };
 
-  const removeImage = () => {
+  const resetForm = () => {
+    setTitle(blog.title);
+    setSlug(blog.slug.current);
+    setDescription(blog.description);
+    setContent(blog.content?.[0]?.children?.[0]?.text || '');
     setImagePreview(null);
     setImageFile(null);
+    clearModeration();
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = '';
     }
   };
 
@@ -114,6 +151,12 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
 
     if (!content.trim()) {
       setErrorMessage("Content is required");
+      return;
+    }
+
+    // Check if content is appropriate before submitting
+    if (!canSubmit) {
+      setErrorMessage("Please review the content guidelines before submitting.");
       return;
     }
 
@@ -214,7 +257,7 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
               <Textarea
                 id="description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={handleDescriptionChange}
                 placeholder="Enter a brief description of your blog post"
                 required
                 minLength={10}
@@ -228,70 +271,90 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
               <Textarea
                 id="content"
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write your blog post content..."
+                onChange={handleContentChange}
+                placeholder="Write your blog post content here..."
                 required
                 minLength={50}
+                maxLength={10000}
                 rows={8}
               />
+              
+              {/* Moderation Feedback */}
+              {(description.trim() || content.trim()) && (
+                <div className="mt-3">
+                  <ModerationFeedback
+                    isChecking={moderationState.isChecking}
+                    result={moderationState.result}
+                    error={moderationState.error}
+                    showDetails={true}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label>Blog Image</Label>
-              <div className="space-y-4">
-                {(imagePreview || blog.image) && (
-                  <div className="relative">
-                    <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                      <Image
-                        src={imagePreview || `/api/sanity/image/${blog.image?.asset?._ref}`}
-                        alt="Blog preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={removeImage}
-                      className="absolute top-2 right-2"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
+              <Label className="text-sm font-medium">
+                Blog Image (Optional)
+              </Label>
 
-                {!imagePreview && !blog.image && (
-                  <div className="flex items-center justify-center w-full">
-                    <Label htmlFor="blog-image" className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                      <div className="flex flex-col items-center justify-center">
-                        <ImageIcon className="w-6 h-6 mb-2 text-gray-400" />
-                        <p className="text-xs text-gray-500">
-                          Click to upload image
-                        </p>
-                      </div>
-                      <input
-                        id="blog-image"
-                        name="blog-image"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        ref={fileInputRef}
-                        className="hidden"
-                      />
-                    </Label>
-                  </div>
-                )}
-              </div>
+              {imagePreview ? (
+                <div className="relative w-32 h-32 mx-auto">
+                  <Image 
+                    src={imagePreview}
+                    alt="Blog Preview"
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                  <button 
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center w-full">
+                  <Label htmlFor="edit-blog-image" className="flex flex-col items-center justify-center w-full
+                  h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <div className="flex flex-col items-center justify-center">
+                      <ImageIcon className="w-6 h-6 mb-2 text-gray-400" />
+                      <p className="text-xs text-gray-500">
+                        Click to upload new image
+                      </p>
+                    </div>
+                    <input 
+                      id="edit-blog-image"
+                      name="edit-blog-image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      ref={fileInputRef}
+                      className="hidden" 
+                    />
+                  </Label>
+                </div>
+              )}
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Updating..." : "Update Blog Post"}
-            </Button>
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting || !canSubmit}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  'Update Blog Post'
+                )}
+              </Button>
+            </div>
           </form>
         </DialogHeader>
       </DialogContent>
