@@ -1,4 +1,6 @@
 import { getCurrentUser } from "@/lib/auth/middleware";
+import { getUserStats, UserStats } from "@/lib/user/getUserStats";
+import { getUserPosts, UserPost } from "@/lib/user/getUserPosts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,25 +13,38 @@ import {
   Shield, 
   Edit, 
   Save,
-  Camera
+  Camera,
+  MessageSquare,
+  ThumbsUp,
+  Clock,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
+import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 export default async function ProfilePage() {
   const user = await getCurrentUser();
+  
+  // Get real user statistics
+  const userStatsResult = await getUserStats();
+  const userStats: UserStats = "error" in userStatsResult 
+    ? {
+        postsCreated: 0,
+        commentsMade: 0,
+        communitiesJoined: 0,
+        memberSince: "Unknown",
+        totalLikes: 0,
+        approvedResponses: 0,
+        pendingResponses: 0,
+      }
+    : userStatsResult;
 
-  // Mock data - replace with actual data fetching
-  const userStats = {
-    postsCreated: 5,
-    commentsMade: 12,
-    communitiesJoined: 3,
-    memberSince: "January 2024",
-  };
-
-  const recentPosts = [
-    { title: "Question about baptism", community: "Biblical Studies", date: "2 days ago" },
-    { title: "Thoughts on prayer", community: "Spiritual Life", date: "1 week ago" },
-    { title: "Church history question", community: "Church History", date: "2 weeks ago" },
-  ];
+  // Get real user posts
+  const userPostsResult = await getUserPosts(5);
+  const recentPosts: UserPost[] = "error" in userPostsResult 
+    ? []
+    : userPostsResult;
 
   return (
     <div className="p-6">
@@ -92,7 +107,7 @@ export default async function ProfilePage() {
                   </div>
                   <div>
                     <Label htmlFor="joined">Joined</Label>
-                    <Input id="joined" defaultValue="January 2024" disabled />
+                    <Input id="joined" defaultValue={userStats.memberSince} disabled />
                   </div>
                 </div>
 
@@ -114,19 +129,41 @@ export default async function ProfilePage() {
                 <CardTitle>Statistics</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span>Posts Created</span>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-blue-500" />
+                    <span>Responses Created</span>
+                  </div>
                   <span className="font-semibold">{userStats.postsCreated}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Comments Made</span>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-green-500" />
+                    <span>Comments Made</span>
+                  </div>
                   <span className="font-semibold">{userStats.commentsMade}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Communities Joined</span>
-                  <span className="font-semibold">{userStats.communitiesJoined}</span>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <ThumbsUp className="w-4 h-4 text-yellow-500" />
+                    <span>Total Likes</span>
+                  </div>
+                  <span className="font-semibold">{userStats.totalLikes}</span>
                 </div>
-
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Approved Responses</span>
+                  </div>
+                  <span className="font-semibold">{userStats.approvedResponses}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-orange-500" />
+                    <span>Pending Responses</span>
+                  </div>
+                  <span className="font-semibold">{userStats.pendingResponses}</span>
+                </div>
               </CardContent>
             </Card>
 
@@ -156,24 +193,52 @@ export default async function ProfilePage() {
         {/* Recent Posts */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>Recent Posts</CardTitle>
+            <CardTitle>Recent Responses</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentPosts.map((post, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <h4 className="font-medium">{post.title}</h4>
-                    <p className="text-sm text-gray-500">
-                      in {post.community} • {post.date}
-                    </p>
+            {recentPosts.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <p>No responses yet</p>
+                <p className="text-sm">Start participating in community discussions!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentPosts.map((post) => (
+                  <div key={post._id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium">{post.title}</h4>
+                        {post.isApproved ? (
+                          <Badge variant="default" className="text-xs">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Approved
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">
+                            <Clock className="w-3 h-3 mr-1" />
+                            Pending
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        {post.communityQuestion ? (
+                          <>in {post.communityQuestion.title} • </>
+                        ) : (
+                          <>Community Response • </>
+                        )}
+                        {formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true })}
+                      </p>
+                    </div>
+                    <Link href={`/responses/${post._id}`}>
+                      <Button size="sm" variant="outline">
+                        View
+                      </Button>
+                    </Link>
                   </div>
-                  <Button size="sm" variant="outline">
-                    View
-                  </Button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
