@@ -59,6 +59,119 @@ export const userType = defineType({
       validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
+      name: 'isActive',
+      title: 'Is Active',
+      type: 'boolean',
+      description: 'Whether this user account is active',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'lastActive',
+      title: 'Last Active',
+      type: 'datetime',
+      description: 'When the user was last active',
+    }),
+    defineField({
+      name: 'postCount',
+      title: 'Post Count',
+      type: 'number',
+      description: 'Number of posts created by this user',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'commentCount',
+      title: 'Comment Count',
+      type: 'number',
+      description: 'Number of comments made by this user',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'reportCount',
+      title: 'Report Count',
+      type: 'number',
+      description: 'Number of reports against this user',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'isReported',
+      title: 'Is Reported',
+      type: 'boolean',
+      description: 'Whether this user has been reported',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'isDeleted',
+      title: 'Is Deleted',
+      type: 'boolean',
+      description: 'Whether this user account has been deleted',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'deletedAt',
+      title: 'Deleted At',
+      type: 'datetime',
+      description: 'When the user account was deleted',
+    }),
+    defineField({
+      name: 'deletedBy',
+      title: 'Deleted By',
+      type: 'string',
+      description: 'ID of the user who deleted this account',
+    }),
+    defineField({
+      name: 'bio',
+      title: 'Bio',
+      type: 'text',
+      description: 'User biography',
+      rows: 3,
+    }),
+    defineField({
+      name: 'preferences',
+      title: 'Preferences',
+      type: 'object',
+      description: 'User preferences and settings',
+      fields: [
+        {
+          name: 'notifications',
+          title: 'Notification Preferences',
+          type: 'object',
+          fields: [
+            {
+              name: 'email',
+              title: 'Email Notifications',
+              type: 'boolean',
+              initialValue: true,
+            },
+            {
+              name: 'push',
+              title: 'Push Notifications',
+              type: 'boolean',
+              initialValue: true,
+            },
+          ],
+        },
+        {
+          name: 'privacy',
+          title: 'Privacy Settings',
+          type: 'object',
+          fields: [
+            {
+              name: 'profileVisible',
+              title: 'Profile Visible',
+              type: 'boolean',
+              initialValue: true,
+            },
+            {
+              name: 'activityVisible',
+              title: 'Activity Visible',
+              type: 'boolean',
+              initialValue: true,
+            },
+          ],
+        },
+      ],
+    }),
+    defineField({
       name: 'blog',
       title: 'Blog',
       type: 'reference',
@@ -72,13 +185,6 @@ export const userType = defineType({
       description: 'The community question this user is a moderator of',
       to: [{type: 'communityQuestion'}],
     }),
-    defineField({
-      name: 'isReported',
-      title: 'Is Reported',
-      type: 'boolean',
-      description: 'Whether this user has been reported',
-      initialValue: false,
-    }),
   ],
   preview: {
     select: {
@@ -86,11 +192,21 @@ export const userType = defineType({
       media: 'imageURL',
       role: 'role',
       clerkId: 'id',
+      isActive: 'isActive',
+      isReported: 'isReported',
     },
-    prepare({title, media, role, clerkId}: {title?: string, media?: string, role?: string, clerkId?: string}) {
+    prepare({title, media, role, clerkId, isActive, isReported}: {
+      title?: string, 
+      media?: string, 
+      role?: string, 
+      clerkId?: string,
+      isActive?: boolean,
+      isReported?: boolean
+    }) {
+      const status = isReported ? 'Reported' : isActive ? 'Active' : 'Inactive';
       return {
         title,
-        subtitle: `${role || 'No role'} • ${clerkId ? 'Clerk ID: ' + clerkId.slice(0, 8) + '...' : 'No Clerk ID'}`,
+        subtitle: `${role || 'No role'} • ${status} • ${clerkId ? 'Clerk ID: ' + clerkId.slice(0, 8) + '...' : 'No Clerk ID'}`,
         media: media ? (
             <Image src={media} alt={`${title}'s avatar`} width={40} height={40} />
         ) : (
