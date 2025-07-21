@@ -45,11 +45,20 @@ export interface GuidelineMatch {
 
 export class CustomGuidelinesService {
   private static guidelines: CustomGuideline[] = [];
+  private static initialized = false;
 
   /**
    * Initialize default guidelines
    */
   static initializeDefaultGuidelines(): void {
+    // Prevent re-initialization
+    if (this.initialized) {
+      return;
+    }
+    
+    // Clear existing guidelines to prevent duplicates
+    this.guidelines = [];
+    
     const defaultGuidelines: Omit<CustomGuideline, '_id' | 'createdAt' | 'updatedAt'>[] = [
       {
         name: 'Spam Detection',
@@ -132,12 +141,14 @@ export class CustomGuidelinesService {
     defaultGuidelines.forEach((guideline, index) => {
       const newGuideline: CustomGuideline = {
         ...guideline,
-        _id: `guideline_${index + 1}`,
+        _id: `guideline_${Date.now()}_${index + 1}_${Math.random().toString(36).substr(2, 6)}`,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
       this.guidelines.push(newGuideline);
     });
+    
+    this.initialized = true;
   }
 
   /**
@@ -145,6 +156,14 @@ export class CustomGuidelinesService {
    */
   static getActiveGuidelines(): CustomGuideline[] {
     return this.guidelines.filter(g => g.isActive).sort((a, b) => b.priority - a.priority);
+  }
+
+  /**
+   * Reset guidelines (for testing purposes)
+   */
+  static resetGuidelines(): void {
+    this.guidelines = [];
+    this.initialized = false;
   }
 
   /**

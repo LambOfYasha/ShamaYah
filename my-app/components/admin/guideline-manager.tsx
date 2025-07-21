@@ -169,8 +169,8 @@ export default function GuidelineManager({ initialGuidelines = [] }: GuidelineMa
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {guidelines.map((guideline) => (
-            <Card key={guideline._id}>
+          {guidelines.map((guideline, index) => (
+            <Card key={`${guideline._id}_${index}`}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{guideline.name}</CardTitle>

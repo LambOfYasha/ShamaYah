@@ -36,6 +36,7 @@ import { AnalyticsService } from "@/lib/ai/analyticsService";
 import GuidelineManager from "@/components/admin/guideline-manager";
 import NotificationManager from "@/components/admin/notification-manager";
 import ReportManager from "@/components/admin/report-manager";
+import TestNotificationButton from "@/components/ui/test-notification-button";
 
 export default async function AdvancedModerationDashboard() {
   const user = await getCurrentUser();
@@ -73,10 +74,17 @@ export default async function AdvancedModerationDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Advanced Moderation Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Advanced AI-powered content moderation with custom guidelines, real-time notifications, and comprehensive reporting
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Advanced Moderation Dashboard</h1>
+              <p className="text-gray-600 mt-2">
+                Advanced AI-powered content moderation with custom guidelines, real-time notifications, and comprehensive reporting
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <TestNotificationButton />
+            </div>
+          </div>
         </div>
 
         {/* Key Metrics */}

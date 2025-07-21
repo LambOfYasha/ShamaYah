@@ -7,6 +7,14 @@ import { useSidebar } from "../ui/sidebar"
 import { RoleGuard } from "../auth/RoleGuard"
 import Link from "next/link"
 
+// Try to import the main notification icon, fallback to simple version
+let NotificationIcon;
+try {
+  NotificationIcon = require("./notification-icon").default;
+} catch (error) {
+  NotificationIcon = require("./simple-notification-icon").default;
+}
+
 function Header() {
     const {user} = useUser()
     const {toggleSidebar, open, isMobile} = useSidebar()
@@ -34,6 +42,9 @@ function Header() {
                     </Link>
                 </Button>
             </RoleGuard>
+            
+            {/* Notification Icon */}
+            <NotificationIcon userId={user?.id || ''} />
             
             <UserButton/>
         </SignedIn>
