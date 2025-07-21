@@ -5,7 +5,7 @@ import { adminClient } from "@/sanity/lib/adminClient"
 import { client } from "@/sanity/lib/client"
 import { getUser } from "@/lib/user/getUser"
 import { currentUser } from "@clerk/nextjs/server"
-import { cleanupFavoritesForDeletedPost } from "./embeddedComments";
+import { cleanupFavoritesForDeletedPost, cleanupAllCommentsForDeletedPost } from "./embeddedComments";
 
 export async function deleteBlog(blogId: string) {
     console.log("=== DELETE BLOG FUNCTION ENTRY ===");
@@ -49,6 +49,33 @@ export async function deleteBlog(blogId: string) {
 
         if (!blog) {
             console.error("Blog not found with ID:", blogId);
+            // Try to find the blog with a broader query to debug
+            try {
+                const debugQuery = defineQuery(`
+                    *[_type == "blog" && _id == $blogId] {
+                        _id,
+                        _type,
+                        title,
+                        isDeleted
+                    }
+                `);
+                const debugResult = await client.fetch(debugQuery, { blogId });
+                console.log("Debug query result:", debugResult);
+                
+                if (debugResult && debugResult.length > 0) {
+                    const foundBlog = debugResult[0];
+                    console.log("Found blog but it might be deleted:", foundBlog);
+                    
+                    if (foundBlog.isDeleted) {
+                        console.log("Blog is already soft-deleted");
+                        return { success: true, message: "Blog was already deleted" };
+                    } else {
+                        return { error: "Blog not found or has been deleted" };
+                    }
+                }
+            } catch (debugError) {
+                console.error("Debug query also failed:", debugError);
+            }
             return { error: "Blog not found" };
         }
 
@@ -73,6 +100,15 @@ export async function deleteBlog(blogId: string) {
             console.warn("Warning: Failed to cleanup favorites:", cleanupResult.error);
         } else {
             console.log(`Cleaned up ${cleanupResult.cleanedCount} favorites for blog:`, blogId);
+        }
+
+        // Clean up all comments (both embedded and separate)
+        console.log("Cleaning up all comments for blog:", blogId);
+        const commentCleanupResult = await cleanupAllCommentsForDeletedPost(blogId, 'blog');
+        if ("error" in commentCleanupResult) {
+            console.warn("Warning: Failed to cleanup comments:", commentCleanupResult.error);
+        } else {
+            console.log("Successfully cleaned up all comments for blog:", blogId);
         }
         
         // Soft delete the blog (mark as deleted instead of hard delete)

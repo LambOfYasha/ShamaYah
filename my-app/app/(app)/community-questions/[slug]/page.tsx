@@ -32,7 +32,7 @@ interface CommunityQuestionWithModerator extends CommunityQuestion {
 
 async function getCommunityQuestion(slug: string): Promise<CommunityQuestionWithModerator | null> {
   const query = defineQuery(`
-    *[_type == "communityQuestion" && slug.current == $slug][0] {
+    *[_type == "communityQuestion" && slug.current == $slug && (isDeleted == false || isDeleted == null)][0] {
       ...,
       "moderator": moderator->
     }
@@ -50,9 +50,10 @@ async function getCommunityQuestion(slug: string): Promise<CommunityQuestionWith
 export default async function CommunityQuestionPage({ 
   params 
 }: { 
-  params: { slug: string } 
+  params: Promise<{ slug: string }> 
 }) {
-  const communityQuestion = await getCommunityQuestion(params.slug);
+  const { slug } = await params;
+  const communityQuestion = await getCommunityQuestion(slug);
   const currentUser = await getCurrentUser();
 
   if (!communityQuestion) {
@@ -79,7 +80,7 @@ export default async function CommunityQuestionPage({
     imageBase64?: string;
     imageFilename?: string;
     imageContentType?: string;
-  }) => {
+  }): Promise<void> => {
     'use server';
     
     const imageData = data.imageBase64 ? {
@@ -99,8 +100,6 @@ export default async function CommunityQuestionPage({
     if ("error" in result) {
       throw new Error(result.error);
     }
-
-    return result;
   };
 
 

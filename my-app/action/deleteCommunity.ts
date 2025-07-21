@@ -5,7 +5,7 @@ import { adminClient } from "@/sanity/lib/adminClient";
 import { client } from "@/sanity/lib/client";
 import { getUser } from "@/lib/user/getUser";
 import { currentUser } from "@clerk/nextjs/server";
-import { cleanupFavoritesForDeletedPost } from "./embeddedComments";
+import { cleanupFavoritesForDeletedPost, cleanupAllCommentsForDeletedPost } from "./embeddedComments";
 
 export async function deleteCommunity(communityId: string) {
     console.log("=== DELETE COMMUNITY FUNCTION ENTRY ===");
@@ -84,15 +84,50 @@ export async function deleteCommunity(communityId: string) {
         
         let community;
         try {
+            // First try with adminClient
             community = await adminClient.fetch(communityQuery, { communityId });
-            console.log("Community query result:", community);
+            console.log("Community query result with adminClient:", community);
         } catch (queryError) {
-            console.error("Error fetching community question:", queryError);
-            return { error: "Failed to fetch community question - please try again" };
+            console.log("Admin client failed, trying regular client");
+            try {
+                // If adminClient fails, try with regular client
+                community = await client.fetch(communityQuery, { communityId });
+                console.log("Community query result with regular client:", community);
+            } catch (clientError) {
+                console.error("Both clients failed to fetch community:", clientError);
+                return { error: "Failed to fetch community question - please try again" };
+            }
         }
 
         if (!community) {
             console.error("Community question not found with ID:", communityId);
+            // Try to find the community with a broader query to debug
+            try {
+                const debugQuery = defineQuery(`
+                    *[_type == "communityQuestion" && _id == $communityId] {
+                        _id,
+                        _type,
+                        title,
+                        isDeleted
+                    }
+                `);
+                const debugResult = await client.fetch(debugQuery, { communityId });
+                console.log("Debug query result:", debugResult);
+                
+                if (debugResult && debugResult.length > 0) {
+                    const foundCommunity = debugResult[0];
+                    console.log("Found community but it might be deleted:", foundCommunity);
+                    
+                    if (foundCommunity.isDeleted) {
+                        console.log("Community is already soft-deleted");
+                        return { success: true, message: "Community question was already deleted" };
+                    } else {
+                        return { error: "Community question not found or has been deleted" };
+                    }
+                }
+            } catch (debugError) {
+                console.error("Debug query also failed:", debugError);
+            }
             return { error: "Community question not found" };
         }
 
@@ -196,6 +231,15 @@ export async function deleteCommunity(communityId: string) {
         } catch (cleanupError) {
             console.warn("Warning: Exception during favorites cleanup:", cleanupError);
             // Continue with deletion even if cleanup fails
+        }
+
+        // Clean up all comments (both embedded and separate)
+        console.log("Cleaning up all comments for community question:", communityId);
+        const commentCleanupResult = await cleanupAllCommentsForDeletedPost(communityId, 'community');
+        if ("error" in commentCleanupResult) {
+            console.warn("Warning: Failed to cleanup comments:", commentCleanupResult.error);
+        } else {
+            console.log("Successfully cleaned up all comments for community question:", communityId);
         }
 
         // Also clean up any favorites that reference this community question as a post

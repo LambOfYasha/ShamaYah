@@ -26,13 +26,13 @@ import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedComment
 import FavoriteButton from "@/components/ui/favorite-button";
 import { editBlog } from "@/action/editBlog";
 
-interface BlogWithAuthor extends Blog {
-  author: Teacher;
+interface BlogWithAuthor extends Omit<Blog, 'author'> {
+  author?: Teacher;
 }
 
 async function getBlog(slug: string): Promise<BlogWithAuthor | null> {
   const query = defineQuery(`
-    *[_type == "blog" && slug.current == $slug][0] {
+    *[_type == "blog" && slug.current == $slug && (isDeleted == false || isDeleted == null)][0] {
       _id,
       title,
       description,
@@ -63,9 +63,10 @@ async function getBlog(slug: string): Promise<BlogWithAuthor | null> {
 export default async function BlogPage({ 
   params 
 }: { 
-  params: { slug: string } 
+  params: Promise<{ slug: string }> 
 }) {
-  const blog = await getBlog(params.slug);
+  const { slug } = await params;
+  const blog = await getBlog(slug);
   const currentUser = await getCurrentUser();
 
   if (!blog) {
@@ -94,6 +95,19 @@ export default async function BlogPage({
   console.log("Blog page - Can edit:", canEdit);
   console.log("Blog page - Can delete:", canDelete);
 
+  // Create a properly typed blog object for the EditBlogButton
+  const blogForEdit = {
+    _id: blog._id,
+    title: blog.title || '',
+    description: blog.description || '',
+    slug: {
+      _type: 'slug',
+      current: blog.slug?.current || ''
+    },
+    content: blog.content ? JSON.stringify(blog.content) : '',
+    image: blog.image
+  };
+
   const handleEditBlog = async (data: {
     title: string;
     description: string;
@@ -102,7 +116,7 @@ export default async function BlogPage({
     imageBase64?: string;
     imageFilename?: string;
     imageContentType?: string;
-  }) => {
+  }): Promise<void> => {
     'use server';
     
     const imageData = data.imageBase64 ? {
@@ -123,8 +137,6 @@ export default async function BlogPage({
     if ("error" in result) {
       throw new Error(result.error);
     }
-
-    return result;
   };
 
 
@@ -190,7 +202,7 @@ export default async function BlogPage({
             <div className="flex gap-2">
               {canEdit && (
                 <EditBlogButton 
-                  blog={blog}
+                  blog={blogForEdit}
                   onEdit={handleEditBlog}
                 />
               )}

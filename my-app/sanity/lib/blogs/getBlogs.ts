@@ -22,7 +22,7 @@ export interface BlogWithAuthor {
 }
 
 const getBlogsQuery = defineQuery(`
-  *[_type == "blog"] | order(createdAt desc) {
+  *[_type == "blog" && (isDeleted == false || isDeleted == null)] | order(createdAt desc) {
     _id,
     title,
     slug,

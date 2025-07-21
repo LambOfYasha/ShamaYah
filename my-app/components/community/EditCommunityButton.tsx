@@ -118,24 +118,6 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
       let fileType: string | undefined;
 
       if (imageFile) {
-<<<<<<< HEAD
-        // New image uploaded
-        try {
-          imageBase64 = await fileToBase64(imageFile);
-          fileName = sanitizeFilename(imageFile.name);
-          fileType = imageFile.type;
-        } catch (error) {
-          console.error("Failed to process image:", error);
-          setErrorMessage("Failed to process image. Please try again.");
-          setIsSubmitting(false);
-          return;
-        }
-      } else if (shouldRemoveImage) {
-        // Image should be removed - send undefined
-        imageBase64 = undefined;
-        fileName = undefined;
-        fileType = undefined;
-=======
         const reader = new FileReader();
         imageBase64 = await new Promise<string>((resolve) => {
           reader.onload = () => {
@@ -146,7 +128,6 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
 
         fileName = imageFile.name;
         fileType = imageFile.type;
->>>>>>> parent of 12983e2 (update)
       }
 
       await onEdit({

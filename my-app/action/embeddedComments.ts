@@ -3,6 +3,7 @@
 import { getUser } from "@/lib/user/getUser";
 import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
+import { client } from "@/sanity/lib/client";
 
 export async function addEmbeddedComment(postId: string, postType: 'blog' | 'community', content: string, parentCommentPath?: string) {
     try {
@@ -202,16 +203,22 @@ export async function editEmbeddedComment(postId: string, postType: 'blog' | 'co
 
 export async function deleteEmbeddedComment(postId: string, postType: 'blog' | 'community', commentPath: string) {
     try {
+        console.log("=== DELETE EMBEDDED COMMENT START ===");
+        console.log("PostId:", postId, "PostType:", postType, "CommentPath:", commentPath);
+        
         const user = await getUser();
         
         if ("error" in user) {
+            console.error("User error:", user.error);
             return { error: user.error };
         }
+
+        console.log("User authenticated:", user._id, "Role:", user.role);
 
         // Map postType to actual Sanity document type
         const sanityPostType = postType === 'community' ? 'communityQuestion' : postType;
         
-        // Get the current post
+        // Get the current post - try both adminClient and regular client
         const postQuery = defineQuery(`
             *[_type == $sanityPostType && _id == $postId && (isDeleted == false || isDeleted == null)][0] {
                 _id,
@@ -219,17 +226,66 @@ export async function deleteEmbeddedComment(postId: string, postType: 'blog' | '
             }
         `);
 
-        const post = await adminClient.fetch(postQuery, { postId, sanityPostType });
+        console.log("Fetching post with ID:", postId, "Type:", sanityPostType);
+        
+        let post;
+        try {
+            // First try with adminClient
+            post = await adminClient.fetch(postQuery, { postId, sanityPostType });
+            console.log("Post found with adminClient:", post ? "Yes" : "No");
+        } catch (adminError) {
+            console.log("Admin client failed, trying regular client");
+            try {
+                // If adminClient fails, try with regular client
+                post = await client.fetch(postQuery, { postId, sanityPostType });
+                console.log("Post found with regular client:", post ? "Yes" : "No");
+            } catch (clientError) {
+                console.error("Both clients failed to fetch post:", clientError);
+                return { error: "Failed to fetch post" };
+            }
+        }
 
         if (!post) {
+            console.error("Post not found:", postId);
+            // Try to find the post with a broader query to debug
+            try {
+                const debugQuery = defineQuery(`
+                    *[_type == $sanityPostType && _id == $postId] {
+                        _id,
+                        _type,
+                        title,
+                        isDeleted
+                    }
+                `);
+                const debugResult = await client.fetch(debugQuery, { postId, sanityPostType });
+                console.log("Debug query result:", debugResult);
+                
+                if (debugResult && debugResult.length > 0) {
+                    const foundPost = debugResult[0];
+                    console.log("Found post but it might be deleted:", foundPost);
+                    
+                    if (foundPost.isDeleted) {
+                        console.log("Post is already soft-deleted");
+                        return { success: true, message: "Post was already deleted" };
+                    } else {
+                        return { error: "Post not found or has been deleted" };
+                    }
+                }
+            } catch (debugError) {
+                console.error("Debug query also failed:", debugError);
+            }
             return { error: "Post not found" };
         }
+
+        console.log("Post found, comments count:", post.comments?.length || 0);
 
         const comments = post.comments || [];
         
         // Parse the comment path
         const pathParts = commentPath.split('.');
         const parentIndex = parseInt(pathParts[0]);
+        
+        console.log("Path parts:", pathParts, "Parent index:", parentIndex);
         
         if (parentIndex >= 0 && parentIndex < comments.length) {
             const parentComment = comments[parentIndex];
@@ -238,21 +294,30 @@ export async function deleteEmbeddedComment(postId: string, postType: 'blog' | '
                 // Deleting a top-level comment
                 const comment = parentComment;
                 
+                console.log("Deleting top-level comment, authorId:", comment.authorId, "User ID:", user._id);
+                
                 // Check if user is the author of the comment or an admin
-                if (comment.authorId !== user.id && user.role !== "admin") {
+                if (comment.authorId !== user._id && user.role !== "admin") {
+                    console.error("Permission denied - user not author or admin");
                     return { error: "You don't have permission to delete this comment" };
                 }
 
                 // Remove the comment from the array
                 comments.splice(parentIndex, 1);
+                console.log("Removed top-level comment, new comments count:", comments.length);
             } else {
                 // Deleting a nested comment
                 const replyIndex = parseInt(pathParts[1]);
+                console.log("Deleting nested comment, reply index:", replyIndex);
+                
                 if (parentComment.replies && replyIndex < parentComment.replies.length) {
                     const targetReply = parentComment.replies[replyIndex];
                     
+                    console.log("Target reply authorId:", targetReply.authorId, "User ID:", user._id);
+                    
                     // Check if user is the author of the comment or an admin
-                    if (targetReply.authorId !== user.id && user.role !== "admin") {
+                    if (targetReply.authorId !== user._id && user.role !== "admin") {
+                        console.error("Permission denied - user not author or admin");
                         return { error: "You don't have permission to delete this comment" };
                     }
 
@@ -264,11 +329,14 @@ export async function deleteEmbeddedComment(postId: string, postType: 'blog' | '
                         ...parentComment,
                         replies: updatedReplies
                     };
+                    console.log("Removed nested comment, new replies count:", updatedReplies.length);
                 } else {
+                    console.error("Reply not found at index:", replyIndex);
                     return { error: "Comment not found" };
                 }
             }
         } else {
+            console.error("Parent comment not found at index:", parentIndex);
             return { error: "Comment not found" };
         }
 
@@ -323,13 +391,19 @@ export async function deleteEmbeddedComment(postId: string, postType: 'blog' | '
         }
 
         // Update the post
+        console.log("Updating post with new comments array");
         await adminClient.patch(postId).set({
             comments: comments
         }).commit();
 
+        console.log("=== DELETE EMBEDDED COMMENT SUCCESS ===");
         return { success: true };
     } catch (error) {
+        console.error("=== DELETE EMBEDDED COMMENT ERROR ===");
         console.error("Error deleting embedded comment:", error);
+        console.error("Error type:", typeof error);
+        console.error("Error message:", error instanceof Error ? error.message : String(error));
+        console.error("=== END ERROR ===");
         return { error: "Failed to delete comment" };
     }
 }
@@ -786,6 +860,66 @@ export async function getUserFavorites() {
 }
 
 // Cleanup functions for when posts or comments are deleted
+export async function cleanupAllCommentsForDeletedPost(postId: string, postType: 'blog' | 'community') {
+    try {
+        console.log("Cleaning up all comments for deleted post:", postId, "type:", postType);
+        
+        // Map postType to actual Sanity document type
+        const sanityPostType = postType === 'community' ? 'communityQuestion' : postType;
+        
+        // 1. Clean up embedded comments by setting them to empty array
+        console.log("Cleaning up embedded comments for post:", postId);
+        try {
+            await adminClient
+                .patch(postId)
+                .set({
+                    comments: []
+                })
+                .commit();
+            console.log("Successfully cleaned up embedded comments for post:", postId);
+        } catch (embeddedCommentError) {
+            console.warn("Warning: Failed to cleanup embedded comments:", embeddedCommentError);
+        }
+        
+        // 2. Clean up separate comments that reference this post
+        console.log("Cleaning up separate comments for post:", postId);
+        try {
+            const separateCommentsQuery = defineQuery(`
+                *[_type == "comment" && post._ref == $postId && (isDeleted == false || isDeleted == null)] {
+                    _id
+                }
+            `);
+            
+            const separateComments = await adminClient.fetch(separateCommentsQuery, { postId });
+            
+            if (separateComments && separateComments.length > 0) {
+                console.log(`Found ${separateComments.length} separate comments to soft delete`);
+                
+                for (const comment of separateComments) {
+                    await adminClient
+                        .patch(comment._id)
+                        .set({
+                            isDeleted: true,
+                            deletedAt: new Date().toISOString()
+                        })
+                        .commit();
+                }
+                
+                console.log(`Successfully soft deleted ${separateComments.length} separate comments`);
+            } else {
+                console.log("No separate comments found for post:", postId);
+            }
+        } catch (separateCommentError) {
+            console.warn("Warning: Failed to cleanup separate comments:", separateCommentError);
+        }
+        
+        return { success: true };
+    } catch (error) {
+        console.error("Error cleaning up all comments for deleted post:", error);
+        return { error: "Failed to cleanup comments for deleted post" };
+    }
+}
+
 export async function cleanupFavoritesForDeletedPost(postId: string) {
     try {
         console.log("Cleaning up favorites for deleted post:", postId);

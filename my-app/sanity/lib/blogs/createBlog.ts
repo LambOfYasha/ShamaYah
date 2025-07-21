@@ -1,6 +1,6 @@
 import { ImageData } from "@/action/createBlog"
 import { defineQuery } from "groq"
-import { sanityFetch } from "../live"
+import { client } from "../client"
 import { adminClient } from "../adminClient"
 import { Blog } from "@/sanity.types"
 
@@ -25,12 +25,12 @@ export async function createBlog(
             }
         `)
 
-        const existingBlog = await sanityFetch({
-            query: checkExistingQuery,
-            params: { title },
-        })
+        const existingBlog = await client.fetch(
+            checkExistingQuery,
+            { title }
+        )
         
-        if (existingBlog.data) {
+        if (existingBlog) {
             console.log(`Blog with title ${title} already exists`)
             return { error: "Blog with this title already exists" }
         }
@@ -44,12 +44,12 @@ export async function createBlog(
                 }
             `)
 
-            const existingSlug = await sanityFetch({
-                query: checkSlugQuery,
-                params: {slug: customSlug}
-            })
+            const existingSlug = await client.fetch(
+                checkSlugQuery,
+                {slug: customSlug}
+            )
 
-            if (existingSlug.data) {
+            if (existingSlug) {
                 console.log(`Blog with slug "${customSlug}" already exists`)
                 return { error: "A blog with this URL already exists" }
             }
@@ -103,11 +103,9 @@ export async function createBlog(
         blogDoc.content = [
             {
                 _type: "block",
-                _key: "content",
                 children: [
                     {
                         _type: "span",
-                        _key: "content-text",
                         text: content || "Blog content will be added here.",
                     }
                 ],

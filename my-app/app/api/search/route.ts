@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
     // Base search query for blogs
     const blogSearchQuery = defineQuery(`
-      *[_type == "blog" && (
+      *[_type == "blog" && (isDeleted == false || isDeleted == null) && (
         title match $searchTerm + "*" ||
         description match $searchTerm + "*" ||
         content[0].children[0].text match $searchTerm + "*"
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
 
     // Base search query for community questions
     const communitySearchQuery = defineQuery(`
-      *[_type == "communityQuestion" && (
+      *[_type == "communityQuestion" && (isDeleted == false || isDeleted == null) && (
         title match $searchTerm + "*" ||
         description match $searchTerm + "*"
       )] | order(createdAt desc) [0...$limit] {
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
 
     // Base search query for community responses (posts)
     const responseSearchQuery = defineQuery(`
-      *[_type == "post" && (
+      *[_type == "post" && (isDeleted == false || isDeleted == null) && (
         title match $searchTerm + "*" ||
         body[0].children[0].text match $searchTerm + "*"
       )] | order(publishedAt desc) [0...$limit] {
@@ -87,7 +87,7 @@ export async function GET(request: Request) {
 
     // Base search query for comments
     const commentSearchQuery = defineQuery(`
-      *[_type == "comment" && (
+      *[_type == "comment" && (isDeleted == false || isDeleted == null) && (
         content match $searchTerm + "*"
       )] | order(createdAt desc) [0...$limit] {
         _id,

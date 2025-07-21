@@ -21,7 +21,7 @@ export interface CommunityWithModerator {
 }
 
 const getCommunitiesQuery = defineQuery(`
-  *[_type == "communityQuestion"] | order(createdAt desc) {
+  *[_type == "communityQuestion" && (isDeleted == false || isDeleted == null)] | order(createdAt desc) {
     _id,
     title,
     slug,
