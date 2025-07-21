@@ -47,23 +47,29 @@ export default function CommunityResponses({ communityQuestionId, user, communit
   const [responses, setResponses] = useState<Response[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const responsesResult = await getCommunityResponses(communityQuestionId);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const responsesResult = await getCommunityResponses(communityQuestionId);
 
-        if ('success' in responsesResult) {
-          setResponses(responsesResult.responses);
-        }
-      } catch (error) {
-        console.error('Error fetching responses:', error);
-      } finally {
-        setLoading(false);
+      if ('success' in responsesResult) {
+        setResponses(responsesResult.responses);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching responses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, [communityQuestionId]);
+
+  // Function to refresh responses after any action
+  const refreshResponses = () => {
+    fetchData();
+  };
 
   const canApprove = user && (user.role === 'teacher' || user.role === 'admin');
   const canEdit = (response: Response) => user && (
@@ -102,6 +108,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
           <AddResponseForm 
             communityQuestionId={communityQuestionId}
             communityQuestionTitle={communityQuestionTitle || 'this community'}
+            onSuccess={refreshResponses}
           />
         </CardContent>
       </Card>
@@ -115,6 +122,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
         <AddResponseForm 
           communityQuestionId={communityQuestionId}
           communityQuestionTitle={communityQuestionTitle || 'this community'}
+          onSuccess={refreshResponses}
         />
       </div>
 
@@ -184,6 +192,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                       size="sm"
                       variant="outline"
                       className="h-8 px-2"
+                      onSuccess={refreshResponses}
                     />
                   )}
                   {canDelete(response) && (
@@ -193,6 +202,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                       size="sm"
                       variant="outline"
                       className="h-8 px-2"
+                      onSuccess={refreshResponses}
                     />
                   )}
                   {canApprove && (
@@ -202,6 +212,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                       size="sm"
                       variant="outline"
                       className="h-8 px-2"
+                      onSuccess={refreshResponses}
                     />
                   )}
                   <ReportButton

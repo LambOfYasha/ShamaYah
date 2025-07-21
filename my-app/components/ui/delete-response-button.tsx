@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { deleteResponseAction } from '@/action/deleteResponseAction';
-import { useRouter } from 'next/navigation';
 import { Trash2, Loader2 } from 'lucide-react';
 
 interface DeleteResponseButtonProps {
@@ -12,17 +11,20 @@ interface DeleteResponseButtonProps {
   responseTitle: string;
   size?: 'default' | 'sm' | 'lg' | 'icon';
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  className?: string;
+  onSuccess?: () => void;
 }
 
 export default function DeleteResponseButton({ 
   responseId, 
   responseTitle, 
   size = 'sm', 
-  variant = 'outline' 
+  variant = 'outline',
+  className = '',
+  onSuccess
 }: DeleteResponseButtonProps) {
   console.log("DeleteResponseButton rendered with responseId:", responseId);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const handleDelete = async () => {
     console.log("=== DELETE BUTTON CLICKED ===");
@@ -43,7 +45,7 @@ export default function DeleteResponseButton({
       
       console.log("Delete successful, refreshing page...");
       // Refresh the page to show the updated list
-      router.refresh();
+      onSuccess?.();
     } catch (error) {
       console.error('Error deleting response:', error);
       alert('Failed to delete response. Please try again.');
@@ -58,7 +60,7 @@ export default function DeleteResponseButton({
         <Button 
           size={size} 
           variant={variant} 
-          className="text-red-600 hover:text-red-700"
+          className={`text-red-600 hover:text-red-700 ${className}`}
           onClick={() => console.log("Delete button clicked for response:", responseId)}
         >
           <Trash2 className="w-4 h-4 mr-2" />

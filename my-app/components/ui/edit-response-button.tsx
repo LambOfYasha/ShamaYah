@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { editCommunityResponse } from '@/action/postActions';
-import { useRouter } from 'next/navigation';
 import { Edit, Loader2 } from 'lucide-react';
 
 interface EditResponseButtonProps {
@@ -15,6 +14,8 @@ interface EditResponseButtonProps {
   currentBody: any[];
   size?: 'default' | 'sm' | 'lg' | 'icon';
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  className?: string;
+  onSuccess?: () => void;
 }
 
 export default function EditResponseButton({ 
@@ -22,7 +23,9 @@ export default function EditResponseButton({
   currentTitle, 
   currentBody, 
   size = 'sm', 
-  variant = 'outline' 
+  variant = 'outline',
+  className = '',
+  onSuccess
 }: EditResponseButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +39,6 @@ export default function EditResponseButton({
     }
     return '';
   });
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +67,7 @@ export default function EditResponseButton({
       setIsOpen(false);
       
       // Refresh the page to show the updated response
-      router.refresh();
+      onSuccess?.();
     } catch (error) {
       console.error('Error editing response:', error);
       alert('Failed to edit response. Please try again.');
@@ -90,7 +92,7 @@ export default function EditResponseButton({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size={size} variant={variant}>
+        <Button size={size} variant={variant} className={className}>
           <Edit className="w-4 h-4 mr-2" />
           Edit
         </Button>

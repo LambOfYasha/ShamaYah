@@ -7,20 +7,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { createCommunityResponse } from '@/action/postActions';
-import { useRouter } from 'next/navigation';
 import { Plus, X } from 'lucide-react';
 
 interface AddResponseFormProps {
   communityQuestionId: string;
   communityQuestionTitle: string;
+  onSuccess?: () => void;
 }
 
-export default function AddResponseForm({ communityQuestionId, communityQuestionTitle }: AddResponseFormProps) {
+export default function AddResponseForm({ 
+  communityQuestionId, 
+  communityQuestionTitle,
+  onSuccess
+}: AddResponseFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +52,7 @@ export default function AddResponseForm({ communityQuestionId, communityQuestion
       setIsOpen(false);
       
       // Refresh the page to show the new response
-      router.refresh();
+      onSuccess?.();
     } catch (error) {
       console.error('Error creating response:', error);
       alert('Failed to create response. Please try again.');

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { approveCommunityResponse, unapproveCommunityResponse } from '@/action/postActions';
-import { useRouter } from 'next/navigation';
 
 interface ApproveResponseButtonProps {
   responseId: string;
@@ -12,6 +11,7 @@ interface ApproveResponseButtonProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
   variant?: 'default' | 'outline' | 'ghost';
+  onSuccess?: () => void;
 }
 
 export default function ApproveResponseButton({ 
@@ -19,10 +19,10 @@ export default function ApproveResponseButton({
   isApproved,
   className = '',
   size = 'sm',
-  variant = 'outline'
+  variant = 'outline',
+  onSuccess
 }: ApproveResponseButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const handleToggleApproval = async () => {
     if (isLoading) return;
@@ -39,8 +39,8 @@ export default function ApproveResponseButton({
       } else {
         await approveCommunityResponse(responseId);
       }
-      // Refresh the page to show updated approval status
-      router.refresh();
+      // Call onSuccess callback to refresh the data
+      onSuccess?.();
     } catch (error) {
       console.error(`Error ${action}ing response:`, error);
       alert(`Failed to ${action} response. Please try again.`);
@@ -65,4 +65,4 @@ export default function ApproveResponseButton({
       {isApproved ? 'Unapprove' : 'Approve'}
     </Button>
   );
-} 
+}
