@@ -26,6 +26,7 @@ import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedComment
 import FavoriteButton from "@/components/ui/favorite-button";
 import { editBlog } from "@/action/editBlog";
 import { getImageUrl } from "@/lib/utils";
+import { ReportButton } from "@/components/ui/report-button";
 
 interface BlogWithAuthor extends Omit<Blog, 'author'> {
   author?: Teacher;
@@ -220,6 +221,13 @@ export default async function BlogPage({
               <FavoriteButton 
                 postId={blog._id}
                 postType="blog"
+                size="sm"
+                variant="outline"
+              />
+              <ReportButton 
+                contentId={blog._id}
+                contentType="blog"
+                contentTitle={blog.title}
                 size="sm"
                 variant="outline"
               />

@@ -13,7 +13,7 @@ export async function GET() {
     // If currentUser fails, try auth()
     if (!user) {
       console.log('API: Trying auth() as fallback');
-      const { userId } = auth();
+      const { userId } = await auth();
       console.log('API: User ID from auth:', userId);
       
       if (!userId) {

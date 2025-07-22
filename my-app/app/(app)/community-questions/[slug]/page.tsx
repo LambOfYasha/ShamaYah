@@ -25,6 +25,7 @@ import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedComment
 import FavoriteButton from "@/components/ui/favorite-button";
 import CommunityResponses from "@/components/community/CommunityResponses";
 import { editCommunity } from "@/action/editCommunity";
+import { ReportButton } from "@/components/ui/report-button";
 
 interface CommunityQuestionWithModerator extends CommunityQuestion {
   moderator: Teacher;
@@ -183,6 +184,13 @@ export default async function CommunityQuestionPage({
               <FavoriteButton 
                 postId={communityQuestion._id}
                 postType="community"
+                size="sm"
+                variant="outline"
+              />
+              <ReportButton 
+                contentId={communityQuestion._id}
+                contentType="communityQuestion"
+                contentTitle={communityQuestion.title}
                 size="sm"
                 variant="outline"
               />

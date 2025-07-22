@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Flag, AlertTriangle } from "lucide-react"
+import { Flag, AlertTriangle, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -56,6 +56,7 @@ export function ReportButton({
   const [reason, setReason] = React.useState("")
   const [description, setDescription] = React.useState("")
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [isSuccess, setIsSuccess] = React.useState(false)
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,13 +88,18 @@ export function ReportButton({
       })
 
       if (response.ok) {
+        setIsSuccess(true)
         toast({
-          title: "Report Submitted",
-          description: "Thank you for your report. We'll review it shortly.",
+          title: "✅ Report Successfully Submitted",
+          description: "Thank you for helping keep our community safe. Our moderation team will review your report and take appropriate action if needed.",
         })
-        setOpen(false)
-        setReason("")
-        setDescription("")
+        // Reset form and close dialog after a short delay
+        setTimeout(() => {
+          setOpen(false)
+          setReason("")
+          setDescription("")
+          setIsSuccess(false)
+        }, 2000)
       } else {
         const error = await response.json()
         toast({
@@ -144,26 +150,49 @@ export function ReportButton({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-yellow-500" />
-            Report Content
+            {isSuccess ? (
+              <>
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                Report Submitted Successfully
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                Report Content
+              </>
+            )}
           </DialogTitle>
           <DialogDescription>
-            Help us keep our community safe by reporting inappropriate content.
+            {isSuccess 
+              ? "Thank you for helping keep our community safe. Our moderation team will review your report."
+              : "Help us keep our community safe by reporting inappropriate content."
+            }
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label>Content Type</Label>
-            <Badge variant="secondary" className="w-fit">
-              {getContentTypeLabel(contentType)}
-            </Badge>
-            {contentTitle && (
-              <p className="text-sm text-muted-foreground">
-                "{contentTitle}"
-              </p>
-            )}
+        {isSuccess ? (
+          <div className="text-center py-8">
+            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-green-700 mb-2">
+              Report Submitted Successfully
+            </h3>
+            <p className="text-gray-600">
+              Thank you for helping keep our community safe. Our moderation team will review your report and take appropriate action if needed.
+            </p>
           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Content Type</Label>
+              <Badge variant="secondary" className="w-fit">
+                {getContentTypeLabel(contentType)}
+              </Badge>
+              {contentTitle && (
+                <p className="text-sm text-muted-foreground">
+                  "{contentTitle}"
+                </p>
+              )}
+            </div>
 
           <div className="space-y-2">
             <Label htmlFor="reason">Reason for Report *</Label>
@@ -210,6 +239,7 @@ export function ReportButton({
             </Button>
           </DialogFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   )

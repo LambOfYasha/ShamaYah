@@ -18,6 +18,7 @@ import DeleteResponseButton from '@/components/ui/delete-response-button';
 import { formatDistanceToNow } from 'date-fns';
 import { Metadata } from 'next';
 import { getImageUrl } from '@/lib/utils';
+import { ReportButton } from '@/components/ui/report-button';
 
 interface Response {
   _id: string;
@@ -327,6 +328,13 @@ export default async function ResponsePage({ params }: { params: { slug: string 
                     size="sm"
                   />
                 )}
+                <ReportButton
+                  contentId={response._id}
+                  contentType="post"
+                  contentTitle={response.title}
+                  size="sm"
+                  variant="outline"
+                />
               </div>
             </div>
           </CardContent>
