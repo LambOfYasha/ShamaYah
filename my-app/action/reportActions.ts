@@ -103,10 +103,10 @@ export async function exportReport(reportId: string, format: string) {
       },
       recommendations: [
         {
-          type: 'performance',
+          type: 'performance' as const,
           title: 'High Moderation Rate Detected',
           description: 'The moderation rate is above the recommended threshold. Consider reviewing moderation guidelines.',
-          priority: 'high',
+          priority: 'high' as const,
           impact: 'Reduces user engagement and increases appeal volume'
         }
       ]

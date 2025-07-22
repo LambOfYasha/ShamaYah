@@ -229,11 +229,18 @@ export async function sendTestNotification() {
     // Create multiple test notifications
     const notifications = [];
     
+    // Helper function to map UserRole to notification role
+    const mapRoleForNotification = (role: string): 'user' | 'teacher' | 'admin' => {
+      if (role === 'admin') return 'admin';
+      if (role === 'teacher' || role === 'senior_teacher' || role === 'lead_teacher') return 'teacher';
+      return 'user'; // member, moderator, etc.
+    };
+
     // Test notification 1: System maintenance
     const notification1 = await NotificationsService.createNotification(
       'system_maintenance',
       userResult._id,
-      userResult.role,
+      mapRoleForNotification(userResult.role),
       { testMessage: 'This is a test system maintenance notification' }
     );
     notifications.push(notification1);
@@ -242,7 +249,7 @@ export async function sendTestNotification() {
     const notification2 = await NotificationsService.createNotification(
       'content_flagged',
       userResult._id,
-      userResult.role,
+      mapRoleForNotification(userResult.role),
       { 
         testMessage: 'This is a test content flagged notification',
         contentId: 'test-content-123',
@@ -255,7 +262,7 @@ export async function sendTestNotification() {
     const notification3 = await NotificationsService.createNotification(
       'appeal_submitted',
       userResult._id,
-      userResult.role,
+      mapRoleForNotification(userResult.role),
       { 
         testMessage: 'This is a test appeal notification',
         appealId: 'test-appeal-456'
