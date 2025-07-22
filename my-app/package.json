@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:prod": "set DISABLE_ESLINT_PLUGIN=true && set NODE_ENV=production && next build",
-    "build:force": "set DISABLE_ESLINT_PLUGIN=true && set NODE_ENV=production && set FORCE_BUILD=true && next build",
+    "build": "npm run typegen && next build",
+    "build:prod": "npm run typegen && set DISABLE_ESLINT_PLUGIN=true && set NODE_ENV=production && next build",
+    "build:force": "npm run typegen && set DISABLE_ESLINT_PLUGIN=true && set NODE_ENV=production && set FORCE_BUILD=true && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "typegen": "sanity schema extract && sanity schema generate"
+    "typegen": "sanity schema extract"
   },
   "dependencies": {
     "@clerk/agent-toolkit": "^0.1.11",
@@ -30,7 +30,7 @@
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-tabs": "^1.1.12",
     "@radix-ui/react-tooltip": "^1.2.7",
-    "@sanity/cli": "^4.0.1",
+    "@sanity/cli": "^4.1.1",
     "@sanity/client": "^7.6.0",
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "^3.97.1",
