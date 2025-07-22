@@ -135,7 +135,7 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
   }
 
   if (!response) {
-    console.log('Response not found for slug:', params.slug);
+    console.log('Response not found for slug:', resolvedParams.slug);
     notFound();
   }
 
