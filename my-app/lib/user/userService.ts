@@ -165,7 +165,7 @@ export class UserService {
     }
   }
 
-  static async updateUserRole(userId: string, newRole: string) {
+  static async updateUserRole(userId: string, newRole: 'member' | 'moderator' | 'admin' | 'teacher' | 'senior_teacher' | 'lead_teacher') {
     try {
       await adminClient
         .patch(userId)

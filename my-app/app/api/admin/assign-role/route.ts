@@ -17,7 +17,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const updatedUser = await assignRole(userId, role);
+    // Validate that the role is a valid UserRole
+    const validRoles = ['member', 'moderator', 'admin', 'teacher', 'senior_teacher', 'lead_teacher'] as const;
+    if (!validRoles.includes(role as any)) {
+      return NextResponse.json(
+        { error: 'Invalid role provided' }, 
+        { status: 400 }
+      );
+    }
+
+    const updatedUser = await assignRole(userId, role as 'member' | 'moderator' | 'admin' | 'teacher' | 'senior_teacher' | 'lead_teacher');
     
     return NextResponse.json({ 
       success: true, 

@@ -195,7 +195,7 @@ export async function getTeacherById(teacherId: string) {
   }
 }
 
-export async function updateTeacherRole(teacherId: string, newRole: string) {
+export async function updateTeacherRole(teacherId: string, newRole: 'teacher' | 'senior_teacher' | 'lead_teacher') {
   try {
     const { userId: currentUserId } = await auth();
     if (!currentUserId) {
