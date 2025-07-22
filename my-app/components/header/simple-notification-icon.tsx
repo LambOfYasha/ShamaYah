@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@clerk/nextjs';
 import { 
   getUserNotifications, 
   markNotificationAsRead, 
@@ -19,32 +20,63 @@ interface NotificationIconProps {
 
 export default function SimpleNotificationIcon({ userId }: NotificationIconProps) {
   const { toast } = useToast();
+  const { user, isLoaded } = useUser();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const loadNotifications = async () => {
+    // Don't load notifications if user is not authenticated
+    if (!isLoaded || !user) {
+      setNotifications([]);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const result = await getUserNotifications(10, true);
       if (result.success) {
         setNotifications(result.notifications || []);
       } else {
-        console.error('Failed to load notifications:', result.error);
+        // Handle authentication errors gracefully - don't log them as errors
+        if (result.error?.includes('Please sign in') || result.error?.includes('User not authenticated')) {
+          // This is expected behavior when user is not authenticated
+          setNotifications([]);
+          return;
+        }
+        // Only log actual errors, not authentication issues
+        console.warn('Failed to load notifications:', result.error);
       }
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      // Only log unexpected errors, not authentication issues
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+        const isAuthError = errorMessage.includes('please sign in') || 
+                           errorMessage.includes('user not authenticated') ||
+                           errorMessage.includes('unauthorized') ||
+                           errorMessage.includes('authentication') ||
+                           errorMessage.includes('not authenticated');
+        
+        if (!isAuthError) {
+          console.error('Error loading notifications:', error);
+        }
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadNotifications();
-    const interval = setInterval(loadNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    // Only load notifications if user is authenticated
+    if (isLoaded && user) {
+      loadNotifications();
+      const interval = setInterval(loadNotifications, 30000);
+      return () => clearInterval(interval);
+    } else {
+      setNotifications([]);
+    }
+  }, [isLoaded, user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -156,6 +188,11 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
   };
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  // Don't render the notification icon if user is not loaded or not authenticated
+  if (!isLoaded || !user) {
+    return null;
+  }
 
   return (
     <div className="relative" ref={dropdownRef}>

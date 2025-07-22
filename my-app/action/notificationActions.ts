@@ -15,7 +15,16 @@ export async function getUserNotifications(limit: number = 50, unreadOnly: boole
     const userResult = await getUser();
     if ('error' in userResult) {
       console.log('User not found in database:', userResult.error);
-      return { success: false, error: 'User profile not found - please sign in again' };
+      // Provide more specific error messages based on the error type
+      if (userResult.error.includes('not authenticated')) {
+        return { success: false, error: 'Please sign in to view notifications' };
+      } else if (userResult.error.includes('timeout')) {
+        return { success: false, error: 'Network timeout - please try again' };
+      } else if (userResult.error.includes('permission')) {
+        return { success: false, error: 'Permission denied - please contact support' };
+      } else {
+        return { success: false, error: 'User profile not found - please sign in again' };
+      }
     }
 
     // Initialize notifications if not already done
@@ -29,11 +38,27 @@ export async function getUserNotifications(limit: number = 50, unreadOnly: boole
 
     return { success: true, notifications };
   } catch (error: any) {
-    console.error('Get notifications error:', error);
+    // Don't log authentication errors as errors
+    const errorMessage = error?.message?.toLowerCase() || '';
+    const isAuthError = errorMessage.includes('unauthorized') || 
+                       errorMessage.includes('user not found') ||
+                       errorMessage.includes('authentication') ||
+                       errorMessage.includes('not authenticated');
+    
+    if (isAuthError) {
+      console.log('Authentication error in notifications:', error);
+    } else {
+      console.error('Get notifications error:', error);
+    }
     
     // Handle specific authentication errors
     if (error?.message?.includes('Unauthorized') || error?.message?.includes('User not found')) {
       return { success: false, error: 'Please sign in to view notifications' };
+    }
+    
+    // Handle network errors
+    if (error?.message?.includes('timeout') || error?.message?.includes('network')) {
+      return { success: false, error: 'Network error - please check your connection' };
     }
     
     return { success: false, error: error.message || 'Failed to load notifications' };
@@ -59,7 +84,18 @@ export async function markNotificationAsRead(notificationId: string) {
 
     return { success: true };
   } catch (error: any) {
-    console.error('Mark notification as read error:', error);
+    // Don't log authentication errors as errors
+    const errorMessage = error?.message?.toLowerCase() || '';
+    const isAuthError = errorMessage.includes('unauthorized') || 
+                       errorMessage.includes('user not found') ||
+                       errorMessage.includes('authentication') ||
+                       errorMessage.includes('not authenticated');
+    
+    if (isAuthError) {
+      console.log('Authentication error in mark notification as read:', error);
+    } else {
+      console.error('Mark notification as read error:', error);
+    }
     return { success: false, error: error.message || 'Failed to mark notification as read' };
   }
 }
@@ -79,7 +115,18 @@ export async function markAllNotificationsAsRead() {
     const count = await NotificationsService.markAllAsRead(userResult._id);
     return { success: true, count };
   } catch (error: any) {
-    console.error('Mark all notifications as read error:', error);
+    // Don't log authentication errors as errors
+    const errorMessage = error?.message?.toLowerCase() || '';
+    const isAuthError = errorMessage.includes('unauthorized') || 
+                       errorMessage.includes('user not found') ||
+                       errorMessage.includes('authentication') ||
+                       errorMessage.includes('not authenticated');
+    
+    if (isAuthError) {
+      console.log('Authentication error in mark all notifications as read:', error);
+    } else {
+      console.error('Mark all notifications as read error:', error);
+    }
     return { success: false, error: error.message || 'Failed to mark notifications as read' };
   }
 }
@@ -103,7 +150,18 @@ export async function deleteNotification(notificationId: string) {
 
     return { success: true };
   } catch (error: any) {
-    console.error('Delete notification error:', error);
+    // Don't log authentication errors as errors
+    const errorMessage = error?.message?.toLowerCase() || '';
+    const isAuthError = errorMessage.includes('unauthorized') || 
+                       errorMessage.includes('user not found') ||
+                       errorMessage.includes('authentication') ||
+                       errorMessage.includes('not authenticated');
+    
+    if (isAuthError) {
+      console.log('Authentication error in delete notification:', error);
+    } else {
+      console.error('Delete notification error:', error);
+    }
     return { success: false, error: error.message || 'Failed to delete notification' };
   }
 }
@@ -123,7 +181,18 @@ export async function getNotificationStats() {
     const stats = await NotificationsService.getUserNotificationStats(userResult._id);
     return { success: true, stats };
   } catch (error: any) {
-    console.error('Get notification stats error:', error);
+    // Don't log authentication errors as errors
+    const errorMessage = error?.message?.toLowerCase() || '';
+    const isAuthError = errorMessage.includes('unauthorized') || 
+                       errorMessage.includes('user not found') ||
+                       errorMessage.includes('authentication') ||
+                       errorMessage.includes('not authenticated');
+    
+    if (isAuthError) {
+      console.log('Authentication error in get notification stats:', error);
+    } else {
+      console.error('Get notification stats error:', error);
+    }
     return { success: false, error: error.message || 'Failed to load notification stats' };
   }
 }
@@ -153,7 +222,18 @@ export async function sendTestNotification() {
 
     return { success: true, notification };
   } catch (error: any) {
-    console.error('Send test notification error:', error);
+    // Don't log authentication errors as errors
+    const errorMessage = error?.message?.toLowerCase() || '';
+    const isAuthError = errorMessage.includes('unauthorized') || 
+                       errorMessage.includes('user not found') ||
+                       errorMessage.includes('authentication') ||
+                       errorMessage.includes('not authenticated');
+    
+    if (isAuthError) {
+      console.log('Authentication error in send test notification:', error);
+    } else {
+      console.error('Send test notification error:', error);
+    }
     return { success: false, error: error.message || 'Failed to send test notification' };
   }
 } 
