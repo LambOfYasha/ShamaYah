@@ -209,7 +209,6 @@ export default async function AdminCommunitiesPage() {
                   <DeleteCommunityButton 
                     communityId={community._id}
                     communityTitle={community.title}
-                    onDelete={handleDeleteCommunity}
                   />
                 </div>
               </CardContent>

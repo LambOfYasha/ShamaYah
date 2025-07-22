@@ -89,7 +89,7 @@ export const ROLE_PERMISSIONS = {
   },
 } as const;
 
-export function hasPermission(userRole: UserRole, permission: keyof typeof ROLE_PERMISSIONS[UserRole]): boolean {
+export function hasPermission(userRole: UserRole, permission: 'canCreatePosts' | 'canComment' | 'canCreateCommunities' | 'canModerate' | 'canManageUsers' | 'canManageTeachers' | 'canAccessAdminPanel' | 'canManageBlogs'): boolean {
   return ROLE_PERMISSIONS[userRole]?.[permission] || false;
 }
 

@@ -29,7 +29,17 @@ export default async function AdminBlogsPage() {
         _type: "slug",
         current: "understanding-biblical-hermeneutics"
       },
-      content: "Blog content here...",
+      content: [
+        {
+          _type: "block",
+          children: [
+            {
+              _type: "span",
+              text: "Blog content here..."
+            }
+          ]
+        }
+      ],
       author: {
         username: "Dr. Sarah Johnson",
         role: "teacher"
@@ -48,7 +58,17 @@ export default async function AdminBlogsPage() {
         _type: "slug",
         current: "role-of-prayer-christian-life"
       },
-      content: "Blog content here...",
+      content: [
+        {
+          _type: "block",
+          children: [
+            {
+              _type: "span",
+              text: "Blog content here..."
+            }
+          ]
+        }
+      ],
       author: {
         username: "Pastor Michael Chen",
         role: "teacher"
@@ -67,7 +87,17 @@ export default async function AdminBlogsPage() {
         _type: "slug",
         current: "church-history-early-fathers"
       },
-      content: "Blog content here...",
+      content: [
+        {
+          _type: "block",
+          children: [
+            {
+              _type: "span",
+              text: "Blog content here..."
+            }
+          ]
+        }
+      ],
       author: {
         username: "Prof. David Williams",
         role: "teacher"
@@ -214,7 +244,6 @@ export default async function AdminBlogsPage() {
                   <DeleteBlogButton 
                     blogId={blog._id}
                     blogTitle={blog.title}
-                    onDelete={handleDeleteBlog}
                   />
                 </div>
               </CardContent>
