@@ -1,31 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { NotificationsService } from '@/lib/ai/notificationsService';
-import { getUser } from '@/lib/user/getUser';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userResult = await getUser();
-    if ('error' in userResult) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
     // Initialize notifications if not already done
     NotificationsService.initializeTemplates();
 
-    // Create multiple test notifications with different types
+    // Create test notifications for a demo user
+    const demoUserId = 'demo-user-123';
+    const demoUserRole = 'user' as const;
+
     const testNotifications = [];
     
     // Test notification 1: System maintenance
     const notification1 = await NotificationsService.createNotification(
       'system_maintenance',
-      userResult._id,
-      userResult.role,
+      demoUserId,
+      demoUserRole,
       { 
         testMessage: 'This is a test system maintenance notification',
         timestamp: new Date().toISOString()
@@ -36,8 +27,8 @@ export async function POST(request: NextRequest) {
     // Test notification 2: Content flagged
     const notification2 = await NotificationsService.createNotification(
       'content_flagged',
-      userResult._id,
-      userResult.role,
+      demoUserId,
+      demoUserRole,
       { 
         testMessage: 'This is a test content flagged notification',
         contentId: 'test-content-123',
@@ -49,8 +40,8 @@ export async function POST(request: NextRequest) {
     // Test notification 3: Appeal submitted
     const notification3 = await NotificationsService.createNotification(
       'appeal_submitted',
-      userResult._id,
-      userResult.role,
+      demoUserId,
+      demoUserRole,
       { 
         testMessage: 'This is a test appeal notification',
         appealId: 'test-appeal-456'

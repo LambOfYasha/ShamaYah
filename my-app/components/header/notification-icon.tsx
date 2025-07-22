@@ -42,26 +42,34 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
   const loadNotifications = async () => {
     // Don't load notifications if user is not authenticated
     if (!isLoaded || !user) {
+      console.log('User not loaded or not authenticated, clearing notifications');
       setNotifications([]);
       return;
     }
 
+    console.log('Loading notifications for user:', user.id);
     setIsLoading(true);
     try {
       const result = await getUserNotifications(10, true); // Get 10 unread notifications
+      console.log('Notification load result:', result);
+      
       if (result.success) {
         setNotifications(result.notifications || []);
+        console.log('Set notifications:', result.notifications?.length || 0);
       } else {
         // Handle authentication errors gracefully - don't log them as errors
         if (result.error?.includes('Please sign in') || result.error?.includes('User not authenticated')) {
           // This is expected behavior when user is not authenticated
+          console.log('Authentication error, clearing notifications');
           setNotifications([]);
           return;
         }
         // Only log actual errors, not authentication issues
         console.warn('Failed to load notifications:', result.error);
+        setNotifications([]);
       }
     } catch (error) {
+      console.error('Error loading notifications:', error);
       // Only log unexpected errors, not authentication issues
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();
@@ -75,6 +83,7 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
           console.error('Error loading notifications:', error);
         }
       }
+      setNotifications([]);
     } finally {
       setIsLoading(false);
     }
@@ -83,11 +92,13 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
   useEffect(() => {
     // Only load notifications if user is authenticated
     if (isLoaded && user) {
+      console.log('User loaded and authenticated, loading notifications');
       loadNotifications();
       // Refresh notifications every 30 seconds
       const interval = setInterval(loadNotifications, 30000);
       return () => clearInterval(interval);
     } else {
+      console.log('User not loaded or not authenticated, clearing notifications');
       setNotifications([]);
     }
   }, [isLoaded, user]);
@@ -185,9 +196,11 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
   };
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+  console.log('Current notifications:', notifications.length, 'Unread:', unreadCount);
 
   // Don't render the notification icon if user is not loaded or not authenticated
   if (!isLoaded || !user) {
+    console.log('Not rendering notification icon - user not loaded or not authenticated');
     return null;
   }
 

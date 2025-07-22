@@ -30,14 +30,18 @@ export async function getUserNotifications(limit: number = 50, unreadOnly: boole
     // Initialize notifications if not already done
     NotificationsService.initializeTemplates();
 
+    console.log('Fetching notifications for user:', userResult._id);
     const notifications = await NotificationsService.getUserNotifications(
       userResult._id,
       limit,
       unreadOnly
     );
 
+    console.log('Retrieved notifications:', notifications.length);
     return { success: true, notifications };
   } catch (error: any) {
+    console.error('Get notifications error:', error);
+    
     // Don't log authentication errors as errors
     const errorMessage = error?.message?.toLowerCase() || '';
     const isAuthError = errorMessage.includes('unauthorized') || 
@@ -84,6 +88,8 @@ export async function markNotificationAsRead(notificationId: string) {
 
     return { success: true };
   } catch (error: any) {
+    console.error('Mark notification as read error:', error);
+    
     // Don't log authentication errors as errors
     const errorMessage = error?.message?.toLowerCase() || '';
     const isAuthError = errorMessage.includes('unauthorized') || 
@@ -115,6 +121,8 @@ export async function markAllNotificationsAsRead() {
     const count = await NotificationsService.markAllAsRead(userResult._id);
     return { success: true, count };
   } catch (error: any) {
+    console.error('Mark all notifications as read error:', error);
+    
     // Don't log authentication errors as errors
     const errorMessage = error?.message?.toLowerCase() || '';
     const isAuthError = errorMessage.includes('unauthorized') || 
@@ -150,6 +158,8 @@ export async function deleteNotification(notificationId: string) {
 
     return { success: true };
   } catch (error: any) {
+    console.error('Delete notification error:', error);
+    
     // Don't log authentication errors as errors
     const errorMessage = error?.message?.toLowerCase() || '';
     const isAuthError = errorMessage.includes('unauthorized') || 
@@ -181,6 +191,8 @@ export async function getNotificationStats() {
     const stats = await NotificationsService.getUserNotificationStats(userResult._id);
     return { success: true, stats };
   } catch (error: any) {
+    console.error('Get notification stats error:', error);
+    
     // Don't log authentication errors as errors
     const errorMessage = error?.message?.toLowerCase() || '';
     const isAuthError = errorMessage.includes('unauthorized') || 
@@ -209,19 +221,53 @@ export async function sendTestNotification() {
       return { success: false, error: 'User profile not found - please sign in again' };
     }
 
-    if (userResult.role !== 'admin') {
-      return { success: false, error: 'Admin access required' };
-    }
+    // Initialize notifications if not already done
+    NotificationsService.initializeTemplates();
 
-    const notification = await NotificationsService.createNotification(
+    console.log('Creating test notifications for user:', userResult._id);
+
+    // Create multiple test notifications
+    const notifications = [];
+    
+    // Test notification 1: System maintenance
+    const notification1 = await NotificationsService.createNotification(
       'system_maintenance',
       userResult._id,
       userResult.role,
-      { testMessage: 'This is a test notification' }
+      { testMessage: 'This is a test system maintenance notification' }
     );
+    notifications.push(notification1);
 
-    return { success: true, notification };
+    // Test notification 2: Content flagged
+    const notification2 = await NotificationsService.createNotification(
+      'content_flagged',
+      userResult._id,
+      userResult.role,
+      { 
+        testMessage: 'This is a test content flagged notification',
+        contentId: 'test-content-123',
+        contentType: 'blog'
+      }
+    );
+    notifications.push(notification2);
+
+    // Test notification 3: Appeal submitted
+    const notification3 = await NotificationsService.createNotification(
+      'appeal_submitted',
+      userResult._id,
+      userResult.role,
+      { 
+        testMessage: 'This is a test appeal notification',
+        appealId: 'test-appeal-456'
+      }
+    );
+    notifications.push(notification3);
+
+    console.log('Created test notifications:', notifications.length);
+    return { success: true, notifications };
   } catch (error: any) {
+    console.error('Send test notification error:', error);
+    
     // Don't log authentication errors as errors
     const errorMessage = error?.message?.toLowerCase() || '';
     const isAuthError = errorMessage.includes('unauthorized') || 

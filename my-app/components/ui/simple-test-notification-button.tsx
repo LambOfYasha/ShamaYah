@@ -4,23 +4,31 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { sendTestNotification } from '@/action/notificationActions';
 
-export default function TestNotificationButton() {
+export default function SimpleTestNotificationButton() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const generateTestNotification = async () => {
     setIsLoading(true);
     try {
-      const result = await sendTestNotification();
+      const response = await fetch('/api/test-notification-simple', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
 
       if (result.success) {
+        console.log('Test notifications created:', result.notifications);
         toast({
           title: 'Test Notifications Created',
-          description: `${result.notifications?.length || 3} test notifications have been generated. Check the notification icon in the header.`,
+          description: `${result.notifications?.length || 3} test notifications have been generated and stored in the database.`,
         });
       } else {
+        console.error('Failed to create test notifications:', result.error);
         toast({
           title: 'Error',
           description: result.error || 'Failed to create test notifications',
@@ -28,6 +36,7 @@ export default function TestNotificationButton() {
         });
       }
     } catch (error) {
+      console.error('Error creating test notifications:', error);
       toast({
         title: 'Error',
         description: 'Failed to create test notifications',

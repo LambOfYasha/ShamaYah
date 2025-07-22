@@ -5,9 +5,10 @@ import { getUser } from '@/lib/user/getUser';
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const { userId } = await auth();
     
     if (!userId) {
@@ -36,7 +37,7 @@ export async function PATCH(
 
     // Update the report
     const updatedReport = await adminClient
-      .patch(params.id)
+      .patch(resolvedParams.id)
       .set({
         status,
         reviewNotes: reviewNotes || '',
@@ -65,9 +66,10 @@ export async function PATCH(
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const { userId } = await auth();
     
     if (!userId) {
@@ -116,7 +118,7 @@ export async function GET(
         actionTaken
       }
     `, {
-      reportId: params.id
+      reportId: resolvedParams.id
     });
 
     if (!report) {

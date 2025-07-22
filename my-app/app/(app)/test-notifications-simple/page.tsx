@@ -1,23 +1,16 @@
-import { getCurrentUser } from "@/lib/auth/middleware";
-import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bell, AlertTriangle, CheckCircle, Info } from "lucide-react";
-import TestNotificationButton from "@/components/ui/test-notification-button";
+import SimpleTestNotificationButton from "@/components/ui/simple-test-notification-button";
 
-export default async function TestNotificationsPage() {
-  const user = await getCurrentUser();
-  if (!user) {
-    redirect('/sign-in');
-  }
-
+export default function SimpleTestNotificationsPage() {
   return (
     <div className="p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Notification System Test</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Simple Notification System Test</h1>
           <p className="text-gray-600 mt-2">
-            Test the real-time notification system. Click the button below to generate test notifications.
+            Test the notification system without authentication. This creates notifications for a demo user.
           </p>
         </div>
 
@@ -31,11 +24,11 @@ export default async function TestNotificationsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-gray-600">
-                Generate test notifications to see the notification icon in action. 
-                The notifications will appear in the header notification icon.
+                Generate test notifications for a demo user. 
+                The notifications will be stored in the database.
               </p>
               <div className="flex gap-2">
-                <TestNotificationButton />
+                <SimpleTestNotificationButton />
               </div>
             </CardContent>
           </Card>
@@ -50,9 +43,9 @@ export default async function TestNotificationsPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <p className="text-sm text-gray-600">1. Click the "Test Notifications" button above</p>
-                <p className="text-sm text-gray-600">2. Look for the bell icon in the header</p>
-                <p className="text-sm text-gray-600">3. Click the bell icon to see notifications</p>
-                <p className="text-sm text-gray-600">4. Try marking notifications as read</p>
+                <p className="text-sm text-gray-600">2. Check the browser console for results</p>
+                <p className="text-sm text-gray-600">3. Check Sanity Studio for created notifications</p>
+                <p className="text-sm text-gray-600">4. Verify notifications are stored in the database</p>
               </div>
             </CardContent>
           </Card>
@@ -95,12 +88,12 @@ export default async function TestNotificationsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <p className="text-sm">✅ Real-time notifications</p>
-                <p className="text-sm">✅ Unread count badge</p>
-                <p className="text-sm">✅ Mark as read functionality</p>
-                <p className="text-sm">✅ Delete notifications</p>
-                <p className="text-sm">✅ Mark all as read</p>
-                <p className="text-sm">✅ Auto-refresh every 30 seconds</p>
+                <p className="text-sm">✅ Database storage</p>
+                <p className="text-sm">✅ Multiple notification types</p>
+                <p className="text-sm">✅ Severity levels</p>
+                <p className="text-sm">✅ Additional data support</p>
+                <p className="text-sm">✅ Sanity Studio integration</p>
+                <p className="text-sm">✅ Error handling</p>
               </div>
             </CardContent>
           </Card>
@@ -109,20 +102,17 @@ export default async function TestNotificationsPage() {
         <div className="mt-8">
           <Card>
             <CardHeader>
-              <CardTitle>Advanced Moderation Dashboard</CardTitle>
+              <CardTitle>Database Integration</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600 mb-4">
-                For more advanced notification management, visit the Advanced Moderation Dashboard.
+                Notifications are now stored in Sanity CMS. You can view and manage them in the Sanity Studio.
               </p>
-              <div className="flex gap-2">
-                <Button asChild>
-                  <a href="/admin/advanced-moderation">Go to Advanced Dashboard</a>
-                </Button>
-                <Button variant="outline" asChild>
-                  <a href="/test-notifications-simple">Simple Test (No Auth)</a>
-                </Button>
-              </div>
+              <Button asChild>
+                <a href="/admin/studio" target="_blank" rel="noopener noreferrer">
+                  Open Sanity Studio
+                </a>
+              </Button>
             </CardContent>
           </Card>
         </div>

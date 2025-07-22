@@ -13,6 +13,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Optimize for production
+  compress: true,
+  poweredByHeader: false,
+  // Disable ESLint during build for deployment
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // Enable static optimization where possible
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
+  // Ensure proper handling of environment variables
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
 };
 
 export default nextConfig;

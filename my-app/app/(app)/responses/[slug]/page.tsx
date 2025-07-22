@@ -88,9 +88,10 @@ const responseQuery = defineQuery(`
   }
 `);
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   try {
-    const response: Response = await adminClient.fetch(responseQuery, { slug: params.slug });
+    const resolvedParams = await params;
+    const response: Response = await adminClient.fetch(responseQuery, { slug: resolvedParams.slug });
     
     if (!response) {
       return {
@@ -110,21 +111,22 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function ResponsePage({ params }: { params: { slug: string } }) {
+export default async function ResponsePage({ params }: { params: Promise<{ slug: string }> }) {
   const user = await getCurrentUser();
+  const resolvedParams = await params;
   
-  console.log('Looking for response with slug/ID:', params.slug);
+  console.log('Looking for response with slug/ID:', resolvedParams.slug);
   
   let response: Response;
   try {
     // Try with adminClient first for debugging
-    response = await adminClient.fetch(responseQuery, { slug: params.slug });
+    response = await adminClient.fetch(responseQuery, { slug: resolvedParams.slug });
     console.log('Query result:', response);
   } catch (error) {
     console.error('Error fetching response with adminClient:', error);
     // Fallback to sanityFetch
     try {
-      response = await client.fetch(responseQuery, { slug: params.slug });
+      response = await client.fetch(responseQuery, { slug: resolvedParams.slug });
       console.log('Query result with sanityFetch:', response);
     } catch (fallbackError) {
       console.error('Error fetching response with sanityFetch:', fallbackError);
