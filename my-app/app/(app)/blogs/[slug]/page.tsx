@@ -27,6 +27,7 @@ import FavoriteButton from "@/components/ui/favorite-button";
 import { editBlog } from "@/action/editBlog";
 import { getImageUrl } from "@/lib/utils";
 import { ReportButton } from "@/components/ui/report-button";
+import RichContentRenderer from "@/components/ui/rich-content-renderer";
 
 interface BlogWithAuthor extends Omit<Blog, 'author'> {
   author?: Teacher;
@@ -106,7 +107,7 @@ export default async function BlogPage({
       _type: 'slug',
       current: blog.slug?.current || ''
     },
-    content: blog.content ? JSON.stringify(blog.content) : '',
+    content: blog.content || '',
     image: blog.image
   };
 
@@ -251,16 +252,15 @@ export default async function BlogPage({
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="prose max-w-none">
             {blog.content ? (
-              <div className="text-gray-700 leading-relaxed">
-                {/* Render content blocks */}
-                {blog.content.map((block: any, index: number) => (
-                  <div key={index} className="mb-4">
-                    {block.children?.map((child: any, childIndex: number) => (
-                      <span key={childIndex}>{child.text}</span>
-                    ))}
-                  </div>
-                ))}
-              </div>
+              <RichContentRenderer 
+                content={typeof blog.content === 'string' 
+                  ? blog.content 
+                  : blog.content.map((block: any) => 
+                      block.children?.map((child: any) => child.text).join('') || ''
+                    ).join('\n')
+                }
+                className="text-gray-700 leading-relaxed"
+              />
             ) : (
               <p className="text-gray-600">
                 This blog post is currently being written. Check back soon for the full content!

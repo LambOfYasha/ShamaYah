@@ -17,7 +17,7 @@ interface Blog {
   title: string;
   slug: { current: string };
   description: string;
-  content: any[];
+  content: string | any[];
   image?: {
     asset: {
       _ref: string;
@@ -43,12 +43,24 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   
+  // Convert old block format to HTML string for compatibility
+  const convertContentToHtml = (content: string | any[]): string => {
+    if (typeof content === 'string') {
+      return content;
+    }
+    // Handle old Sanity block format
+    if (Array.isArray(content) && content.length > 0) {
+      return content.map((block: any) => 
+        block.children?.map((child: any) => child.text).join('') || ''
+      ).join('\n');
+    }
+    return '';
+  };
+
   const [title, setTitle] = useState(blog.title);
   const [slug, setSlug] = useState(blog.slug.current);
   const [description, setDescription] = useState(blog.description);
-  const [content, setContent] = useState(
-    blog.content?.[0]?.children?.[0]?.text || ''
-  );
+  const [content, setContent] = useState(convertContentToHtml(blog.content));
   
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -77,7 +89,8 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
   };
 
   // Update moderated content when description changes
-  const handleDescriptionChange = (newDescription: string) => {
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newDescription = e.target.value;
     setDescription(newDescription);
     // Check both content and description together
     updateModeratedContent(`${newDescription}\n\n${content}`);
@@ -120,7 +133,7 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
     setTitle(blog.title);
     setSlug(blog.slug.current);
     setDescription(blog.description);
-    setContent(blog.content?.[0]?.children?.[0]?.text || '');
+    setContent(convertContentToHtml(blog.content));
     setImagePreview(null);
     setImageFile(null);
     clearModeration();
@@ -253,12 +266,18 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
 
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <ClientRichEditor
-                content={description}
+              <textarea
+                id="description"
+                value={description}
                 onChange={handleDescriptionChange}
                 placeholder="Enter a brief description of your blog post"
-                maxHeight="200px"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                rows={3}
+                maxLength={500}
               />
+              <p className="text-sm text-gray-500">
+                {description.length}/500 characters
+              </p>
             </div>
 
             <div className="space-y-2">

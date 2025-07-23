@@ -9,17 +9,26 @@ interface RichContentRendererProps {
 }
 
 export default function RichContentRenderer({ content, className }: RichContentRendererProps) {
-  // Sanitize the content to prevent XSS attacks
-  const sanitizeHTML = (html: string) => {
-    // This is a basic sanitization - in production, you might want to use a library like DOMPurify
-    return html
+  // Process and sanitize the content
+  const processContent = (html: string) => {
+    // Decode common HTML entities
+    let processed = html
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, ' ');
+    
+    // Sanitize the content to prevent XSS attacks
+    return processed
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
       .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
       .replace(/javascript:/gi, '')
       .replace(/on\w+\s*=/gi, '');
   };
 
-  const sanitizedContent = sanitizeHTML(content);
+  const processedContent = processContent(content);
 
   return (
     <div 
@@ -43,7 +52,7 @@ export default function RichContentRenderer({ content, className }: RichContentR
         "prose-video:max-w-full prose-video:h-auto prose-video:rounded-lg",
         className
       )}
-      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+      dangerouslySetInnerHTML={{ __html: processedContent }}
     />
   );
 } 

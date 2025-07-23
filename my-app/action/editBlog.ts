@@ -88,20 +88,7 @@ export async function editBlog(
                 current: slug,
                 _type: "slug",
             },
-            content: [
-                {
-                    _type: "block",
-                    _key: "content",
-                    children: [
-                        {
-                            _type: "span",
-                            _key: "content-text",
-                            text: content,
-                        }
-                    ],
-                    style: "normal"
-                }
-            ],
+            content: content,
         };
 
         if (imageAsset) {

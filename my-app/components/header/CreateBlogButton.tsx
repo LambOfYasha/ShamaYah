@@ -58,7 +58,8 @@ function CreateBlogButton() {
   };
 
   // Update moderated content when description changes
-  const handleDescriptionChange = (newDescription: string) => {
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newDescription = e.target.value;
     setDescription(newDescription);
     // Check both content and description together
     updateModeratedContent(`${newDescription}\n\n${content}`);
@@ -251,12 +252,18 @@ function CreateBlogButton() {
               <label htmlFor="description" className="text-sm font-medium">
                 Description
               </label>
-              <ClientRichEditor
-                content={description}
+              <textarea
+                id="description"
+                value={description}
                 onChange={handleDescriptionChange}
                 placeholder="Enter a brief description of your blog post"
-                maxHeight="200px"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                rows={3}
+                maxLength={500}
               />
+              <p className="text-sm text-gray-500">
+                {description.length}/500 characters
+              </p>
             </div>
 
             <div className="space-y-2">

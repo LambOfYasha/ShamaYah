@@ -46,9 +46,8 @@ export const blogType = defineType({
         defineField({
             name: 'content',
             title: 'Content',
-            type: 'array',
-            description: 'The content of the blog',
-            of: [{type: 'block'}],
+            type: 'text',
+            description: 'The content of the blog (HTML)',
             validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({

@@ -99,19 +99,8 @@ export async function createBlog(
         
         console.log("Blog document before creation:", JSON.stringify(blogDoc, null, 2))
 
-        // Add content (required field)
-        blogDoc.content = [
-            {
-                _type: "block",
-                children: [
-                    {
-                        _type: "span",
-                        text: content || "Blog content will be added here.",
-                    }
-                ],
-                style: "normal"
-            }
-        ]
+        // Add content (required field) - save as HTML string
+        blogDoc.content = content || "Blog content will be added here."
 
         // Add image if available
         if (imageAsset) {

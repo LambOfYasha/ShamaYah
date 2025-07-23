@@ -34,7 +34,7 @@ export interface Blog extends SanityDocument {
   _type: 'blog'
   title: string
   description?: string
-  content: PortableTextBlock[]
+  content: string | PortableTextBlock[]
   slug: {
     current: string
   }
