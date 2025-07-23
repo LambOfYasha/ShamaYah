@@ -12,28 +12,42 @@ interface NotificationIconProps {
   userId: string;
 }
 
+interface Notification {
+  _id: string;
+  title: string;
+  message: string;
+  severity: 'info' | 'warning' | 'error' | 'success';
+  isRead: boolean;
+  createdAt: string;
+  type: string;
+}
+
 export default function SimpleNotificationIcon({ userId }: NotificationIconProps) {
   const { toast } = useToast();
   const { user, isLoaded } = useUser();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [hasInitialized, setHasInitialized] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const loadNotifications = async () => {
-    // Don't load notifications if user is not authenticated
+  // Load notifications from localStorage or create initial ones
+  const loadNotifications = () => {
     if (!isLoaded || !user) {
       setNotifications([]);
       return;
     }
 
-    // Only create mock notifications once
-    if (!hasInitialized) {
-      setIsLoading(true);
-      try {
-        // Create mock notifications only once
-        const mockNotifications = [
+    setIsLoading(true);
+    try {
+      const storageKey = `notifications_${user.id}`;
+      const storedNotifications = localStorage.getItem(storageKey);
+      
+      if (storedNotifications) {
+        // Load existing notifications from localStorage
+        setNotifications(JSON.parse(storedNotifications));
+      } else {
+        // Create initial mock notifications only if none exist
+        const mockNotifications: Notification[] = [
           {
             _id: '1',
             title: 'Welcome!',
@@ -55,24 +69,31 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
         ];
         
         setNotifications(mockNotifications);
-        setHasInitialized(true);
-      } catch (error) {
-        console.error('Error loading notifications:', error);
-      } finally {
-        setIsLoading(false);
+        localStorage.setItem(storageKey, JSON.stringify(mockNotifications));
       }
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Save notifications to localStorage
+  const saveNotifications = (newNotifications: Notification[]) => {
+    if (user) {
+      const storageKey = `notifications_${user.id}`;
+      localStorage.setItem(storageKey, JSON.stringify(newNotifications));
     }
   };
 
   useEffect(() => {
-    // Only load notifications if user is authenticated and not already initialized
-    if (isLoaded && user && !hasInitialized) {
+    // Only load notifications if user is authenticated
+    if (isLoaded && user) {
       loadNotifications();
     } else if (!isLoaded || !user) {
       setNotifications([]);
-      setHasInitialized(false);
     }
-  }, [isLoaded, user, hasInitialized]);
+  }, [isLoaded, user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -92,11 +113,12 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
   }, [isOpen]);
 
   const handleMarkAsRead = async (notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(n => 
-        n._id === notificationId ? { ...n, isRead: true } : n
-      )
+    const updatedNotifications = notifications.map(n => 
+      n._id === notificationId ? { ...n, isRead: true } : n
     );
+    setNotifications(updatedNotifications);
+    saveNotifications(updatedNotifications);
+    
     toast({
       title: 'Success',
       description: 'Notification marked as read',
@@ -104,7 +126,10 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
   };
 
   const handleMarkAllAsRead = async () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    const updatedNotifications = notifications.map(n => ({ ...n, isRead: true }));
+    setNotifications(updatedNotifications);
+    saveNotifications(updatedNotifications);
+    
     toast({
       title: 'Success',
       description: 'All notifications marked as read',
@@ -112,7 +137,10 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
   };
 
   const handleDeleteNotification = async (notificationId: string) => {
-    setNotifications(prev => prev.filter(n => n._id !== notificationId));
+    const updatedNotifications = notifications.filter(n => n._id !== notificationId);
+    setNotifications(updatedNotifications);
+    saveNotifications(updatedNotifications);
+    
     toast({
       title: 'Success',
       description: 'Notification deleted',
