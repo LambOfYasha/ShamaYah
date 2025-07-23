@@ -6,7 +6,7 @@ const getBlogsByTagQuery = defineQuery(`
   *[_type == "blog" && (isDeleted == false || isDeleted == null) && $tagSlug in tags[]->slug.current] | order(createdAt desc) {
     _id,
     title,
-    slug,
+    "slug": slug.current,
     description,
     content,
     "author": author->{

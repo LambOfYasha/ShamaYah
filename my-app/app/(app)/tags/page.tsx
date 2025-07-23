@@ -1,4 +1,5 @@
-import { getTags } from '@/sanity/lib/blogs/getTags';
+import { client } from '@/sanity/lib/client';
+import { defineQuery } from 'groq';
 import { TagList } from '@/components/ui/tag';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +7,20 @@ import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 
 export default async function TagsPage() {
-  const tags = await getTags();
+  // Use the same query as the API to ensure consistency
+  const query = defineQuery(`
+    *[_type == "tag"] | order(name asc) {
+      _id,
+      name,
+      "slug": slug.current,
+      color,
+      description,
+      createdAt,
+      _createdAt
+    }
+  `);
+  
+  const tags = await client.fetch(query);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -28,34 +42,41 @@ export default async function TagsPage() {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {tags.map((tag) => (
-            <Card key={tag._id} className="hover:shadow-lg transition-shadow">
-              <Link href={`/tags/${tag.slug}`}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{tag.name}</CardTitle>
-                    <Badge 
-                      variant="secondary"
-                      className={`bg-${tag.color}-100 text-${tag.color}-800 border-${tag.color}-200`}
-                    >
-                      {tag.color}
-                    </Badge>
-                  </div>
-                  {tag.description && (
-                    <CardDescription className="line-clamp-2">
-                      {tag.description}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>Click to view related blogs</span>
-                    <span>→</span>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
-          ))}
+          {tags.map((tag) => {
+            // Ensure we have a valid slug
+            const tagSlug = tag.slug || tag.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') || 'unknown';
+            
+
+            
+            return (
+              <Card key={tag._id} className="hover:shadow-lg transition-shadow">
+                <Link href={`/tags/${tagSlug}`}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">{tag.name}</CardTitle>
+                      <Badge 
+                        variant="secondary"
+                        className={`bg-${tag.color}-100 text-${tag.color}-800 border-${tag.color}-200`}
+                      >
+                        {tag.color}
+                      </Badge>
+                    </div>
+                    {tag.description && (
+                      <CardDescription className="line-clamp-2">
+                        {tag.description}
+                      </CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>Click to view related blogs</span>
+                      <span>→</span>
+                    </div>
+                  </CardContent>
+                </Link>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

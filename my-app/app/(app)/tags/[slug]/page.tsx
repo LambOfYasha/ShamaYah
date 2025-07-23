@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
-import { getBlogsByTag, getTagInfo } from '@/sanity/lib/blogs/getBlogsByTag';
+import { getBlogsByTag } from '@/sanity/lib/blogs/getBlogsByTag';
+import { client } from '@/sanity/lib/client';
+import { defineQuery } from 'groq';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { TagList } from '@/components/ui/tag';
 import Link from 'next/link';
@@ -16,9 +18,21 @@ export default async function TagPage({ params }: TagPageProps) {
   const { slug } = params;
   
   try {
+    // Get tag info directly
+    const tagQuery = defineQuery(`
+      *[_type == "tag" && slug.current == $slug][0] {
+        _id,
+        name,
+        "slug": slug.current,
+        description,
+        color,
+        createdAt
+      }
+    `);
+    
     const [blogs, tagInfo] = await Promise.all([
       getBlogsByTag(slug),
-      getTagInfo(slug)
+      client.fetch(tagQuery, { slug })
     ]);
 
     if (!tagInfo) {

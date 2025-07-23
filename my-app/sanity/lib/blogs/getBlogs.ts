@@ -31,7 +31,7 @@ const getBlogsQuery = defineQuery(`
   *[_type == "blog" && (isDeleted == false || isDeleted == null)] | order(createdAt desc) {
     _id,
     title,
-    slug,
+    "slug": slug.current,
     description,
     content,
     "author": author->{

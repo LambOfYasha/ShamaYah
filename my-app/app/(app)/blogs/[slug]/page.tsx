@@ -46,7 +46,7 @@ async function getBlog(slug: string): Promise<BlogWithAuthor | null> {
       _id,
       title,
       description,
-      slug,
+      "slug": slug.current,
       content,
       image,
       author->{
@@ -118,7 +118,7 @@ export default async function BlogPage({
     description: blog.description || '',
     slug: {
       _type: 'slug',
-      current: blog.slug?.current || ''
+      current: blog.slug || ''
     },
     content: blog.content || '',
     image: blog.image,
