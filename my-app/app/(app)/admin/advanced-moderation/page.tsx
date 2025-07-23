@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth/middleware";
+import { requireAdminOrTeacher } from "@/lib/auth/middleware";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,10 +42,7 @@ import TestNotificationButton from "@/components/ui/test-notification-button";
 export const dynamic = 'force-dynamic';
 
 export default async function AdvancedModerationDashboard() {
-  const user = await getCurrentUser();
-  if (user.role !== 'admin' && user.role !== 'teacher' && user.role !== 'junior_teacher' && user.role !== 'senior_teacher' && user.role !== 'lead_teacher') {
-    redirect('/unauthorized');
-  }
+  const user = await requireAdminOrTeacher();
 
   // Initialize services
   CustomGuidelinesService.initializeDefaultGuidelines();

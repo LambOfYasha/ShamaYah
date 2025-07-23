@@ -26,8 +26,8 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
   moderator: 4,
   senior_teacher: 5,
   lead_teacher: 6,
-  dev: 6,
-  admin: 7,
+  dev: 7,
+  admin: 8,
 };
 
 export const ROLE_PERMISSIONS = {

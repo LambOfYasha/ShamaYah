@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth/middleware";
+import { requireAdminOrLeadTeacher } from "@/lib/auth/middleware";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -10,15 +10,9 @@ import {
 } from "lucide-react";
 import { getAllUsers, getUserStats } from "@/action/userActions";
 import UserManagement from "@/components/admin/user-management";
-import { redirect } from "next/navigation";
 
 export default async function UsersPage() {
-  const user = await getCurrentUser();
-
-  // Check if user has permission to manage users (Lead Teachers and Admins only)
-  if (!user.role || !['lead_teacher', 'admin'].includes(user.role)) {
-    redirect('/unauthorized');
-  }
+  const user = await requireAdminOrLeadTeacher();
 
   // Fetch initial data
   const [usersResult, statsResult] = await Promise.all([

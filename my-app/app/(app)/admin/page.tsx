@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth/middleware";
+import { requireAdminOrTeacher } from "@/lib/auth/middleware";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -15,15 +15,9 @@ import {
   Tag
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
-  const user = await getCurrentUser();
-
-  // Check if user has access to admin panel
-  if (!user.role || !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev', 'admin'].includes(user.role)) {
-    redirect('/unauthorized');
-  }
+  const user = await requireAdminOrTeacher();
 
   return (
     <div className="p-6">

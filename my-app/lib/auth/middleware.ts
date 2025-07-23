@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { getUser } from '../user/getUser';
-import { hasRoleOrHigher, UserRole } from './roles';
+import { hasRoleOrHigher, UserRole, hasPermission } from './roles';
 
 export async function requireAuth() {
   try {
@@ -41,6 +41,28 @@ export async function requireRole(requiredRole: UserRole) {
   }
 }
 
+export async function requirePermission(permission: 'canCreatePosts' | 'canComment' | 'canCreateCommunities' | 'canModerate' | 'canManageUsers' | 'canManageTeachers' | 'canAccessAdminPanel' | 'canManageBlogs' | 'canDeleteMembers' | 'canGiveTeacherApprovals' | 'canDeleteOtherContent') {
+  try {
+    const userId = await requireAuth();
+    
+    const user = await getUser();
+    
+    if ('error' in user) {
+      console.log('User not found in database:', user.error);
+      redirect('/sign-in');
+    }
+    
+    if (!hasPermission(user.role, permission)) {
+      redirect('/unauthorized');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Auth error in requirePermission:', error);
+    redirect('/sign-in');
+  }
+}
+
 export async function requireTeacher() {
   return requireRole('teacher');
 }
@@ -51,6 +73,75 @@ export async function requireModerator() {
 
 export async function requireAdmin() {
   return requireRole('admin');
+}
+
+export async function requireAdminOrTeacher() {
+  try {
+    const userId = await requireAuth();
+    
+    const user = await getUser();
+    
+    if ('error' in user) {
+      console.log('User not found in database:', user.error);
+      redirect('/sign-in');
+    }
+    
+    // Check if user is admin or any teacher role
+    if (!['admin', 'teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev'].includes(user.role)) {
+      redirect('/unauthorized');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Auth error in requireAdminOrTeacher:', error);
+    redirect('/sign-in');
+  }
+}
+
+export async function requireAdminOrSeniorTeacher() {
+  try {
+    const userId = await requireAuth();
+    
+    const user = await getUser();
+    
+    if ('error' in user) {
+      console.log('User not found in database:', user.error);
+      redirect('/sign-in');
+    }
+    
+    // Check if user is admin, senior teacher and up, or dev
+    if (!['admin', 'senior_teacher', 'lead_teacher', 'dev'].includes(user.role)) {
+      redirect('/unauthorized');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Auth error in requireAdminOrSeniorTeacher:', error);
+    redirect('/sign-in');
+  }
+}
+
+export async function requireAdminOrLeadTeacher() {
+  try {
+    const userId = await requireAuth();
+    
+    const user = await getUser();
+    
+    if ('error' in user) {
+      console.log('User not found in database:', user.error);
+      redirect('/sign-in');
+    }
+    
+    // Check if user is admin, lead teacher, or dev
+    if (!['admin', 'lead_teacher', 'dev'].includes(user.role)) {
+      redirect('/unauthorized');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Auth error in requireAdminOrLeadTeacher:', error);
+    redirect('/sign-in');
+  }
 }
 
 export async function getCurrentUser() {

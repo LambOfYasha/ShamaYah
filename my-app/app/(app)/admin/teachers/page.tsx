@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth/middleware";
+import { requireAdminOrSeniorTeacher } from "@/lib/auth/middleware";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -13,15 +13,9 @@ import {
 } from "lucide-react";
 import { getAllTeachers, getTeacherStats } from "@/action/teacherActions";
 import TeacherManagement from "@/components/admin/teacher-management";
-import { redirect } from "next/navigation";
 
 export default async function TeachersPage() {
-  const user = await getCurrentUser();
-
-  // Check if user has permission to manage teachers (Senior Teachers and up)
-  if (!user.role || !['senior_teacher', 'lead_teacher', 'dev', 'admin'].includes(user.role)) {
-    redirect('/unauthorized');
-  }
+  const user = await requireAdminOrSeniorTeacher();
 
   // Fetch initial data
   const [teachersResult, statsResult] = await Promise.all([

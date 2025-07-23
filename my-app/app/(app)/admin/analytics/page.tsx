@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth/middleware";
+import { requireAdminOrTeacher } from "@/lib/auth/middleware";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,13 +24,10 @@ import {
 export const dynamic = 'force-dynamic';
 
 export default async function AnalyticsDashboard() {
-  const user = await getCurrentUser();
-  if (user.role !== 'admin' && user.role !== 'teacher' && user.role !== 'junior_teacher' && user.role !== 'senior_teacher' && user.role !== 'lead_teacher') {
-    redirect('/unauthorized');
-  }
+  const user = await requireAdminOrTeacher();
 
-  // Mock data - in real implementation, fetch from AnalyticsService
-  const analytics = {
+  // Mock analytics data - replace with real data from Sanity
+  const analyticsData = {
     totalModerations: 1250,
     allowedContent: 1100,
     flaggedContent: 120,
@@ -91,7 +88,7 @@ export default async function AnalyticsDashboard() {
               <Shield className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{analytics.totalModerations.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{analyticsData.totalModerations.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
                 All time content reviews
               </p>
@@ -104,7 +101,7 @@ export default async function AnalyticsDashboard() {
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{analytics.moderationRate}%</div>
+              <div className="text-2xl font-bold">{analyticsData.moderationRate}%</div>
               <p className="text-xs text-muted-foreground">
                 Content flagged or blocked
               </p>
@@ -117,7 +114,7 @@ export default async function AnalyticsDashboard() {
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{(analytics.averageConfidence * 100).toFixed(1)}%</div>
+              <div className="text-2xl font-bold">{(analyticsData.averageConfidence * 100).toFixed(1)}%</div>
               <p className="text-xs text-muted-foreground">
                 AI decision confidence
               </p>
@@ -130,7 +127,7 @@ export default async function AnalyticsDashboard() {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{analytics.appealStats.pendingAppeals}</div>
+              <div className="text-2xl font-bold">{analyticsData.appealStats.pendingAppeals}</div>
               <p className="text-xs text-muted-foreground">
                 Awaiting review
               </p>
@@ -162,23 +159,23 @@ export default async function AnalyticsDashboard() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Posts</span>
-                      <Badge variant="secondary">{analytics.contentTypeBreakdown.post}</Badge>
+                      <Badge variant="secondary">{analyticsData.contentTypeBreakdown.post}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Responses</span>
-                      <Badge variant="secondary">{analytics.contentTypeBreakdown.response}</Badge>
+                      <Badge variant="secondary">{analyticsData.contentTypeBreakdown.response}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Comments</span>
-                      <Badge variant="secondary">{analytics.contentTypeBreakdown.comment}</Badge>
+                      <Badge variant="secondary">{analyticsData.contentTypeBreakdown.comment}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Blog Posts</span>
-                      <Badge variant="secondary">{analytics.contentTypeBreakdown.blog}</Badge>
+                      <Badge variant="secondary">{analyticsData.contentTypeBreakdown.blog}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Community Questions</span>
-                      <Badge variant="secondary">{analytics.contentTypeBreakdown.community}</Badge>
+                      <Badge variant="secondary">{analyticsData.contentTypeBreakdown.community}</Badge>
                     </div>
                   </div>
                 </CardContent>
@@ -199,21 +196,21 @@ export default async function AnalyticsDashboard() {
                         <CheckCircle className="w-4 h-4 text-green-500" />
                         Allowed
                       </span>
-                      <Badge variant="default">{analytics.allowedContent}</Badge>
+                      <Badge variant="default">{analyticsData.allowedContent}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4 text-yellow-500" />
                         Flagged
                       </span>
-                      <Badge variant="secondary">{analytics.flaggedContent}</Badge>
+                      <Badge variant="secondary">{analyticsData.flaggedContent}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm flex items-center gap-2">
                         <XCircle className="w-4 h-4 text-red-500" />
                         Blocked
                       </span>
-                      <Badge variant="destructive">{analytics.blockedContent}</Badge>
+                      <Badge variant="destructive">{analyticsData.blockedContent}</Badge>
                     </div>
                   </div>
                 </CardContent>
@@ -230,7 +227,7 @@ export default async function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {analytics.topFlags.map((flag, index) => (
+                  {analyticsData.topFlags.map((flag, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <span className="text-sm font-medium">{flag}</span>
                       <Badge variant="outline">#{index + 1}</Badge>
@@ -281,14 +278,14 @@ export default async function AnalyticsDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {Object.entries(analytics.contentTypeBreakdown).map(([type, count]) => (
+                    {Object.entries(analyticsData.contentTypeBreakdown).map(([type, count]) => (
                       <div key={type} className="flex items-center justify-between">
                         <span className="text-sm capitalize">{type}</span>
                         <div className="flex items-center gap-2">
                           <div className="w-20 bg-gray-200 rounded-full h-2">
                             <div 
                               className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${(count / analytics.totalModerations) * 100}%` }}
+                              style={{ width: `${(count / analyticsData.totalModerations) * 100}%` }}
                             ></div>
                           </div>
                           <span className="text-sm text-gray-600">{count}</span>
@@ -309,14 +306,14 @@ export default async function AnalyticsDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {Object.entries(analytics.userRoleBreakdown).map(([role, count]) => (
+                    {Object.entries(analyticsData.userRoleBreakdown).map(([role, count]) => (
                       <div key={role} className="flex items-center justify-between">
                         <span className="text-sm capitalize">{role}</span>
                         <div className="flex items-center gap-2">
                           <div className="w-20 bg-gray-200 rounded-full h-2">
                             <div 
                               className="bg-green-600 h-2 rounded-full" 
-                              style={{ width: `${(count / analytics.totalModerations) * 100}%` }}
+                              style={{ width: `${(count / analyticsData.totalModerations) * 100}%` }}
                             ></div>
                           </div>
                           <span className="text-sm text-gray-600">{count}</span>
@@ -343,23 +340,23 @@ export default async function AnalyticsDashboard() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Accuracy</span>
-                      <Badge variant="default">{(analytics.performanceMetrics.accuracy * 100).toFixed(1)}%</Badge>
+                      <Badge variant="default">{(analyticsData.performanceMetrics.accuracy * 100).toFixed(1)}%</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">False Positives</span>
-                      <Badge variant="secondary">{(analytics.performanceMetrics.falsePositives * 100).toFixed(1)}%</Badge>
+                      <Badge variant="secondary">{(analyticsData.performanceMetrics.falsePositives * 100).toFixed(1)}%</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">False Negatives</span>
-                      <Badge variant="secondary">{(analytics.performanceMetrics.falseNegatives * 100).toFixed(1)}%</Badge>
+                      <Badge variant="secondary">{(analyticsData.performanceMetrics.falseNegatives * 100).toFixed(1)}%</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Avg Response Time</span>
-                      <Badge variant="outline">{analytics.performanceMetrics.averageResponseTime}s</Badge>
+                      <Badge variant="outline">{analyticsData.performanceMetrics.averageResponseTime}s</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">User Satisfaction</span>
-                      <Badge variant="default">{(analytics.performanceMetrics.userSatisfaction * 100).toFixed(1)}%</Badge>
+                      <Badge variant="default">{(analyticsData.performanceMetrics.userSatisfaction * 100).toFixed(1)}%</Badge>
                     </div>
                   </div>
                 </CardContent>
@@ -408,31 +405,31 @@ export default async function AnalyticsDashboard() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{analytics.appealStats.totalAppeals}</div>
+                    <div className="text-2xl font-bold">{analyticsData.appealStats.totalAppeals}</div>
                     <div className="text-sm text-gray-600">Total Appeals</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">{analytics.appealStats.pendingAppeals}</div>
+                    <div className="text-2xl font-bold text-yellow-600">{analyticsData.appealStats.pendingAppeals}</div>
                     <div className="text-sm text-gray-600">Pending</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{analytics.appealStats.approvedAppeals}</div>
+                    <div className="text-2xl font-bold text-green-600">{analyticsData.appealStats.approvedAppeals}</div>
                     <div className="text-sm text-gray-600">Approved</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">{analytics.appealStats.rejectedAppeals}</div>
+                    <div className="text-2xl font-bold text-red-600">{analyticsData.appealStats.rejectedAppeals}</div>
                     <div className="text-sm text-gray-600">Rejected</div>
                   </div>
                 </div>
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">Appeal Rate</span>
-                    <span className="text-sm text-gray-600">{analytics.appealStats.appealRate}%</span>
+                    <span className="text-sm text-gray-600">{analyticsData.appealStats.appealRate}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-blue-600 h-2 rounded-full" 
-                      style={{ width: `${analytics.appealStats.appealRate}%` }}
+                      style={{ width: `${analyticsData.appealStats.appealRate}%` }}
                     ></div>
                   </div>
                 </div>
