@@ -21,11 +21,24 @@ export default function RichContentRenderer({ content, className }: RichContentR
       .replace(/&nbsp;/g, ' ');
     
     // Sanitize the content to prevent XSS attacks
-    return processed
+    const sanitized = processed
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      // Allow safe iframe content (YouTube, Vimeo, etc.)
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, (match) => {
+        // Only allow iframes from trusted sources
+        if (match.includes('youtube.com/embed/') || 
+            match.includes('youtu.be/') ||
+            match.includes('vimeo.com/') ||
+            match.includes('player.vimeo.com/') ||
+            match.includes('dailymotion.com/')) {
+          return match;
+        }
+        return ''; // Remove unsafe iframes
+      })
       .replace(/javascript:/gi, '')
       .replace(/on\w+\s*=/gi, '');
+    
+    return sanitized;
   };
 
   const processedContent = processContent(content);
@@ -50,6 +63,10 @@ export default function RichContentRenderer({ content, className }: RichContentR
         "prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-2",
         "prose-img:max-w-full prose-img:h-auto prose-img:rounded-lg",
         "prose-video:max-w-full prose-video:h-auto prose-video:rounded-lg",
+        // Custom styles for video containers
+        "[&_.video-container]:relative [&_.video-container]:pb-[56.25%] [&_.video-container]:h-0 [&_.video-container]:overflow-hidden [&_.video-container]:max-w-full [&_.video-container]:my-4",
+        "[&_.video-container_iframe]:absolute [&_.video-container_iframe]:top-0 [&_.video-container_iframe]:left-0 [&_.video-container_iframe]:w-full [&_.video-container_iframe]:h-full [&_.video-container_iframe]:border-0",
+        "[&_iframe]:max-w-full [&_iframe]:rounded-lg",
         className
       )}
       dangerouslySetInnerHTML={{ __html: processedContent }}

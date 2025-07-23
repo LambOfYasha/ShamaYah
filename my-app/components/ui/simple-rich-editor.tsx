@@ -17,6 +17,7 @@ import { TextAlign } from '@tiptap/extension-text-align';
 import { Highlight } from '@tiptap/extension-highlight';
 import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
+import { Iframe } from '@/lib/extensions/iframe';
 import { 
   Bold, 
   Italic, 
@@ -150,6 +151,11 @@ export default function SimpleRichEditor({
       }),
       Subscript,
       Superscript,
+      Iframe.configure({
+        HTMLAttributes: {
+          class: 'max-w-full rounded-lg',
+        },
+      }),
     ],
     content: content,
     editable: !readOnly,
@@ -183,23 +189,38 @@ export default function SimpleRichEditor({
     if (videoUrl) {
       // For YouTube videos, convert to embed URL
       const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-      const match = videoUrl.match(youtubeRegex);
+      const youtubeMatch = videoUrl.match(youtubeRegex);
       
-      if (match) {
-        const embedUrl = `https://www.youtube.com/embed/${match[1]}`;
-        editor?.chain().focus().insertContent(`
-          <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
-            <iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen></iframe>
-          </div>
-        `).run();
+      if (youtubeMatch) {
+        const embedUrl = `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+        // Insert iframe using the extension
+        editor?.chain().focus().setIframe({
+          src: embedUrl,
+          width: '100%',
+          height: '400px'
+        }).run();
       } else {
-        // For other video URLs, try to embed directly
-        editor?.chain().focus().insertContent(`
-          <video controls style="max-width: 100%; height: auto;">
-            <source src="${videoUrl}" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        `).run();
+        // For Vimeo videos
+        const vimeoRegex = /(?:vimeo\.com\/)(\d+)/;
+        const vimeoMatch = videoUrl.match(vimeoRegex);
+        
+        if (vimeoMatch) {
+          const embedUrl = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+          // Insert iframe using the extension
+          editor?.chain().focus().setIframe({
+            src: embedUrl,
+            width: '100%',
+            height: '400px'
+          }).run();
+        } else {
+          // For other video URLs, try to embed directly
+          editor?.chain().focus().insertContent(`
+            <video controls style="max-width: 100%; height: auto; margin: 1rem 0;">
+              <source src="${videoUrl}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          `).run();
+        }
       }
       
       setVideoUrl('');
