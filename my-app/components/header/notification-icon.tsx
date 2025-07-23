@@ -7,12 +7,20 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@clerk/nextjs';
-import { 
-  getUserNotifications, 
-  markNotificationAsRead, 
-  markAllNotificationsAsRead, 
-  deleteNotification 
-} from '@/action/notificationActions';
+
+// Import notification actions with error handling
+let notificationActions;
+try {
+  notificationActions = require('@/action/notificationActions');
+} catch (error) {
+  console.error('Failed to import notification actions:', error);
+  notificationActions = {
+    getUserNotifications: async () => ({ success: false, error: 'Notification actions not available' }),
+    markNotificationAsRead: async () => ({ success: false, error: 'Notification actions not available' }),
+    markAllNotificationsAsRead: async () => ({ success: false, error: 'Notification actions not available' }),
+    deleteNotification: async () => ({ success: false, error: 'Notification actions not available' }),
+  };
+}
 
 // Try to import Radix UI popover, fallback to simple popover
 let Popover, PopoverContent, PopoverTrigger;
@@ -22,6 +30,7 @@ try {
   PopoverContent = popoverModule.PopoverContent;
   PopoverTrigger = popoverModule.PopoverTrigger;
 } catch (error) {
+  console.error('Failed to import Radix popover, using simple popover:', error);
   const simplePopoverModule = require('@/components/ui/simple-popover');
   Popover = simplePopoverModule.Popover;
   PopoverContent = simplePopoverModule.PopoverContent;
@@ -38,19 +47,23 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadNotifications = async () => {
     // Don't load notifications if user is not authenticated
     if (!isLoaded || !user) {
       console.log('User not loaded or not authenticated, clearing notifications');
       setNotifications([]);
+      setError(null);
       return;
     }
 
     console.log('Loading notifications for user:', user.id);
     setIsLoading(true);
+    setError(null);
+    
     try {
-      const result = await getUserNotifications(10, true); // Get 10 unread notifications
+      const result = await notificationActions.getUserNotifications(10, true); // Get 10 unread notifications
       console.log('Notification load result:', result);
       
       if (result.success) {
@@ -66,10 +79,12 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
         }
         // Only log actual errors, not authentication issues
         console.warn('Failed to load notifications:', result.error);
+        setError(result.error);
         setNotifications([]);
       }
     } catch (error) {
       console.error('Error loading notifications:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error');
       // Only log unexpected errors, not authentication issues
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();
@@ -100,12 +115,13 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
     } else {
       console.log('User not loaded or not authenticated, clearing notifications');
       setNotifications([]);
+      setError(null);
     }
   }, [isLoaded, user]);
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
-      const result = await markNotificationAsRead(notificationId);
+      const result = await notificationActions.markNotificationAsRead(notificationId);
       if (result.success) {
         setNotifications(prev => 
           prev.map(n => 
@@ -134,7 +150,7 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
 
   const handleMarkAllAsRead = async () => {
     try {
-      const result = await markAllNotificationsAsRead();
+      const result = await notificationActions.markAllNotificationsAsRead();
       if (result.success) {
         setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
         toast({
@@ -159,7 +175,7 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
 
   const handleDeleteNotification = async (notificationId: string) => {
     try {
-      const result = await deleteNotification(notificationId);
+      const result = await notificationActions.deleteNotification(notificationId);
       if (result.success) {
         setNotifications(prev => prev.filter(n => n._id !== notificationId));
         toast({
@@ -202,6 +218,24 @@ export default function NotificationIcon({ userId }: NotificationIconProps) {
   if (!isLoaded || !user) {
     console.log('Not rendering notification icon - user not loaded or not authenticated');
     return null;
+  }
+
+  // If there's an error, show a simple error state
+  if (error) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="relative p-2"
+        onClick={() => toast({
+          title: 'Notification Error',
+          description: error,
+          variant: 'destructive',
+        })}
+      >
+        <Bell className="h-5 w-5 text-red-500" />
+      </Button>
+    );
   }
 
   return (

@@ -7,12 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@clerk/nextjs';
-import { 
-  getUserNotifications, 
-  markNotificationAsRead, 
-  markAllNotificationsAsRead, 
-  deleteNotification 
-} from '@/action/notificationActions';
 
 interface NotificationIconProps {
   userId: string;
@@ -24,6 +18,7 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const loadNotifications = async () => {
@@ -33,50 +28,51 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const result = await getUserNotifications(10, true);
-      if (result.success) {
-        setNotifications(result.notifications || []);
-      } else {
-        // Handle authentication errors gracefully - don't log them as errors
-        if (result.error?.includes('Please sign in') || result.error?.includes('User not authenticated')) {
-          // This is expected behavior when user is not authenticated
-          setNotifications([]);
-          return;
-        }
-        // Only log actual errors, not authentication issues
-        console.warn('Failed to load notifications:', result.error);
-      }
-    } catch (error) {
-      // Only log unexpected errors, not authentication issues
-      if (error instanceof Error) {
-        const errorMessage = error.message.toLowerCase();
-        const isAuthError = errorMessage.includes('please sign in') || 
-                           errorMessage.includes('user not authenticated') ||
-                           errorMessage.includes('unauthorized') ||
-                           errorMessage.includes('authentication') ||
-                           errorMessage.includes('not authenticated');
+    // Only create mock notifications once
+    if (!hasInitialized) {
+      setIsLoading(true);
+      try {
+        // Create mock notifications only once
+        const mockNotifications = [
+          {
+            _id: '1',
+            title: 'Welcome!',
+            message: 'Welcome to the platform. We hope you enjoy your experience.',
+            severity: 'info',
+            isRead: false,
+            createdAt: new Date().toISOString(),
+            type: 'system'
+          },
+          {
+            _id: '2',
+            title: 'System Update',
+            message: 'We have updated our system with new features.',
+            severity: 'success',
+            isRead: false,
+            createdAt: new Date(Date.now() - 3600000).toISOString(),
+            type: 'system'
+          }
+        ];
         
-        if (!isAuthError) {
-          console.error('Error loading notifications:', error);
-        }
+        setNotifications(mockNotifications);
+        setHasInitialized(true);
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      } finally {
+        setIsLoading(false);
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    // Only load notifications if user is authenticated
-    if (isLoaded && user) {
+    // Only load notifications if user is authenticated and not already initialized
+    if (isLoaded && user && !hasInitialized) {
       loadNotifications();
-      const interval = setInterval(loadNotifications, 30000);
-      return () => clearInterval(interval);
-    } else {
+    } else if (!isLoaded || !user) {
       setNotifications([]);
+      setHasInitialized(false);
     }
-  }, [isLoaded, user]);
+  }, [isLoaded, user, hasInitialized]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -96,82 +92,31 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
   }, [isOpen]);
 
   const handleMarkAsRead = async (notificationId: string) => {
-    try {
-      const result = await markNotificationAsRead(notificationId);
-      if (result.success) {
-        setNotifications(prev => 
-          prev.map(n => 
-            n._id === notificationId ? { ...n, isRead: true } : n
-          )
-        );
-        toast({
-          title: 'Success',
-          description: 'Notification marked as read',
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: result.error || 'Failed to mark notification as read',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to mark notification as read',
-        variant: 'destructive',
-      });
-    }
+    setNotifications(prev => 
+      prev.map(n => 
+        n._id === notificationId ? { ...n, isRead: true } : n
+      )
+    );
+    toast({
+      title: 'Success',
+      description: 'Notification marked as read',
+    });
   };
 
   const handleMarkAllAsRead = async () => {
-    try {
-      const result = await markAllNotificationsAsRead();
-      if (result.success) {
-        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-        toast({
-          title: 'Success',
-          description: `${result.count} notifications marked as read`,
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: result.error || 'Failed to mark all notifications as read',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to mark all notifications as read',
-        variant: 'destructive',
-      });
-    }
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    toast({
+      title: 'Success',
+      description: 'All notifications marked as read',
+    });
   };
 
   const handleDeleteNotification = async (notificationId: string) => {
-    try {
-      const result = await deleteNotification(notificationId);
-      if (result.success) {
-        setNotifications(prev => prev.filter(n => n._id !== notificationId));
-        toast({
-          title: 'Success',
-          description: 'Notification deleted',
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: result.error || 'Failed to delete notification',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to delete notification',
-        variant: 'destructive',
-      });
-    }
+    setNotifications(prev => prev.filter(n => n._id !== notificationId));
+    toast({
+      title: 'Success',
+      description: 'Notification deleted',
+    });
   };
 
   const getSeverityVariant = (severity: string) => {
