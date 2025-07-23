@@ -21,6 +21,9 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import ProfileForm from "@/components/profile/ProfileForm";
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 export default async function ProfilePage() {
   const user = await getCurrentUser();
   

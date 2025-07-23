@@ -25,6 +25,9 @@ import Link from "next/link";
 import DeleteFavoriteButton from "@/components/ui/delete-favorite-button";
 import ClearAllFavoritesButton from "@/components/ui/clear-all-favorites-button";
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 export default async function FavoritesPage() {
   const user = await getCurrentUser();
   

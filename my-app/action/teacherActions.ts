@@ -345,3 +345,47 @@ export async function getTeacherStats() {
     return { success: false, error: 'Failed to fetch teacher stats' };
   }
 }
+
+export async function bulkUpdateTeachers(teacherIds: string[], updates: Partial<TeacherData>) {
+  try {
+    const { userId: currentUserId } = await auth();
+    if (!currentUserId) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const currentUser = await getUser();
+    if ('error' in currentUser || !['admin', 'senior_teacher', 'lead_teacher', 'dev'].includes(currentUser.role)) {
+      return { success: false, error: 'Insufficient permissions' };
+    }
+
+    const updatePromises = teacherIds.map(async (teacherId) => {
+      try {
+        await adminClient
+          .patch(teacherId)
+          .set(updates)
+          .commit();
+        return { success: true, teacherId };
+      } catch (error) {
+        console.error(`Error updating teacher ${teacherId}:`, error);
+        return { success: false, teacherId, error: 'Failed to update' };
+      }
+    });
+
+    const results = await Promise.all(updatePromises);
+    const successful = results.filter(r => r.success);
+    const failed = results.filter(r => !r.success);
+
+    return {
+      success: true,
+      message: `Updated ${successful.length} teachers successfully`,
+      results: {
+        successful: successful.length,
+        failed: failed.length,
+        details: results
+      }
+    };
+  } catch (error) {
+    console.error('Error in bulk update teachers:', error);
+    return { success: false, error: 'Failed to bulk update teachers' };
+  }
+}

@@ -21,7 +21,10 @@ import Link from "next/link";
 import CreateBlogButton from "@/components/header/CreateBlogButton";
 import { formatDistanceToNow } from 'date-fns';
 
-export default async function MemberBlogsPage() {
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+export default async function BlogsPage() {
   const user = await getCurrentUser();
   const blogs = await getBlogs();
   const tags = await getTags();

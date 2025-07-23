@@ -14,6 +14,9 @@ import {
 import { getAllTeachers, getTeacherStats } from "@/action/teacherActions";
 import TeacherManagement from "@/components/admin/teacher-management";
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 export default async function TeachersPage() {
   const user = await requireAdminOrSeniorTeacher();
 

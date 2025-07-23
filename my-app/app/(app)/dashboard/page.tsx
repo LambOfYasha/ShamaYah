@@ -47,6 +47,9 @@ try {
   Progress = require('@/components/ui/simple-progress').Progress;
 }
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const user = await getCurrentUser();
 

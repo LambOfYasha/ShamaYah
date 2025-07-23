@@ -11,6 +11,9 @@ import {
 import { getAllUsers, getUserStats } from "@/action/userActions";
 import UserManagement from "@/components/admin/user-management";
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 export default async function UsersPage() {
   const user = await requireAdminOrLeadTeacher();
 
