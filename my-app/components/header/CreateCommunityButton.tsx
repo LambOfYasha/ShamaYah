@@ -200,11 +200,11 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
 
         <div className="space-y-2">
           <label htmlFor="question" className="text-sm font-medium">
-            Question
+            Title
           </label>
           <Input 
           id="question" 
-          placeholder="What is your question?"
+          placeholder="What is your question title?"
           className="w-full focus:ring-2 focus:ring-blue-500"
           value={name}
           onChange={handleNameChange}

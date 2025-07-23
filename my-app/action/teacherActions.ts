@@ -313,8 +313,35 @@ export async function getTeacherStats() {
     }
 
     const currentUser = await getUser();
-    if ('error' in currentUser || currentUser.role !== 'admin') {
+    if ('error' in currentUser || !['admin', 'senior_teacher', 'lead_teacher', 'dev'].includes(currentUser.role)) {
       return { success: false, error: 'Insufficient permissions' };
     }
 
     const stats = await adminClient.fetch(`
+      {
+        "totalTeachers": count(*[_type == "user" && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"]]),
+        "activeTeachers": count(*[_type == "user" && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"] && isActive == true]),
+        "reportedTeachers": count(*[_type == "user" && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"] && isReported == true]),
+        "newTeachersThisMonth": count(*[_type == "user" && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"] && _createdAt >= "${new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()}"])
+      }
+    `);
+
+    return { 
+      success: true, 
+      stats: {
+        totalTeachers: stats.totalTeachers || 0,
+        activeTeachers: stats.activeTeachers || 0,
+        reportedTeachers: stats.reportedTeachers || 0,
+        newTeachersThisMonth: stats.newTeachersThisMonth || 0,
+        roleBreakdown: {
+          leadTeachers: 0, // Will be calculated separately if needed
+          seniorTeachers: 0,
+          regularTeachers: 0
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching teacher stats:', error);
+    return { success: false, error: 'Failed to fetch teacher stats' };
+  }
+}
