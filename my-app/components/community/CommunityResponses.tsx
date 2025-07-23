@@ -42,6 +42,7 @@ interface Response {
     _id: string;
     username: string;
     imageURL?: string;
+    role?: string;
   };
 }
 
@@ -73,17 +74,42 @@ export default function CommunityResponses({ communityQuestionId, user, communit
     fetchData();
   };
 
-  const canApprove = user && (user.role === 'senior_teacher' || user.role === 'lead_teacher' || user.role === 'admin');
-  const canEdit = (response: Response) => user && (
-    user._id === response.author._id || 
-    user.role === 'admin' || 
-    user.role === 'teacher'
-  );
-  const canDelete = (response: Response) => user && (
-    user._id === response.author._id || 
-    user.role === 'admin' || 
-    user.role === 'teacher'
-  );
+  const canApprove = user && (user.role === 'senior_teacher' || user.role === 'lead_teacher' || user.role === 'dev' || user.role === 'admin');
+  const canEdit = (response: Response) => {
+    if (!user) return false;
+    
+    // Check if user is author or has admin/teacher role
+    const isAuthor = user._id === response.author._id;
+    const isAdmin = user.role === 'admin';
+    const isTeacher = user.role === 'teacher' || user.role === 'junior_teacher' || user.role === 'senior_teacher' || user.role === 'lead_teacher';
+    
+    if (!isAuthor && !isAdmin && !isTeacher) return false;
+    
+    // Junior teachers can only edit member content, not teacher content
+    if (user.role === 'junior_teacher' && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
+        return false;
+    }
+    
+    return true;
+  };
+  
+  const canDelete = (response: Response) => {
+    if (!user) return false;
+    
+    // Check if user is author or has admin/teacher role
+    const isAuthor = user._id === response.author._id;
+    const isAdmin = user.role === 'admin';
+    const isTeacher = user.role === 'teacher' || user.role === 'junior_teacher' || user.role === 'senior_teacher' || user.role === 'lead_teacher';
+    
+    if (!isAuthor && !isAdmin && !isTeacher) return false;
+    
+    // Junior teachers can only delete member content, not teacher content
+    if (user.role === 'junior_teacher' && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
+        return false;
+    }
+    
+    return true;
+  };
 
   if (loading) {
     return (

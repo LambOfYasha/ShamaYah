@@ -231,7 +231,7 @@ export default function NestedComment({
     }
   }
 
-  const canEdit = user && (comment.author._id === user.id || userWithRole?.role === 'admin' || userWithRole?.role === 'teacher')
+  const canEdit = user && (comment.author._id === user.id || userWithRole?.role === 'admin' || userWithRole?.role === 'teacher' || userWithRole?.role === 'junior_teacher' || userWithRole?.role === 'senior_teacher' || userWithRole?.role === 'lead_teacher')
   const canDelete = user && (comment.author._id === user.id || userWithRole?.role === 'admin')
   const maxLevel = 3 // Maximum nesting level
 

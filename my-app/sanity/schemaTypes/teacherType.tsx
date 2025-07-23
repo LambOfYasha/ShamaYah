@@ -41,6 +41,7 @@ export const teacherType = defineType({
       options: {
         list: [
           {title: 'Teacher', value: 'teacher'},
+          {title: 'Junior Teacher', value: 'junior_teacher'},
           {title: 'Senior Teacher', value: 'senior_teacher'},
           {title: 'Lead Teacher', value: 'lead_teacher'},
         ],

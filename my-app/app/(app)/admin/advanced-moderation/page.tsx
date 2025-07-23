@@ -43,7 +43,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdvancedModerationDashboard() {
   const user = await getCurrentUser();
-  if (user.role !== 'admin' && user.role !== 'teacher') {
+  if (user.role !== 'admin' && user.role !== 'teacher' && user.role !== 'junior_teacher' && user.role !== 'senior_teacher' && user.role !== 'lead_teacher') {
     redirect('/unauthorized');
   }
 

@@ -167,7 +167,7 @@ export async function getUserById(userId: string) {
   }
 }
 
-export async function updateUserRole(userId: string, newRole: 'member' | 'moderator' | 'admin' | 'teacher' | 'senior_teacher' | 'lead_teacher') {
+export async function updateUserRole(userId: string, newRole: 'member' | 'moderator' | 'admin' | 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher' | 'dev') {
   try {
     const { userId: currentUserId } = await auth();
     if (!currentUserId) {

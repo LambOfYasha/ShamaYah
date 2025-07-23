@@ -45,8 +45,13 @@ export async function editBlog(
         }
 
         // Check if user is the author or an admin/teacher
-        if (blog.author?._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
+        if (blog.author?._id !== user._id && user.role !== "admin" && user.role !== "teacher" && user.role !== "junior_teacher" && user.role !== "senior_teacher" && user.role !== "lead_teacher") {
             return { error: "You don't have permission to edit this blog" };
+        }
+
+        // Junior teachers can only edit member content, not teacher content
+        if (user.role === "junior_teacher" && blog.author?._id !== user._id && blog.author?.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(blog.author.role)) {
+            return { error: "Junior teachers cannot edit content from other teachers" };
         }
 
         // Check if new slug conflicts with existing blogs (excluding current blog)

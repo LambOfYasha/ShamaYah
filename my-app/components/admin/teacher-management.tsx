@@ -26,6 +26,7 @@ export default function TeacherManagement({ initialTeachers = [] }: TeacherManag
     dataType: 'teachers',
     roles: [
       { value: 'teacher', label: 'Teacher' },
+      { value: 'junior_teacher', label: 'Junior Teacher' },
       { value: 'senior_teacher', label: 'Senior Teacher' },
       { value: 'lead_teacher', label: 'Lead Teacher' }
     ],
@@ -77,6 +78,8 @@ export default function TeacherManagement({ initialTeachers = [] }: TeacherManag
           return 'destructive';
         case 'senior_teacher':
           return 'default';
+        case 'junior_teacher':
+          return 'outline';
         case 'teacher':
           return 'secondary';
         default:

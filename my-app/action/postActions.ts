@@ -21,7 +21,7 @@ export async function createCommunityResponse(
         }
 
         // Check if user has permission to create responses
-        if (user.role !== 'member' && user.role !== 'teacher' && user.role !== 'admin') {
+        if (user.role !== 'member' && user.role !== 'teacher' && user.role !== 'junior_teacher' && user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'admin') {
             return { error: "You don't have permission to create responses" };
         }
 
@@ -101,7 +101,7 @@ export async function approveCommunityResponse(responseId: string) {
         }
 
         // Check if user has permission to approve responses - only senior_teacher, lead_teacher, and admin
-        if (user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'admin') {
+        if (user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'dev' && user.role !== 'admin') {
             return { error: "Only Senior Teachers, Lead Teachers, and Admins can approve responses" };
         }
 
@@ -153,7 +153,7 @@ export async function unapproveCommunityResponse(responseId: string) {
         }
 
         // Check if user has permission to unapprove responses - only senior_teacher, lead_teacher, and admin
-        if (user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'admin') {
+        if (user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'dev' && user.role !== 'admin') {
             return { error: "Only Senior Teachers, Lead Teachers, and Admins can unapprove responses" };
         }
 
@@ -257,10 +257,15 @@ export async function editCommunityResponse(
         // Check if user is the author or an admin/teacher
         const isAuthor = response.author._id === user._id;
         const isAdmin = user.role === "admin";
-        const isTeacher = user.role === "teacher";
+        const isTeacher = user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher";
 
         if (!isAuthor && !isAdmin && !isTeacher) {
             return { error: "You don't have permission to edit this response" };
+        }
+
+        // Junior teachers can only edit member content, not teacher content
+        if (user.role === "junior_teacher" && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
+            return { error: "Junior teachers cannot edit content from other teachers" };
         }
 
         // Generate new slug from title
@@ -384,13 +389,17 @@ export async function deleteCommunityResponse(responseId: string) {
         // Check if user is the author or an admin/teacher
         const isAuthor = response.author._id === user._id;
         const isAdmin = user.role === "admin";
-        const isTeacher = user.role === "teacher";
+        const isTeacher = user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher";
 
         console.log("Permission check - isAuthor:", isAuthor, "isAdmin:", isAdmin, "isTeacher:", isTeacher);
 
         if (!isAuthor && !isAdmin && !isTeacher) {
-            console.error("User does not have permission to delete this response");
             return { error: "You don't have permission to delete this response" };
+        }
+
+        // Junior teachers can only delete member content, not teacher content
+        if (user.role === "junior_teacher" && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
+            return { error: "Junior teachers cannot delete content from other teachers" };
         }
 
         console.log("Permission check passed, proceeding with deletion");

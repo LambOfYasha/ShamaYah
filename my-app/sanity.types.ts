@@ -10,24 +10,53 @@ export interface SanityDocument {
 
 export interface User extends SanityDocument {
   _type: 'user'
+  id: string
   username: string
   email: string
   imageURL?: string
-  role: 'user' | 'admin' | 'moderator' | 'teacher'
-  createdAt: string
-  updatedAt?: string
+  role: 'user' | 'admin' | 'moderator' | 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher' | 'dev'
+  joinedAt: string
+  isActive: boolean
+  lastActive?: string
+  postCount: number
+  commentCount: number
+  reportCount: number
+  isReported: boolean
+  isDeleted: boolean
+  deletedAt?: string
+  deletedBy?: string
+  bio?: string
+  preferences?: {
+    notifications?: {
+      email: boolean
+      push: boolean
+    }
+    privacy?: {
+      profileVisible: boolean
+      activityVisible: boolean
+    }
+  }
+  blog?: Reference<'blog'>
+  communityQuestion?: Reference<'communityQuestion'>
+  teacherRole?: 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher'
+  specializations?: string[]
+  qualifications?: string[]
+  experience?: number
+  rating?: number
+  totalStudents?: number
+  coursesCreated?: number
 }
 
 export interface Teacher extends SanityDocument {
   _type: 'teacher'
+  id: string
   username: string
   email: string
   imageURL?: string
-  role: 'teacher'
-  specialization?: string
-  bio?: string
-  createdAt: string
-  updatedAt?: string
+  role: 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher'
+  specializations?: string[]
+  joinedAt: string
+  isReported: boolean
 }
 
 export interface Blog extends SanityDocument {

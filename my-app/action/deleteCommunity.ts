@@ -139,20 +139,20 @@ export async function deleteCommunity(communityId: string) {
         // Check if user is the moderator or an admin/teacher
         const isModerator = community.moderator?._id === user._id;
         const isAdmin = user.role === "admin";
-        const isTeacher = user.role === "teacher";
+        const isTeacher = user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher";
         
         console.log("Permission check - isModerator:", isModerator, "isAdmin:", isAdmin, "isTeacher:", isTeacher);
-        
-        // If no moderator is set, only allow admins and teachers to delete
-        if (!community.hasModerator) {
-            console.log("No moderator set for this community question");
-            if (!isAdmin && !isTeacher) {
-                console.error("User does not have permission to delete this community question (no moderator set)");
-                return { error: "Only admins and teachers can delete community questions without moderators" };
-            }
-        } else if (!isModerator && !isAdmin && !isTeacher) {
-            console.error("User does not have permission to delete this community question");
-            return { error: "You don't have permission to delete this community question" };
+
+        // Check if user has permission to delete
+        if (!isModerator && !isAdmin && !isTeacher) {
+            console.error("User does not have permission to delete this community");
+            return { error: "You don't have permission to delete this community" };
+        }
+
+        // Junior teachers can only delete member content, not teacher content
+        if (user.role === "junior_teacher" && community.moderator?.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(community.moderator.role)) {
+            console.error("Junior teachers cannot delete teacher content");
+            return { error: "Junior teachers cannot delete content from other teachers" };
         }
 
         console.log("Permission check passed, proceeding with deletion");

@@ -44,6 +44,10 @@ export const userType = defineType({
           {title: 'Moderator', value: 'moderator'},
           {title: 'Admin', value: 'admin'},
           {title: 'Teacher', value: 'teacher'},
+          {title: 'Junior Teacher', value: 'junior_teacher'},
+          {title: 'Senior Teacher', value: 'senior_teacher'},
+          {title: 'Lead Teacher', value: 'lead_teacher'},
+          {title: 'Dev', value: 'dev'},
         ],
         layout: 'radio'
       },
@@ -194,12 +198,13 @@ export const userType = defineType({
       options: {
         list: [
           {title: 'Teacher', value: 'teacher'},
+          {title: 'Junior Teacher', value: 'junior_teacher'},
           {title: 'Senior Teacher', value: 'senior_teacher'},
           {title: 'Lead Teacher', value: 'lead_teacher'},
         ],
         layout: 'radio'
       },
-      hidden: ({document}) => document?.role !== 'teacher',
+      hidden: ({document}) => !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(document?.role),
     }),
     defineField({
       name: 'specializations',
@@ -226,7 +231,7 @@ export const userType = defineType({
           'Archaeology'
         ]
       },
-      hidden: ({document}) => document?.role !== 'teacher',
+      hidden: ({document}) => !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(document?.role),
     }),
     defineField({
       name: 'qualifications',
@@ -234,14 +239,14 @@ export const userType = defineType({
       type: 'array',
       description: 'Academic qualifications and degrees',
       of: [{type: 'string'}],
-      hidden: ({document}) => document?.role !== 'teacher',
+      hidden: ({document}) => !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(document?.role),
     }),
     defineField({
       name: 'experience',
       title: 'Years of Experience',
       type: 'number',
       description: 'Number of years of teaching experience',
-      hidden: ({document}) => document?.role !== 'teacher',
+      hidden: ({document}) => !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(document?.role),
     }),
     defineField({
       name: 'rating',
@@ -249,7 +254,7 @@ export const userType = defineType({
       type: 'number',
       description: 'Average rating from students (1-5)',
       validation: (Rule) => Rule.min(1).max(5),
-      hidden: ({document}) => document?.role !== 'teacher',
+      hidden: ({document}) => !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(document?.role),
     }),
     defineField({
       name: 'totalStudents',
@@ -257,7 +262,7 @@ export const userType = defineType({
       type: 'number',
       description: 'Total number of students taught',
       initialValue: 0,
-      hidden: ({document}) => document?.role !== 'teacher',
+      hidden: ({document}) => !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(document?.role),
     }),
     defineField({
       name: 'coursesCreated',
@@ -265,7 +270,7 @@ export const userType = defineType({
       type: 'number',
       description: 'Number of courses created by this teacher',
       initialValue: 0,
-      hidden: ({document}) => document?.role !== 'teacher',
+      hidden: ({document}) => !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(document?.role),
     }),
   ],
   preview: {

@@ -103,7 +103,7 @@ export async function getGuidelines(category?: string) {
       throw new Error('User not found');
     }
 
-    if (userResult.role !== 'admin' && userResult.role !== 'teacher') {
+    if (userResult.role !== 'admin' && userResult.role !== 'teacher' && userResult.role !== 'junior_teacher' && userResult.role !== 'senior_teacher' && userResult.role !== 'lead_teacher') {
       throw new Error('Insufficient permissions');
     }
 
@@ -138,7 +138,7 @@ export async function getGuidelineStats() {
       throw new Error('User not found');
     }
 
-    if (userResult.role !== 'admin' && userResult.role !== 'teacher') {
+    if (userResult.role !== 'admin' && userResult.role !== 'teacher' && userResult.role !== 'junior_teacher' && userResult.role !== 'senior_teacher' && userResult.role !== 'lead_teacher') {
       throw new Error('Insufficient permissions');
     }
 

@@ -151,7 +151,7 @@ export class UserService {
         "newUsersThisMonth": count(*[_type == "user" && isDeleted != true && _createdAt >= $startOfMonth]),
         "roleBreakdown": {
           "admins": count(*[_type == "user" && isDeleted != true && role == "admin"]),
-          "teachers": count(*[_type == "user" && isDeleted != true && role == "teacher"]),
+          "teachers": count(*[_type == "user" && isDeleted != true && (role == "teacher" || role == "junior_teacher" || role == "senior_teacher" || role == "lead_teacher")]),
           "members": count(*[_type == "user" && isDeleted != true && role == "member"])
         }
       }`, {
@@ -165,7 +165,7 @@ export class UserService {
     }
   }
 
-  static async updateUserRole(userId: string, newRole: 'member' | 'moderator' | 'admin' | 'teacher' | 'senior_teacher' | 'lead_teacher') {
+  static async updateUserRole(userId: string, newRole: 'member' | 'moderator' | 'admin' | 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher' | 'dev') {
     try {
       await adminClient
         .patch(userId)

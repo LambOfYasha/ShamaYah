@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate that the role is a valid UserRole
-    const validRoles = ['member', 'moderator', 'admin', 'teacher', 'senior_teacher', 'lead_teacher'] as const;
+    const validRoles = ['member', 'moderator', 'admin', 'teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev'] as const;
     if (!validRoles.includes(role as any)) {
       return NextResponse.json(
         { error: 'Invalid role provided' }, 
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const updatedUser = await assignRole(userId, role as 'member' | 'moderator' | 'admin' | 'teacher' | 'senior_teacher' | 'lead_teacher');
+    const updatedUser = await assignRole(userId, role as 'member' | 'moderator' | 'admin' | 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher' | 'dev');
     
     return NextResponse.json({ 
       success: true, 

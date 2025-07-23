@@ -84,9 +84,15 @@ export async function deleteBlog(blogId: string) {
         console.log("Current user role:", user.role);
 
         // Check if user is the author or an admin/teacher
-        if (blog.author?._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
+        if (blog.author?._id !== user._id && user.role !== "admin" && user.role !== "teacher" && user.role !== "junior_teacher" && user.role !== "senior_teacher" && user.role !== "lead_teacher") {
             console.error("User does not have permission to delete this blog");
             return { error: "You don't have permission to delete this blog" };
+        }
+
+        // Junior teachers can only delete member content, not teacher content
+        if (user.role === "junior_teacher" && blog.author?.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(blog.author.role)) {
+            console.error("Junior teachers cannot delete teacher content");
+            return { error: "Junior teachers cannot delete content from other teachers" };
         }
 
         console.log("Permission check passed, proceeding with deletion");

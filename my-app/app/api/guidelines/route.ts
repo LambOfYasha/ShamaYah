@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is admin or teacher
-    if (userResult.role !== 'admin' && userResult.role !== 'teacher') {
+    if (userResult.role !== 'admin' && userResult.role !== 'teacher' && userResult.role !== 'junior_teacher' && userResult.role !== 'senior_teacher' && userResult.role !== 'lead_teacher') {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 

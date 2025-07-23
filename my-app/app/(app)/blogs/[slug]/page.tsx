@@ -100,7 +100,7 @@ export default async function BlogPage({
   const canEdit = user && (
     user._id === blog.author?._id || 
     user.role === "admin" ||
-    user.role === "teacher"
+    user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher"
   );
 
   const canDelete = user && (
@@ -309,7 +309,7 @@ export default async function BlogPage({
               <div>
                 <h3 className="font-semibold text-lg">{blog.author.username}</h3>
                 <p className="text-gray-600 text-sm">
-                  {blog.author.role === "teacher" ? "Teacher" : "Author"}
+                  {blog.author.role === "teacher" || blog.author.role === "junior_teacher" || blog.author.role === "senior_teacher" || blog.author.role === "lead_teacher" ? "Teacher" : "Author"}
                 </p>
                 <p className="text-gray-500 text-sm">
                   Published on {new Date(blog.createdAt || blog._createdAt).toLocaleDateString()}

@@ -32,7 +32,7 @@ export function useRole() {
     fetchUserRole();
   }, [user, isLoaded]);
 
-  const hasRolePermission = (permission: 'canCreatePosts' | 'canComment' | 'canCreateCommunities' | 'canModerate' | 'canManageUsers' | 'canManageTeachers' | 'canAccessAdminPanel' | 'canManageBlogs') => {
+  const hasRolePermission = (permission: 'canCreatePosts' | 'canComment' | 'canCreateCommunities' | 'canModerate' | 'canManageUsers' | 'canManageTeachers' | 'canAccessAdminPanel' | 'canManageBlogs' | 'canDeleteMembers' | 'canGiveTeacherApprovals' | 'canDeleteOtherContent') => {
     if (!userWithRole) return false;
     return hasPermission(userWithRole.role, permission);
   };
@@ -41,9 +41,10 @@ export function useRole() {
     if (!userWithRole) return false;
     return userWithRole.role === requiredRole || 
            (userWithRole.role === 'admin') ||
-           (userWithRole.role === 'lead_teacher' && ['teacher', 'senior_teacher', 'moderator'].includes(requiredRole)) ||
-           (userWithRole.role === 'senior_teacher' && ['teacher', 'moderator'].includes(requiredRole)) ||
-           (userWithRole.role === 'moderator' && requiredRole === 'teacher');
+           (userWithRole.role === 'lead_teacher' && ['teacher', 'junior_teacher', 'senior_teacher', 'moderator'].includes(requiredRole)) ||
+           (userWithRole.role === 'dev' && ['teacher', 'junior_teacher', 'senior_teacher', 'moderator'].includes(requiredRole)) ||
+           (userWithRole.role === 'senior_teacher' && ['teacher', 'junior_teacher', 'moderator'].includes(requiredRole)) ||
+           (userWithRole.role === 'moderator' && ['teacher', 'junior_teacher'].includes(requiredRole));
   };
 
   return {

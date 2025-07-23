@@ -22,7 +22,7 @@ export default async function ModerationDashboard() {
   const user = await getCurrentUser();
 
   // Check if user has admin or teacher role
-  if (user.role !== 'admin' && user.role !== 'teacher') {
+  if (user.role !== 'admin' && user.role !== 'teacher' && user.role !== 'junior_teacher' && user.role !== 'senior_teacher' && user.role !== 'lead_teacher') {
     redirect('/unauthorized');
   }
 
@@ -107,7 +107,7 @@ export default async function ModerationDashboard() {
           <div className="flex items-center gap-2">
             <Shield className="w-6 h-6 text-blue-600" />
             <span className="text-sm text-gray-600">
-              {user.role === 'admin' ? 'Administrator' : 'Teacher'} Access
+              {user.role === 'admin' ? 'Administrator' : user.role === 'lead_teacher' ? 'Lead Teacher' : user.role === 'senior_teacher' ? 'Senior Teacher' : user.role === 'junior_teacher' ? 'Junior Teacher' : 'Teacher'} Access
             </span>
           </div>
         </div>

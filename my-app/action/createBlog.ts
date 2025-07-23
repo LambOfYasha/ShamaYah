@@ -31,7 +31,7 @@ export async function createBlogPost(
 
         console.log("User role:", user.role)
         // Check if user has permission to create blogs (admin or teacher)
-        if (user.role !== "admin" && user.role !== "teacher") {
+        if (user.role !== "admin" && user.role !== "teacher" && user.role !== "junior_teacher" && user.role !== "senior_teacher" && user.role !== "lead_teacher") {
             console.log("User doesn't have permission to create blogs")
             return { error: "You don't have permission to create blog posts" }
         }

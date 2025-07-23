@@ -25,12 +25,24 @@ export default function UserManagement({ initialUsers = [] }: UserManagementProp
     roles: [
       { value: 'member', label: 'Member' },
       { value: 'teacher', label: 'Teacher' },
+      { value: 'junior_teacher', label: 'Junior Teacher' },
+      { value: 'senior_teacher', label: 'Senior Teacher' },
+      { value: 'lead_teacher', label: 'Lead Teacher' },
+      { value: 'dev', label: 'Dev' },
       { value: 'admin', label: 'Admin' }
     ],
     getRoleBadgeVariant: (role: string) => {
       switch (role) {
         case 'admin':
           return 'destructive';
+        case 'lead_teacher':
+          return 'default';
+        case 'dev':
+          return 'secondary';
+        case 'senior_teacher':
+          return 'outline';
+        case 'junior_teacher':
+          return 'outline';
         case 'teacher':
           return 'default';
         case 'member':

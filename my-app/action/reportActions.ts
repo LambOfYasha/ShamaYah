@@ -16,7 +16,7 @@ export async function generateReport(config: any) {
       throw new Error('User not found');
     }
 
-    if (userResult.role !== 'admin' && userResult.role !== 'teacher') {
+    if (userResult.role !== 'admin' && userResult.role !== 'teacher' && userResult.role !== 'junior_teacher' && userResult.role !== 'senior_teacher' && userResult.role !== 'lead_teacher') {
       throw new Error('Insufficient permissions');
     }
 
@@ -40,7 +40,7 @@ export async function exportReport(reportId: string, format: string) {
       throw new Error('User not found');
     }
 
-    if (userResult.role !== 'admin' && userResult.role !== 'teacher') {
+    if (userResult.role !== 'admin' && userResult.role !== 'teacher' && userResult.role !== 'junior_teacher' && userResult.role !== 'senior_teacher' && userResult.role !== 'lead_teacher') {
       throw new Error('Insufficient permissions');
     }
 
@@ -132,7 +132,7 @@ export async function getReportTemplates() {
       throw new Error('User not found');
     }
 
-    if (userResult.role !== 'admin' && userResult.role !== 'teacher') {
+    if (userResult.role !== 'admin' && userResult.role !== 'teacher' && userResult.role !== 'junior_teacher' && userResult.role !== 'senior_teacher' && userResult.role !== 'lead_teacher') {
       throw new Error('Insufficient permissions');
     }
 
@@ -156,8 +156,8 @@ export async function scheduleReport(schedule: 'daily' | 'weekly' | 'monthly', r
       throw new Error('User not found');
     }
 
-    if (userResult.role !== 'admin') {
-      throw new Error('Admin access required');
+    if (userResult.role !== 'admin' && userResult.role !== 'teacher' && userResult.role !== 'junior_teacher' && userResult.role !== 'senior_teacher' && userResult.role !== 'lead_teacher') {
+      throw new Error('Insufficient permissions');
     }
 
     await ReportingService.generateScheduledReport(schedule, recipients);

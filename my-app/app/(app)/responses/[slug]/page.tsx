@@ -146,10 +146,42 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
-  const canApprove = user && (user.role === 'admin' || user.role === 'senior_teacher' || user.role === 'lead_teacher');
+  const canApprove = user && (user.role === 'admin' || user.role === 'senior_teacher' || user.role === 'lead_teacher' || user.role === 'dev');
   const isAuthor = user && user._id === response.author._id;
-  const canEdit = user && (user._id === response.author._id || user.role === 'admin' || user.role === 'teacher');
-  const canDelete = user && (user._id === response.author._id || user.role === 'admin' || user.role === 'teacher');
+  
+  const canEdit = (response: any) => {
+      if (!user) return false;
+      
+      const isAuthor = user._id === response.author._id;
+      const isAdmin = user.role === 'admin';
+      const isTeacher = user.role === 'teacher' || user.role === 'junior_teacher' || user.role === 'senior_teacher' || user.role === 'lead_teacher';
+      
+      if (!isAuthor && !isAdmin && !isTeacher) return false;
+      
+      // Junior teachers can only edit member content, not teacher content
+      if (user.role === 'junior_teacher' && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
+          return false;
+      }
+      
+      return true;
+  };
+  
+  const canDelete = (response: any) => {
+      if (!user) return false;
+      
+      const isAuthor = user._id === response.author._id;
+      const isAdmin = user.role === 'admin';
+      const isTeacher = user.role === 'teacher' || user.role === 'junior_teacher' || user.role === 'senior_teacher' || user.role === 'lead_teacher';
+      
+      if (!isAuthor && !isAdmin && !isTeacher) return false;
+      
+      // Junior teachers can only delete member content, not teacher content
+      if (user.role === 'junior_teacher' && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
+          return false;
+      }
+      
+      return true;
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -314,7 +346,7 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
                 </Link>
               </div>
               <div className="flex items-center gap-2">
-                {canEdit && (
+                {canEdit(response) && (
                   <EditResponseButton
                     responseId={response._id}
                     currentTitle={response.title}
@@ -323,7 +355,7 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
                     variant="outline"
                   />
                 )}
-                {canDelete && (
+                {canDelete(response) && (
                   <DeleteResponseButton
                     responseId={response._id}
                     responseTitle={response.title}

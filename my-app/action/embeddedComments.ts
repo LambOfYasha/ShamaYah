@@ -145,8 +145,13 @@ export async function editEmbeddedComment(postId: string, postType: 'blog' | 'co
                 const comment = parentComment;
                 
                 // Check if user is the author of the comment
-                if (comment.author._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
+                if (comment.author._id !== user._id && user.role !== "admin" && user.role !== "teacher" && user.role !== "junior_teacher" && user.role !== "senior_teacher" && user.role !== "lead_teacher") {
                     return { error: "You don't have permission to edit this comment" };
+                }
+
+                // Junior teachers can only edit member content, not teacher content
+                if (user.role === "junior_teacher" && comment.author._id !== user._id && comment.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(comment.author.role)) {
+                    return { error: "Junior teachers cannot edit content from other teachers" };
                 }
 
                 // Update the comment
@@ -162,8 +167,13 @@ export async function editEmbeddedComment(postId: string, postType: 'blog' | 'co
                     const targetReply = parentComment.replies[replyIndex];
                     
                     // Check if user is the author of the comment
-                    if (targetReply.author._id !== user._id && user.role !== "admin" && user.role !== "teacher") {
+                    if (targetReply.author._id !== user._id && user.role !== "admin" && user.role !== "teacher" && user.role !== "junior_teacher" && user.role !== "senior_teacher" && user.role !== "lead_teacher") {
                         return { error: "You don't have permission to edit this comment" };
+                    }
+
+                    // Junior teachers can only edit member content, not teacher content
+                    if (user.role === "junior_teacher" && targetReply.author._id !== user._id && targetReply.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(targetReply.author.role)) {
+                        return { error: "Junior teachers cannot edit content from other teachers" };
                     }
 
                     // Update the reply

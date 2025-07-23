@@ -51,7 +51,7 @@ export async function getAllTeachers(filters: TeacherFilters = {}) {
     }
 
     // Build GROQ query with filters
-    let query = `*[_type == "user" && role == "teacher" && isDeleted != true`;
+    let query = `*[_type == "user" && (role == "teacher" || role == "junior_teacher" || role == "senior_teacher" || role == "lead_teacher") && isDeleted != true`;
     
     if (filters.search) {
       query += ` && (username match "*${filters.search}*" || email match "*${filters.search}*")`;
@@ -112,7 +112,7 @@ export async function getAllTeachers(filters: TeacherFilters = {}) {
     const teachers = await adminClient.fetch(query);
     
     // Get total count for pagination
-    let countQuery = `count(*[_type == "user" && role == "teacher" && isDeleted != true`;
+    let countQuery = `count(*[_type == "user" && (role == "teacher" || role == "junior_teacher" || role == "senior_teacher" || role == "lead_teacher") && isDeleted != true`;
     if (filters.search) {
       countQuery += ` && (username match "*${filters.search}*" || email match "*${filters.search}*")`;
     }
@@ -161,7 +161,7 @@ export async function getTeacherById(teacherId: string) {
       return { success: false, error: 'Insufficient permissions' };
     }
 
-    const teacher = await adminClient.fetch(`*[_type == "user" && _id == $teacherId && role == "teacher" && isDeleted != true][0] {
+    const teacher = await adminClient.fetch(`*[_type == "user" && _id == $teacherId && (role == "teacher" || role == "junior_teacher" || role == "senior_teacher" || role == "lead_teacher") && isDeleted != true][0] {
       _id,
       username,
       email,
@@ -195,7 +195,7 @@ export async function getTeacherById(teacherId: string) {
   }
 }
 
-export async function updateTeacherRole(teacherId: string, newRole: 'teacher' | 'senior_teacher' | 'lead_teacher') {
+export async function updateTeacherRole(teacherId: string, newRole: 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher') {
   try {
     const { userId: currentUserId } = await auth();
     if (!currentUserId) {
@@ -317,75 +317,4 @@ export async function getTeacherStats() {
       return { success: false, error: 'Insufficient permissions' };
     }
 
-    const stats = await adminClient.fetch(`{
-      "totalTeachers": count(*[_type == "user" && role == "teacher" && isDeleted != true]),
-      "activeTeachers": count(*[_type == "user" && role == "teacher" && isDeleted != true && isActive == true]),
-      "reportedTeachers": count(*[_type == "user" && role == "teacher" && isDeleted != true && isReported == true]),
-      "newTeachersThisMonth": count(*[_type == "user" && role == "teacher" && isDeleted != true && _createdAt >= $startOfMonth]),
-      "roleBreakdown": {
-        "seniorTeachers": count(*[_type == "user" && role == "teacher" && isDeleted != true && teacherRole == "senior_teacher"]),
-        "leadTeachers": count(*[_type == "user" && role == "teacher" && isDeleted != true && teacherRole == "lead_teacher"]),
-        "regularTeachers": count(*[_type == "user" && role == "teacher" && isDeleted != true && teacherRole == "teacher"])
-      },
-      "specializationBreakdown": {
-        "theology": count(*[_type == "user" && role == "teacher" && isDeleted != true && "Theology" in specializations[]]),
-        "biblicalStudies": count(*[_type == "user" && role == "teacher" && isDeleted != true && "Biblical Studies" in specializations[]]),
-        "churchHistory": count(*[_type == "user" && role == "teacher" && isDeleted != true && "Church History" in specializations[]]),
-        "systematicTheology": count(*[_type == "user" && role == "teacher" && isDeleted != true && "Systematic Theology" in specializations[]])
-      }
-    }`, {
-      startOfMonth: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
-    });
-
-    return { success: true, stats };
-  } catch (error) {
-    console.error('Error fetching teacher stats:', error);
-    return { success: false, error: 'Failed to fetch teacher stats' };
-  }
-}
-
-export async function bulkUpdateTeachers(teacherIds: string[], updates: Partial<TeacherData>) {
-  try {
-    const { userId } = await auth();
-    if (!userId) {
-      return { success: false, error: 'Unauthorized' };
-    }
-
-    const currentUser = await getUser();
-    if ('error' in currentUser || currentUser.role !== 'admin') {
-      return { success: false, error: 'Insufficient permissions' };
-    }
-
-    const transaction = adminClient.transaction();
-    
-    teacherIds.forEach(teacherId => {
-      transaction.patch(teacherId, {
-        set: {
-          ...updates,
-          updatedAt: new Date().toISOString(),
-          updatedBy: currentUser._id
-        }
-      });
-    });
-
-    await transaction.commit();
-
-    return { 
-      success: true, 
-      message: `Updated ${teacherIds.length} teachers successfully` 
-    };
-  } catch (error) {
-    console.error('Error bulk updating teachers:', error);
-    return { success: false, error: 'Failed to bulk update teachers' };
-  }
-}
-
-export async function getTeacherSpecializations() {
-  try {
-    const specializations = await adminClient.fetch(`array::distinct(*[_type == "user" && role == "teacher" && isDeleted != true].specializations[])`);
-    return { success: true, specializations };
-  } catch (error) {
-    console.error('Error fetching teacher specializations:', error);
-    return { success: false, error: 'Failed to fetch specializations' };
-  }
-} 
+    const stats = await adminClient.fetch(`

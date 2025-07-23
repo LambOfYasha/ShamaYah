@@ -150,7 +150,7 @@ export default function AppSidebar() {
   }, [hasFetchedBlogs]); // Only depend on hasFetchedBlogs to prevent infinite loops
 
   // Check if user can create blogs (admin or teacher)
-  const canCreateBlogs = userRole === "admin" || userRole === "teacher";
+  const canCreateBlogs = userRole === "admin" || userRole === "teacher" || userRole === "junior_teacher" || userRole === "senior_teacher" || userRole === "lead_teacher";
   
   return (
     <>

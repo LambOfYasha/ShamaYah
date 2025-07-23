@@ -232,7 +232,7 @@ export async function sendTestNotification() {
     // Helper function to map UserRole to notification role
     const mapRoleForNotification = (role: string): 'user' | 'teacher' | 'admin' => {
       if (role === 'admin') return 'admin';
-      if (role === 'teacher' || role === 'senior_teacher' || role === 'lead_teacher') return 'teacher';
+      if (role === 'teacher' || role === 'junior_teacher' || role === 'senior_teacher' || role === 'lead_teacher') return 'teacher';
       return 'user'; // member, moderator, etc.
     };
 
