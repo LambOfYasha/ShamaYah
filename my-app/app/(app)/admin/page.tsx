@@ -11,7 +11,8 @@ import {
   Settings,
   ArrowRight,
   BookOpen,
-  Flag
+  Flag,
+  Tag
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -155,6 +156,29 @@ export default async function AdminPage() {
                 <Button asChild className="w-full">
                   <Link href="/admin/blogs">
                     Manage Blogs
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </RoleGuard>
+
+          {/* Tags Management */}
+          <RoleGuard permission="canManageBlogs">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <Tag className="h-5 w-5 text-purple-600" />
+                  <CardTitle>Tags Management</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Create and manage tags for blog posts
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/tags">
+                    Manage Tags
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>

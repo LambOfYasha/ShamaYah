@@ -20,7 +20,8 @@ export async function GET(request: Request) {
       *[_type == "blog" && (isDeleted == false || isDeleted == null) && (
         title match $searchTerm + "*" ||
         description match $searchTerm + "*" ||
-        content[0].children[0].text match $searchTerm + "*"
+        content[0].children[0].text match $searchTerm + "*" ||
+        tags[]->name match $searchTerm + "*"
       )] | order(createdAt desc) [0...$limit] {
         _id,
         _type,
@@ -34,7 +35,13 @@ export async function GET(request: Request) {
         },
         createdAt,
         image,
-        "excerpt": content[0].children[0].text
+        "excerpt": content[0].children[0].text,
+        "tags": tags[]->{
+          _id,
+          name,
+          "slug": slug.current,
+          color
+        }
       }
     `);
 

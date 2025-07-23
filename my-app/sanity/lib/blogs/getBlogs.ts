@@ -19,6 +19,12 @@ export interface BlogWithAuthor {
     };
     alt?: string;
   };
+  tags?: Array<{
+    _id: string;
+    name: string;
+    slug: string;
+    color: string;
+  }>;
 }
 
 const getBlogsQuery = defineQuery(`
@@ -34,7 +40,13 @@ const getBlogsQuery = defineQuery(`
       imageURL
     },
     createdAt,
-    image
+    image,
+    "tags": tags[]->{
+      _id,
+      name,
+      "slug": slug.current,
+      color
+    }
   }
 `)
 

@@ -18,7 +18,8 @@ export async function editBlog(
     description: string,
     slug: string,
     content: string,
-    imageData: ImageData | null
+    imageData: ImageData | null,
+    tags?: string[]
 ) {
     try {
         const user = await getUser();
@@ -90,6 +91,14 @@ export async function editBlog(
             },
             content: content,
         };
+
+        // Add tags if provided
+        if (tags) {
+            updateData.tags = tags.map(tagId => ({
+                _type: "reference",
+                _ref: tagId,
+            }));
+        }
 
         if (imageAsset) {
             updateData.image = {

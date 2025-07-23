@@ -28,9 +28,16 @@ import { editBlog } from "@/action/editBlog";
 import { getImageUrl } from "@/lib/utils";
 import { ReportButton } from "@/components/ui/report-button";
 import RichContentRenderer from "@/components/ui/rich-content-renderer";
+import { TagList } from "@/components/ui/tag";
 
 interface BlogWithAuthor extends Omit<Blog, 'author'> {
   author?: Teacher;
+  tags?: Array<{
+    _id: string;
+    name: string;
+    slug: string;
+    color: string;
+  }>;
 }
 
 async function getBlog(slug: string): Promise<BlogWithAuthor | null> {
@@ -49,7 +56,13 @@ async function getBlog(slug: string): Promise<BlogWithAuthor | null> {
         role
       },
       createdAt,
-      _createdAt
+      _createdAt,
+      "tags": tags[]->{
+        _id,
+        name,
+        "slug": slug.current,
+        color
+      }
     }
   `);
 
@@ -108,7 +121,8 @@ export default async function BlogPage({
       current: blog.slug?.current || ''
     },
     content: blog.content || '',
-    image: blog.image
+    image: blog.image,
+    tags: blog.tags || []
   };
 
   const handleEditBlog = async (data: {
@@ -119,6 +133,7 @@ export default async function BlogPage({
     imageBase64?: string;
     imageFilename?: string;
     imageContentType?: string;
+    tags?: string[];
   }): Promise<void> => {
     'use server';
     
@@ -134,7 +149,8 @@ export default async function BlogPage({
       data.description,
       data.slug,
       data.content,
-      imageData
+      imageData,
+      data.tags
     );
 
     if ("error" in result) {
@@ -195,10 +211,11 @@ export default async function BlogPage({
               </div>
 
               {/* Tags/Categories */}
-              <div className="flex gap-2 mb-4">
-                <Badge variant="secondary">Teaching</Badge>
-                <Badge variant="secondary">Education</Badge>
-              </div>
+              {blog.tags && blog.tags.length > 0 && (
+                <div className="mb-4">
+                  <TagList tags={blog.tags} />
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}

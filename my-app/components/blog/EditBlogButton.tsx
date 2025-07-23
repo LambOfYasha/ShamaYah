@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { ImageIcon, Edit, X } from 'lucide-react';
 import Image from 'next/image';
 import { useModeration } from '@/hooks/useModeration';
 import { ModerationFeedback } from '@/components/ui/moderation-feedback';
+import { TagSelector } from '@/components/ui/tag-selector';
 
 interface Blog {
   _id: string;
@@ -23,6 +24,12 @@ interface Blog {
       _ref: string;
     };
   };
+  tags?: Array<{
+    _id: string;
+    name: string;
+    slug: string;
+    color: string;
+  }>;
 }
 
 interface EditBlogButtonProps {
@@ -35,6 +42,7 @@ interface EditBlogButtonProps {
     imageBase64?: string;
     imageFilename?: string;
     imageContentType?: string;
+    tags?: string[];
   }) => Promise<void>;
 }
 
@@ -65,7 +73,23 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>(blog.tags?.map(tag => tag._id) || []);
+  const [availableTags, setAvailableTags] = useState<Array<{_id: string; name: string; slug: string; color: string; description?: string}>>([]);
   const router = useRouter();
+
+  // Fetch available tags when dialog opens
+  useEffect(() => {
+    if (open) {
+      fetch('/api/tags')
+        .then(res => res.json())
+        .then(data => {
+          if (data.tags) {
+            setAvailableTags(data.tags)
+          }
+        })
+        .catch(err => console.error('Failed to fetch tags:', err))
+    }
+  }, [open])
 
   // Initialize moderation for blog content
   const {
@@ -136,6 +160,7 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
     setContent(convertContentToHtml(blog.content));
     setImagePreview(null);
     setImageFile(null);
+    setSelectedTags(blog.tags?.map(tag => tag._id) || []);
     clearModeration();
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -200,6 +225,7 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
         imageBase64,
         imageFilename: fileName,
         imageContentType: fileType,
+        tags: selectedTags,
       });
 
       setOpen(false);
@@ -300,6 +326,15 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
                   />
                 </div>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <TagSelector
+                selectedTags={selectedTags}
+                onTagsChange={setSelectedTags}
+                availableTags={availableTags}
+                label="Tags (Optional)"
+              />
             </div>
 
             <div className="space-y-2">

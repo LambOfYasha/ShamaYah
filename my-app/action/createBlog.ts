@@ -16,7 +16,8 @@ export async function createBlogPost(
     imageContentType: string | null | undefined,
     slug?: string,
     description?: string,
-    content?: string
+    content?: string,
+    tags?: string[]
 ) {
     try {
         console.log("Starting createBlogPost with title:", title)
@@ -50,7 +51,8 @@ export async function createBlogPost(
             imageData,
             slug,
             description || "",
-            content || ""
+            content || "",
+            tags
         )
 
         return result

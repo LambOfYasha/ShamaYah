@@ -1,8 +1,11 @@
 import { getCurrentUser } from "@/lib/auth/middleware";
+import { getBlogs } from "@/sanity/lib/blogs/getBlogs";
+import { getTags } from "@/sanity/lib/blogs/getTags";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { TagList } from "@/components/ui/tag";
 import { 
   Search, 
   Filter, 
@@ -16,89 +19,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import CreateBlogButton from "@/components/header/CreateBlogButton";
+import { formatDistanceToNow } from 'date-fns';
 
 export default async function MemberBlogsPage() {
   const user = await getCurrentUser();
+  const blogs = await getBlogs();
+  const tags = await getTags();
 
-  // Mock data - replace with actual data fetching
-  const featuredBlogs = [
-    {
-      _id: "1",
-      title: "Understanding the Trinity",
-      description: "A comprehensive guide to understanding the complex nature of the Trinity and its significance in Christian theology.",
-      author: {
-        username: "Dr. Sarah Johnson",
-        role: "teacher"
-      },
-      createdAt: "2024-01-15",
-      category: "Theology",
-      views: 1250,
-      likes: 89,
-      comments: 23,
-      isLiked: true,
-      isSaved: false,
-    },
-    {
-      _id: "2",
-      title: "The Power of Prayer in Daily Life",
-      description: "How to integrate prayer into your daily routine and experience its transformative power in your spiritual journey.",
-      author: {
-        username: "Pastor Michael Chen",
-        role: "teacher"
-      },
-      createdAt: "2024-01-05",
-      category: "Spiritual Life",
-      views: 432,
-      likes: 28,
-      comments: 12,
-      isLiked: false,
-      isSaved: true,
-    },
-  ];
-
-  const recentBlogs = [
-    {
-      _id: "3",
-      title: "Biblical Interpretation Methods",
-      description: "Learn about different approaches to interpreting biblical texts and their historical context.",
-      author: {
-        username: "Prof. David Wilson",
-        role: "teacher"
-      },
-      createdAt: "2024-01-10",
-      category: "Biblical Studies",
-      views: 890,
-      likes: 45,
-      comments: 18,
-      isLiked: false,
-      isSaved: false,
-    },
-    {
-      _id: "4",
-      title: "Christian Living in the Digital Age",
-      description: "Navigating faith and technology in today's connected world while maintaining spiritual values.",
-      author: {
-        username: "Rev. Lisa Thompson",
-        role: "teacher"
-      },
-      createdAt: "2024-01-08",
-      category: "Christian Living",
-      views: 567,
-      likes: 32,
-      comments: 15,
-      isLiked: true,
-      isSaved: true,
-    },
-  ];
-
-  const categories = [
-    "All",
-    "Biblical Studies",
-    "Spiritual Life", 
-    "Church History",
-    "Theology",
-    "Christian Living"
-  ];
+  // Separate featured and recent blogs
+  const featuredBlogs = blogs.slice(0, 2);
+  const recentBlogs = blogs.slice(2, 6);
 
   return (
     <div className="p-6">
@@ -134,141 +64,136 @@ export default async function MemberBlogsPage() {
           </div>
         </div>
 
-        {/* Category Filter */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Badge 
-                key={category} 
-                variant={category === "All" ? "default" : "outline"}
-                className="cursor-pointer hover:bg-gray-100"
-              >
-                {category}
-              </Badge>
-            ))}
+        {/* Tags Filter */}
+        {tags.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Filter by tags:</h3>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/dashboard/blogs">
+                <Badge variant="default" className="cursor-pointer">
+                  All
+                </Badge>
+              </Link>
+              {tags.slice(0, 8).map((tag) => (
+                <Link key={tag._id} href={`/tags/${tag.slug}`}>
+                  <Badge 
+                    variant="outline"
+                    className="cursor-pointer hover:bg-gray-100"
+                  >
+                    {tag.name}
+                  </Badge>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Featured Blogs */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Featured Articles</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {featuredBlogs.map((blog) => (
-              <Card key={blog._id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="outline">{blog.category}</Badge>
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <span className="flex items-center">
-                        <Eye className="w-4 h-4 mr-1" />
-                        {blog.views}
-                      </span>
-                      <span className="flex items-center">
-                        <Heart className="w-4 h-4 mr-1" />
-                        {blog.likes}
-                      </span>
+        {featuredBlogs.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Featured Articles</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {featuredBlogs.map((blog) => (
+                <Card key={blog._id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2 text-sm text-gray-500">
+                        <span className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          {formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle className="text-xl mb-2">{blog.title}</CardTitle>
-                  <p className="text-gray-600 line-clamp-3">
-                    {blog.description}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-2" />
-                      {blog.author.username}
+                    <CardTitle className="text-xl mb-2">{blog.title}</CardTitle>
+                    <p className="text-gray-600 line-clamp-3">
+                      {blog.description}
+                    </p>
+                    {blog.tags && blog.tags.length > 0 && (
+                      <TagList tags={blog.tags} size="sm" />
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                      <div className="flex items-center">
+                        <User className="w-4 h-4 mr-2" />
+                        {blog.author.username}
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      {new Date(blog.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                  
-                  <div className="flex space-x-2">
-                    <Link href={`/blogs/${blog._id}`}>
-                      <Button size="sm" className="flex-1">
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        Read More
+                    
+                    <div className="flex space-x-2">
+                      <Link href={`/blogs/${blog.slug}`}>
+                        <Button size="sm" className="flex-1">
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          Read More
+                        </Button>
+                      </Link>
+                      <Button size="sm" variant="outline">
+                        <Share2 className="w-4 h-4" />
                       </Button>
-                    </Link>
-                    <Button size="sm" variant="outline">
-                      <Heart className={`w-4 h-4 ${blog.isLiked ? 'text-red-500 fill-current' : ''}`} />
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Share2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Recent Blogs */}
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Recent Articles</h2>
-          <div className="space-y-4">
-            {recentBlogs.map((blog) => (
-              <Card key={blog._id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <CardTitle className="text-lg">{blog.title}</CardTitle>
-                        <Badge variant="outline">{blog.category}</Badge>
+        {recentBlogs.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Recent Articles</h2>
+            <div className="space-y-4">
+              {recentBlogs.map((blog) => (
+                <Card key={blog._id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <CardTitle className="text-lg">{blog.title}</CardTitle>
+                        </div>
+                        <p className="text-gray-600 line-clamp-2">
+                          {blog.description}
+                        </p>
+                        {blog.tags && blog.tags.length > 0 && (
+                          <TagList tags={blog.tags} size="sm" />
+                        )}
                       </div>
-                      <p className="text-gray-600 line-clamp-2">
-                        {blog.description}
-                      </p>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <div className="flex items-center space-x-4">
-                      <span className="flex items-center">
-                        <User className="w-4 h-4 mr-1" />
-                        {blog.author.username}
-                      </span>
-                      <span className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-1" />
-                        {new Date(blog.createdAt).toLocaleDateString()}
-                      </span>
-                      <span className="flex items-center">
-                        <Eye className="w-4 h-4 mr-1" />
-                        {blog.views} views
-                      </span>
-                      <span className="flex items-center">
-                        <MessageSquare className="w-4 h-4 mr-1" />
-                        {blog.comments} comments
-                      </span>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                      <div className="flex items-center space-x-4">
+                        <span className="flex items-center">
+                          <User className="w-4 h-4 mr-1" />
+                          {blog.author.username}
+                        </span>
+                        <span className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          {formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex space-x-2">
-                    <Link href={`/blogs/${blog._id}`}>
-                      <Button size="sm" className="flex-1">
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        Read Article
+                    
+                    <div className="flex space-x-2">
+                      <Link href={`/blogs/${blog.slug}`}>
+                        <Button size="sm" className="flex-1">
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          Read Article
+                        </Button>
+                      </Link>
+                      <Button size="sm" variant="outline">
+                        <Share2 className="w-4 h-4" />
                       </Button>
-                    </Link>
-                    <Button size="sm" variant="outline">
-                      <Heart className={`w-4 h-4 ${blog.isLiked ? 'text-red-500 fill-current' : ''}`} />
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Share2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Empty State */}
-        {featuredBlogs.length === 0 && recentBlogs.length === 0 && (
+        {blogs.length === 0 && (
           <Card>
             <CardContent className="p-12 text-center">
               <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />

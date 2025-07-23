@@ -73,12 +73,27 @@ export const blogType = defineType({
             of: [{type: 'embeddedComment'}],
             description: 'Comments on this blog post',
         }),
+        defineField({
+            name: 'tags',
+            title: 'Tags',
+            type: 'array',
+            of: [{type: 'reference', to: [{type: 'tag'}]}],
+            description: 'Tags associated with this blog post',
+        }),
     ],
     preview: {
         select: {
             title: 'title',
             subtitle: 'author.username',
             media: 'image',
+            tags: 'tags[0...3].name',
         },
+        prepare({title, subtitle, media, tags}: {title?: string, subtitle?: string, media?: any, tags?: string[]}) {
+            return {
+                title,
+                subtitle: tags && tags.length > 0 ? `${subtitle} • ${tags.join(', ')}` : subtitle,
+                media,
+            }
+        }
     }
 })

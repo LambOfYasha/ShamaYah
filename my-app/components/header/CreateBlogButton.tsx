@@ -8,7 +8,7 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
 
-import React, { useState, useRef, useTransition } from 'react'
+import React, { useState, useRef, useTransition, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs' 
 import { Input } from "../ui/input"
 import ClientRichEditor from "../ui/client-rich-editor"
@@ -20,6 +20,7 @@ import { createBlogPost } from "@/action/createBlog"
 import { useRouter } from "next/navigation"
 import { useModeration } from "@/hooks/useModeration"
 import { ModerationFeedback } from "@/components/ui/moderation-feedback"
+import { TagSelector } from "@/components/ui/tag-selector"
 
 function CreateBlogButton() {
 
@@ -34,7 +35,23 @@ function CreateBlogButton() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [availableTags, setAvailableTags] = useState<Array<{_id: string; name: string; slug: string; color: string; description?: string}>>([])
   const router = useRouter()
+
+  // Fetch available tags when dialog opens
+  useEffect(() => {
+    if (open) {
+      fetch('/api/tags')
+        .then(res => res.json())
+        .then(data => {
+          if (data.tags) {
+            setAvailableTags(data.tags)
+          }
+        })
+        .catch(err => console.error('Failed to fetch tags:', err))
+    }
+  }, [open])
 
   // Initialize moderation for blog content
   const {
@@ -108,6 +125,7 @@ function CreateBlogButton() {
     setContent("")
     setImagePreview(null)
     setImageFile(null)
+    setSelectedTags([])
     clearModeration()
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
@@ -170,7 +188,8 @@ function CreateBlogButton() {
           fileType,
           slug.trim(),
           description.trim(),
-          content.trim()
+          content.trim(),
+          selectedTags
         )  
 
         console.log("created blog:", result)
@@ -288,6 +307,15 @@ function CreateBlogButton() {
                   />
                 </div>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <TagSelector
+                selectedTags={selectedTags}
+                onTagsChange={setSelectedTags}
+                availableTags={availableTags}
+                label="Tags (Optional)"
+              />
             </div>
 
             <div className="space-y-2">

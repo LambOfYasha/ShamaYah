@@ -10,7 +10,8 @@ export async function createBlog(
     imageData: ImageData | null,
     customSlug?: string,
     customDescription?: string,
-    content?: string
+    content?: string,
+    tags?: string[]
 ) {
     console.log(`Creating blog: ${title} with author: ${authorId}`)
     console.log(`Admin token available: ${!!process.env.SANITY_ADMIN_API_TOKEN}`)
@@ -95,6 +96,14 @@ export async function createBlog(
                 _ref: authorId,
             },
             createdAt: new Date().toISOString(),
+        }
+
+        // Add tags if provided
+        if (tags && tags.length > 0) {
+            blogDoc.tags = tags.map(tagId => ({
+                _type: "reference",
+                _ref: tagId,
+            }));
         }
         
         console.log("Blog document before creation:", JSON.stringify(blogDoc, null, 2))
