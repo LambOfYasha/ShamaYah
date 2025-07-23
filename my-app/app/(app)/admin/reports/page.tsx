@@ -66,7 +66,15 @@ export default function ReportsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
 
+  console.log('Admin reports page: Component rendered with state:', {
+    reportsCount: reports.length,
+    loading,
+    statusFilter,
+    contentTypeFilter
+  })
+
   useEffect(() => {
+    console.log('Admin reports page: useEffect triggered with filters:', { statusFilter, contentTypeFilter })
     fetchReports()
   }, [statusFilter, contentTypeFilter])
 
@@ -78,18 +86,29 @@ export default function ReportsPage() {
       if (contentTypeFilter !== 'all') params.set('contentType', contentTypeFilter)
       params.set('limit', '100')
 
+      console.log('Admin reports page: Fetching reports with params:', params.toString())
       const response = await fetch(`/api/reports?${params}`)
+      console.log('Admin reports page: Response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Admin reports page: Received data:', data)
+        console.log('Admin reports page: Reports array:', data.reports)
+        console.log('Admin reports page: Number of reports:', data.reports?.length || 0)
         setReports(data.reports || [])
       } else {
+        const errorData = await response.json()
+        console.error('Admin reports page: Error response:', errorData)
+        console.error('Admin reports page: Response status:', response.status)
+        console.error('Admin reports page: Response headers:', Object.fromEntries(response.headers.entries()))
         toast({
           title: "Error",
-          description: "Failed to fetch reports",
+          description: `Failed to fetch reports: ${errorData.error || 'Unknown error'} (Status: ${response.status})`,
           variant: "destructive",
         })
       }
     } catch (error) {
+      console.error('Admin reports page: Fetch error:', error)
       toast({
         title: "Error",
         description: "Failed to fetch reports",
@@ -207,6 +226,7 @@ export default function ReportsPage() {
   }
 
   if (loading) {
+    console.log('Admin reports page: Rendering loading state')
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
@@ -229,6 +249,8 @@ export default function ReportsPage() {
       </div>
     )
   }
+
+  console.log('Admin reports page: Rendering main content with reports:', reports.length)
 
   return (
     <div className="container mx-auto px-4 py-8">

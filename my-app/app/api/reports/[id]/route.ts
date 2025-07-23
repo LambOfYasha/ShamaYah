@@ -21,8 +21,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Only admins and moderators can update reports
-    if (userResult.role !== 'admin' && userResult.role !== 'moderator') {
+    // Allow admins, moderators, and teachers with moderation capabilities to update reports
+    const allowedRoles = ['admin', 'moderator', 'senior_teacher', 'lead_teacher', 'dev'];
+    if (!allowedRoles.includes(userResult.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -82,8 +83,9 @@ export async function GET(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Only admins and moderators can view individual reports
-    if (userResult.role !== 'admin' && userResult.role !== 'moderator') {
+    // Allow admins, moderators, and teachers with moderation capabilities to view individual reports
+    const allowedRoles = ['admin', 'moderator', 'senior_teacher', 'lead_teacher', 'dev'];
+    if (!allowedRoles.includes(userResult.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
