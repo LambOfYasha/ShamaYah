@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import ClientRichEditor from '@/components/ui/client-rich-editor';
 import { Label } from '@/components/ui/label';
 import { ImageIcon, Edit, X } from 'lucide-react';
 import Image from 'next/image';
@@ -71,15 +71,13 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
   });
 
   // Update moderated content when content changes
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newContent = e.target.value;
+  const handleContentChange = (newContent: string) => {
     setContent(newContent);
     updateModeratedContent(newContent);
   };
 
   // Update moderated content when description changes
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newDescription = e.target.value;
+  const handleDescriptionChange = (newDescription: string) => {
     setDescription(newDescription);
     // Check both content and description together
     updateModeratedContent(`${newDescription}\n\n${content}`);
@@ -209,14 +207,15 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
           Edit
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Edit Blog Post</DialogTitle>
           <DialogDescription>
             Update your blog post content and settings.
           </DialogDescription>
+        </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2 flex-1 overflow-y-auto">
             {errorMessage && (
               <div className="text-red-500 text-sm">{errorMessage}</div>
             )}
@@ -254,29 +253,21 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
 
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={description}
+              <ClientRichEditor
+                content={description}
                 onChange={handleDescriptionChange}
                 placeholder="Enter a brief description of your blog post"
-                required
-                minLength={10}
-                maxLength={200}
-                rows={3}
+                maxHeight="200px"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                value={content}
+              <ClientRichEditor
+                content={content}
                 onChange={handleContentChange}
                 placeholder="Write your blog post content here..."
-                required
-                minLength={50}
-                maxLength={10000}
-                rows={8}
+                maxHeight="400px"
               />
               
               {/* Moderation Feedback */}
@@ -337,7 +328,7 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
               )}
             </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 flex-shrink-0 pt-4 border-t bg-white">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
@@ -356,8 +347,7 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
               </Button>
             </div>
           </form>
-        </DialogHeader>
-      </DialogContent>
+        </DialogContent>
     </Dialog>
   );
 } 

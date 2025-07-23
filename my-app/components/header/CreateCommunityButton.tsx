@@ -45,7 +45,7 @@ function CreateCommunityButton() {
     getModerationFeedback,
     canSubmit
   } = useModeration({
-    contentType: 'community',
+    contentType: 'post',
     debounceMs: 1500,
     autoCheck: true
   });
@@ -236,11 +236,11 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
         </div>
         <div className="space-y-2">
           <label htmlFor="description" className="text-sm font-medium">
-            Description
+            Question
           </label>
           <Textarea
           id="description"
-          placeholder="Enter a description for your question"
+          placeholder="Ask your question here"
           className="w-full focus:ring-2 focus:ring-blue-500"
           value={description}
           onChange={handleDescriptionChange}

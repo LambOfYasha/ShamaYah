@@ -11,7 +11,7 @@ import {
 import React, { useState, useRef, useTransition } from 'react'
 import { useUser } from '@clerk/nextjs' 
 import { Input } from "../ui/input"
-import { Textarea } from "../ui/textarea"
+import ClientRichEditor from "../ui/client-rich-editor"
 import { ImageIcon, Plus, X, BookOpen } from "lucide-react"
 import Image from "next/image"
 import { Label } from "../ui/label"
@@ -46,21 +46,19 @@ function CreateBlogButton() {
     getModerationFeedback,
     canSubmit
   } = useModeration({
-    contentType: 'blog',
+    contentType: 'post',
     debounceMs: 1500,
     autoCheck: true
   });
 
   // Update moderated content when content changes
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newContent = e.target.value;
+  const handleContentChange = (newContent: string) => {
     setContent(newContent);
     updateModeratedContent(newContent);
   };
 
   // Update moderated content when description changes
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newDescription = e.target.value;
+  const handleDescriptionChange = (newDescription: string) => {
     setDescription(newDescription);
     // Check both content and description together
     updateModeratedContent(`${newDescription}\n\n${content}`);
@@ -199,14 +197,15 @@ function CreateBlogButton() {
         <Plus />
         {user ? "Create Blog Post" : "Sign in to create blog post"}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Create a Blog Post</DialogTitle>
           <DialogDescription>
             Share your knowledge and insights with the community through a blog post.
           </DialogDescription>
+        </DialogHeader>
 
-          <form onSubmit={handleCreateBlog} className="space-y-4 mt-2">
+        <form onSubmit={handleCreateBlog} className="space-y-4 mt-2 flex-1 overflow-y-auto">
             {errorMessage && (
               <div className="text-red-500 text-sm">{errorMessage}</div>
             )}
@@ -252,16 +251,11 @@ function CreateBlogButton() {
               <label htmlFor="description" className="text-sm font-medium">
                 Description
               </label>
-              <Textarea
-                id="description"
-                placeholder="Enter a brief description of your blog post"
-                className="w-full focus:ring-2 focus:ring-blue-500"
-                value={description}
+              <ClientRichEditor
+                content={description}
                 onChange={handleDescriptionChange}
-                required
-                minLength={10}
-                maxLength={200}
-                rows={3}
+                placeholder="Enter a brief description of your blog post"
+                maxHeight="200px"
               />
             </div>
 
@@ -269,16 +263,11 @@ function CreateBlogButton() {
               <label htmlFor="content" className="text-sm font-medium">
                 Content
               </label>
-              <Textarea
-                id="content"
-                placeholder="Write your blog post content here..."
-                className="w-full focus:ring-2 focus:ring-blue-500"
-                value={content}
+              <ClientRichEditor
+                content={content}
                 onChange={handleContentChange}
-                required
-                minLength={50}
-                maxLength={10000}
-                rows={8}
+                placeholder="Write your blog post content here..."
+                maxHeight="400px"
               />
               
               {/* Moderation Feedback */}
@@ -339,16 +328,17 @@ function CreateBlogButton() {
               )}
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
-              disabled={isPending || !user || !canSubmit}
-            >
-              {isPending ? "Creating..." : "Create Blog Post"}
-            </Button>
+            <div className="flex-shrink-0 pt-4 border-t bg-white">
+              <Button 
+                type="submit" 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                disabled={isPending || !user || !canSubmit}
+              >
+                {isPending ? "Creating..." : "Create Blog Post"}
+              </Button>
+            </div>
           </form>
-        </DialogHeader>
-      </DialogContent>
+        </DialogContent>
     </Dialog>
   )
 }

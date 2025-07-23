@@ -8,7 +8,7 @@ import { cleanupFavoritesForDeletedPost } from "./embeddedComments";
 export async function createCommunityResponse(
     communityQuestionId: string,
     title: string,
-    body: any[],
+    body: string,
     imageBase64?: string,
     imageFilename?: string,
     imageContentType?: string
@@ -229,7 +229,7 @@ export async function getCommunityResponses(communityQuestionId: string) {
 export async function editCommunityResponse(
     responseId: string,
     title: string,
-    body: any[]
+    body: string
 ) {
     try {
         const user = await getUser();

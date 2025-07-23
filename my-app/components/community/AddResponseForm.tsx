@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import ClientRichEditor from '@/components/ui/client-rich-editor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { createCommunityResponse } from '@/action/postActions';
@@ -58,16 +58,8 @@ export default function AddResponseForm({
 
     setIsLoading(true);
     try {
-      // Convert body text to block format for Sanity
-      const bodyBlocks = [{
-        _type: 'block',
-        children: [{
-          _type: 'span',
-          text: body
-        }]
-      }];
-
-      await createCommunityResponse(communityQuestionId, title, bodyBlocks);
+      // Save the HTML content directly as a string
+      await createCommunityResponse(communityQuestionId, title, body);
       
       // Reset form and close dialog
       setTitle('');
@@ -93,8 +85,7 @@ export default function AddResponseForm({
   };
 
   // Update moderated content when body changes
-  const handleBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newBody = e.target.value;
+  const handleBodyChange = (newBody: string) => {
     setBody(newBody);
     updateModeratedContent(newBody);
   };
@@ -109,12 +100,12 @@ export default function AddResponseForm({
           Add Response
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Add Response to "{communityQuestionTitle}"</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 flex-1 overflow-y-auto">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
               Response Title
@@ -132,13 +123,11 @@ export default function AddResponseForm({
             <label htmlFor="body" className="block text-sm font-medium text-gray-700 mb-2">
               Response Content
             </label>
-            <Textarea
-              id="body"
-              value={body}
+            <ClientRichEditor
+              content={body}
               onChange={handleBodyChange}
               placeholder="Share your thoughts, insights, or answer to the community question..."
-              rows={6}
-              required
+              maxHeight="400px"
             />
             
             {/* Moderation Feedback */}
@@ -154,7 +143,7 @@ export default function AddResponseForm({
             )}
           </div>
           
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 flex-shrink-0 pt-4 border-t bg-white">
             <Button type="button" variant="outline" onClick={handleCancel}>
               <X className="w-4 h-4 mr-2" />
               Cancel

@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import ClientRichEditor from '@/components/ui/client-rich-editor';
 import { editCommunityResponse } from '@/action/postActions';
 import { Edit, Loader2 } from 'lucide-react';
 
 interface EditResponseButtonProps {
   responseId: string;
   currentTitle: string;
-  currentBody: any[];
+  currentBody: string | any[];
   size?: 'default' | 'sm' | 'lg' | 'icon';
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   className?: string;
@@ -30,15 +30,22 @@ export default function EditResponseButton({
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState(currentTitle);
-  const [body, setBody] = useState(() => {
-    // Convert body blocks to plain text for editing
-    if (currentBody && currentBody.length > 0) {
-      return currentBody.map((block: any) => 
+  
+  // Convert old block format to HTML string for compatibility
+  const convertBodyToHtml = (body: string | any[]): string => {
+    if (typeof body === 'string') {
+      return body;
+    }
+    // Handle old Sanity block format
+    if (Array.isArray(body) && body.length > 0) {
+      return body.map((block: any) => 
         block.children?.map((child: any) => child.text).join('') || ''
       ).join('\n');
     }
     return '';
-  });
+  };
+  
+  const [body, setBody] = useState(convertBodyToHtml(currentBody));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,16 +57,8 @@ export default function EditResponseButton({
 
     setIsLoading(true);
     try {
-      // Convert body text to block format for Sanity
-      const bodyBlocks = [{
-        _type: 'block',
-        children: [{
-          _type: 'span',
-          text: body
-        }]
-      }];
-
-      await editCommunityResponse(responseId, title, bodyBlocks);
+      // Save the HTML content directly
+      await editCommunityResponse(responseId, title, body);
       
       // Reset form and close dialog
       setTitle('');
@@ -78,14 +77,7 @@ export default function EditResponseButton({
 
   const handleCancel = () => {
     setTitle(currentTitle);
-    setBody(() => {
-      if (currentBody && currentBody.length > 0) {
-        return currentBody.map((block: any) => 
-          block.children?.map((child: any) => child.text).join('') || ''
-        ).join('\n');
-      }
-      return '';
-    });
+    setBody(convertBodyToHtml(currentBody));
     setIsOpen(false);
   };
 
@@ -97,12 +89,12 @@ export default function EditResponseButton({
           Edit
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Edit Response</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 flex-1 overflow-y-auto">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
               Response Title
@@ -120,17 +112,15 @@ export default function EditResponseButton({
             <label htmlFor="body" className="block text-sm font-medium text-gray-700 mb-2">
               Response Content
             </label>
-            <Textarea
-              id="body"
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
+            <ClientRichEditor
+              content={body}
+              onChange={(newBody) => setBody(newBody)}
               placeholder="Write your detailed response here..."
-              rows={8}
-              required
+              maxHeight="400px"
             />
           </div>
           
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-4 border-t bg-white flex-shrink-0">
             <Button
               type="button"
               variant="outline"

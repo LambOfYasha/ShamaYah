@@ -15,6 +15,7 @@ import DeleteResponseButton from '@/components/ui/delete-response-button';
 import { ReportButton } from '@/components/ui/report-button';
 import Link from 'next/link';
 import { getImageUrl } from '@/lib/utils';
+import RichContentRenderer from '@/components/ui/rich-content-renderer';
 
 interface CommunityResponsesProps {
   communityQuestionId: string;
@@ -28,7 +29,7 @@ interface Response {
   slug?: {
     current: string;
   };
-  body: any[];
+  body: string | any[];
   image?: any;
   isApproved: boolean;
   approvedBy?: {
@@ -241,16 +242,16 @@ export default function CommunityResponses({ communityQuestionId, user, communit
             <CardContent>
               <div className="prose max-w-none">
                 {/* Render response body content */}
-                {response.body && response.body.length > 0 ? (
-                  <div className="text-gray-700 leading-relaxed">
-                    {response.body.map((block: any, index: number) => (
-                      <div key={index} className="mb-4">
-                        {block.children?.map((child: any, childIndex: number) => (
-                          <span key={childIndex}>{child.text}</span>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
+                {response.body ? (
+                  <RichContentRenderer 
+                    content={typeof response.body === 'string' 
+                      ? response.body 
+                      : response.body.map((block: any) => 
+                          block.children?.map((child: any) => child.text).join('') || ''
+                        ).join('\n')
+                    }
+                    className="text-gray-700 leading-relaxed"
+                  />
                 ) : (
                   <p className="text-gray-600">No content available</p>
                 )}

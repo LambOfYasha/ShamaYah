@@ -19,6 +19,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Metadata } from 'next';
 import { getImageUrl } from '@/lib/utils';
 import { ReportButton } from '@/components/ui/report-button';
+import RichContentRenderer from '@/components/ui/rich-content-renderer';
 
 interface Response {
   _id: string;
@@ -26,7 +27,7 @@ interface Response {
   slug?: {
     current: string;
   };
-  body: any[];
+  body: string | any[];
   author: {
     _id: string;
     username: string;
@@ -269,7 +270,14 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
             )}
             
             <div className="prose max-w-none">
-              <PortableText value={response.body} />
+              <RichContentRenderer 
+                content={typeof response.body === 'string' 
+                  ? response.body 
+                  : response.body.map((block: any) => 
+                      block.children?.map((child: any) => child.text).join('') || ''
+                    ).join('\n')
+                }
+              />
             </div>
           </CardContent>
         </Card>

@@ -54,10 +54,10 @@ export default function DeleteCommunityButton({ communityId, communityTitle }: D
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Community</AlertDialogTitle>
+          <AlertDialogTitle>Delete Question</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to delete "{communityTitle}"? This action cannot be undone.
-            All posts, comments, and associated data will be permanently removed.
+            All responses, comments, and associated data will be permanently removed.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
