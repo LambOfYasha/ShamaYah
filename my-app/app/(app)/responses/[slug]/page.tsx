@@ -145,7 +145,7 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
-  const canApprove = user && (user.role === 'admin' || user.role === 'teacher');
+  const canApprove = user && (user.role === 'admin' || user.role === 'senior_teacher' || user.role === 'lead_teacher');
   const isAuthor = user && user._id === response.author._id;
   const canEdit = user && (user._id === response.author._id || user.role === 'admin' || user.role === 'teacher');
   const canDelete = user && (user._id === response.author._id || user.role === 'admin' || user.role === 'teacher');

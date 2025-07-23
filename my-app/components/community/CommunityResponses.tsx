@@ -72,7 +72,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
     fetchData();
   };
 
-  const canApprove = user && (user.role === 'teacher' || user.role === 'admin');
+  const canApprove = user && (user.role === 'senior_teacher' || user.role === 'lead_teacher' || user.role === 'admin');
   const canEdit = (response: Response) => user && (
     user._id === response.author._id || 
     user.role === 'admin' || 
