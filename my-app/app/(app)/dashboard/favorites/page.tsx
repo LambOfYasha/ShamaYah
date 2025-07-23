@@ -147,9 +147,21 @@ export default async function FavoritesPage() {
                           {post.title}
                         </Link>
                       </h3>
-                      <p className="text-gray-600 mb-3 line-clamp-2">
-                        {post.description}
-                      </p>
+                      
+                      {isComment && favorite.comment ? (
+                        <div className="mb-3">
+                          <p className="text-gray-700 text-sm mb-2">
+                            <span className="font-medium">Comment by {favorite.comment.author.username}:</span>
+                          </p>
+                          <div className="bg-gray-50 p-3 rounded-md">
+                            <p className="text-gray-800 text-sm">{favorite.comment.content}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-gray-600 mb-3 line-clamp-2">
+                          {post.description}
+                        </p>
+                      )}
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4 text-sm text-gray-500">

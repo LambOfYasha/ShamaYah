@@ -130,6 +130,7 @@ export default function NestedComment({
         setIsCheckingFavorite(true)
         try {
           const favoritePath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
+          console.log(`Checking favorite for comment path: "${favoritePath}" (level: ${level}, commentIndex: ${commentIndex}, commentPath: ${commentPath})`)
           const favorited = await onCheckFavorite(favoritePath)
           setIsFavorited(favorited)
         } catch (error) {
@@ -216,6 +217,7 @@ export default function NestedComment({
     setIsSubmitting(true)
     try {
       const favoritePath = level === 0 ? commentIndex.toString() : (commentPath || commentIndex.toString())
+      console.log(`Toggling favorite for comment path: "${favoritePath}" (level: ${level}, commentIndex: ${commentIndex}, commentPath: ${commentPath})`)
       
       if (isFavorited) {
         await onRemoveFavorite(favoritePath)
@@ -414,24 +416,28 @@ export default function NestedComment({
       {/* Render nested replies */}
       {comment.replies && comment.replies.length > 0 && level < maxLevel && (
         <div className="space-y-2">
-          {comment.replies.map((reply, replyIndex) => (
-            <NestedComment
-              key={`${reply.author._id}-${reply.createdAt}-${replyIndex}`}
-              comment={reply}
-              commentIndex={replyIndex}
-              postId={postId}
-              postType={postType}
-              onCommentAdded={onCommentAdded}
-              onAddComment={onAddComment}
-              onEditComment={onEditComment}
-              onDeleteComment={onDeleteComment}
-              onAddFavorite={onAddFavorite}
-              onRemoveFavorite={onRemoveFavorite}
-              onCheckFavorite={onCheckFavorite}
-              level={level + 1}
-              commentPath={`${commentIndex}.${replyIndex}`}
-            />
-          ))}
+          {comment.replies.map((reply, replyIndex) => {
+            const newCommentPath = level === 0 ? `${commentIndex}.${replyIndex}` : `${commentPath}.${replyIndex}`
+            console.log(`Rendering reply with commentPath: "${newCommentPath}" (level: ${level}, commentIndex: ${commentIndex}, commentPath: ${commentPath}, replyIndex: ${replyIndex})`)
+            return (
+              <NestedComment
+                key={`${reply.author._id}-${reply.createdAt}-${replyIndex}`}
+                comment={reply}
+                commentIndex={replyIndex}
+                postId={postId}
+                postType={postType}
+                onCommentAdded={onCommentAdded}
+                onAddComment={onAddComment}
+                onEditComment={onEditComment}
+                onDeleteComment={onDeleteComment}
+                onAddFavorite={onAddFavorite}
+                onRemoveFavorite={onRemoveFavorite}
+                onCheckFavorite={onCheckFavorite}
+                level={level + 1}
+                commentPath={newCommentPath}
+              />
+            )
+          })}
         </div>
       )}
     </div>

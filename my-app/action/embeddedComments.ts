@@ -955,7 +955,112 @@ export async function getUserFavorites() {
             userId: user._id
         });
 
-        return { success: true, favorites };
+        // For each favorite with a commentPath, fetch the actual comment content
+        const favoritesWithComments = await Promise.all(favorites.map(async (favorite: any) => {
+            if (favorite.commentPath) {
+                console.log(`Fetching comment for favorite with path: "${favorite.commentPath}"`);
+                try {
+                    const post = favorite.post;
+                    const postType = post._type === 'communityQuestion' ? 'community' : 'blog';
+                    
+                    // Get the post with comments
+                    const postQuery = defineQuery(`
+                        *[_type == $sanityPostType && _id == $postId][0] {
+                            _id,
+                            comments
+                        }
+                    `);
+                    
+                    const sanityPostType = postType === 'community' ? 'communityQuestion' : postType;
+                    const postWithComments = await adminClient.fetch(postQuery, { 
+                        postId: post._id, 
+                        sanityPostType 
+                    });
+                    
+                    console.log(`Found post with ${postWithComments?.comments?.length || 0} comments`);
+                    
+                    if (postWithComments && postWithComments.comments) {
+                        // Parse the comment path to find the specific comment
+                        const pathParts = favorite.commentPath.split('.');
+                        const parentIndex = parseInt(pathParts[0]);
+                        
+                        console.log(`Looking for comment at path: ${favorite.commentPath}, parentIndex: ${parentIndex}, pathParts: ${JSON.stringify(pathParts)}`);
+                        
+                        if (parentIndex >= 0 && parentIndex < postWithComments.comments.length) {
+                            const parentComment = postWithComments.comments[parentIndex];
+                            
+                            let targetComment;
+                            if (pathParts.length === 1) {
+                                // Top-level comment
+                                targetComment = parentComment;
+                                console.log(`Found top-level comment: ${targetComment.content?.substring(0, 50)}...`);
+                            } else {
+                                // Nested comment
+                                const replyIndex = parseInt(pathParts[1]);
+                                if (parentComment.replies && replyIndex < parentComment.replies.length) {
+                                    targetComment = parentComment.replies[replyIndex];
+                                    console.log(`Found nested comment: ${targetComment.content?.substring(0, 50)}...`);
+                                } else {
+                                    console.log(`Reply not found at index ${replyIndex} in parent comment`);
+                                }
+                            }
+                            
+                            if (targetComment) {
+                                // Get user data for the comment author
+                                let authorData = null;
+                                try {
+                                    const authorId = targetComment.authorId || (targetComment.author?._ref) || targetComment.author?._id;
+                                    if (authorId) {
+                                        const userQuery = defineQuery(`
+                                            *[_type == "user" && _id == $authorId][0] {
+                                                _id,
+                                                username,
+                                                imageURL
+                                            }
+                                        `);
+                                        authorData = await adminClient.fetch(userQuery, { authorId });
+                                    } else {
+                                        authorData = targetComment.author;
+                                    }
+                                } catch (error) {
+                                    console.error('Error fetching comment author data:', error);
+                                }
+                                
+                                console.log(`Successfully retrieved comment: "${targetComment.content?.substring(0, 50)}..." by ${authorData?.username || 'Unknown'}`);
+                                
+                                return {
+                                    ...favorite,
+                                    comment: {
+                                        _id: targetComment._id || `${targetComment.authorId}-${targetComment.createdAt}`,
+                                        content: targetComment.content,
+                                        author: {
+                                            _id: authorData?._id || targetComment.authorId,
+                                            username: authorData?.username || targetComment.authorUsername || 'Unknown User',
+                                            imageURL: authorData?.imageURL || null
+                                        },
+                                        authorRole: targetComment.authorRole || 'user',
+                                        createdAt: targetComment.createdAt,
+                                        updatedAt: targetComment.updatedAt
+                                    }
+                                };
+                            } else {
+                                console.log(`Comment not found for path: ${favorite.commentPath}`);
+                            }
+                        } else {
+                            console.log(`Parent comment not found at index ${parentIndex}`);
+                        }
+                    } else {
+                        console.log(`No comments found for post: ${post._id}`);
+                    }
+                } catch (error) {
+                    console.error('Error fetching comment for favorite:', error);
+                }
+            }
+            
+            return favorite;
+        }));
+
+        return { success: true, favorites: favoritesWithComments };
     } catch (error) {
         console.error("Error getting user favorites:", error);
         return { error: "Failed to get user favorites" };
