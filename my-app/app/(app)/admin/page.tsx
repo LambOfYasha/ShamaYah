@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth/middleware";
+import { getCurrentUser } from "@/lib/auth/middleware";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -15,9 +15,15 @@ import {
   Tag
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
-  const user = await requireAdmin();
+  const user = await getCurrentUser();
+
+  // Check if user has access to admin panel
+  if (!user.role || !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev', 'admin'].includes(user.role)) {
+    redirect('/unauthorized');
+  }
 
   return (
     <div className="p-6">
@@ -25,7 +31,7 @@ export default async function AdminPage() {
         <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* User Management */}
+          {/* User Management - Only for Lead Teachers and Admins */}
           <RoleGuard permission="canManageUsers">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -48,7 +54,7 @@ export default async function AdminPage() {
             </Card>
           </RoleGuard>
 
-          {/* Teacher Management */}
+          {/* Teacher Management - Only for Senior Teachers and up */}
           <RoleGuard permission="canManageTeachers">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -71,7 +77,7 @@ export default async function AdminPage() {
             </Card>
           </RoleGuard>
 
-          {/* Content Moderation */}
+          {/* Content Moderation - For Senior Teachers and up */}
           <RoleGuard permission="canModerate">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -94,22 +100,22 @@ export default async function AdminPage() {
             </Card>
           </RoleGuard>
 
-          {/* Reports Management */}
-          <RoleGuard permission="canModerate">
+          {/* Reports Management - For all teachers and up */}
+          <RoleGuard permission="canAccessAdminPanel">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center space-x-2">
                   <Flag className="h-5 w-5 text-red-600" />
-                  <CardTitle>Reports</CardTitle>
+                  <CardTitle>Reports Management</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">
-                  Review and manage user-submitted reports
+                  Review and manage user reports
                 </p>
                 <Button asChild className="w-full">
                   <Link href="/admin/reports">
-                    View Reports
+                    Manage Reports
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -117,41 +123,18 @@ export default async function AdminPage() {
             </Card>
           </RoleGuard>
 
-          {/* Community Management */}
-          <RoleGuard permission="canCreateCommunities">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center space-x-2">
-                  <MessageSquare className="h-5 w-5 text-purple-600" />
-                  <CardTitle>Community Management</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
-                  Create and manage community questions
-                </p>
-                <Button asChild className="w-full">
-                  <Link href="/admin/communities">
-                    Manage Communities
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </RoleGuard>
-
-          {/* Blog Management */}
+          {/* Blog Management - For teachers and up */}
           <RoleGuard permission="canManageBlogs">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center space-x-2">
-                  <BookOpen className="h-5 w-5 text-emerald-600" />
+                  <BookOpen className="h-5 w-5 text-purple-600" />
                   <CardTitle>Blog Management</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">
-                  Create and manage blog posts and articles
+                  Manage blog posts and content
                 </p>
                 <Button asChild className="w-full">
                   <Link href="/admin/blogs">
@@ -163,18 +146,18 @@ export default async function AdminPage() {
             </Card>
           </RoleGuard>
 
-          {/* Tags Management */}
-          <RoleGuard permission="canManageBlogs">
+          {/* Tag Management - For all teachers and up */}
+          <RoleGuard permission="canAccessAdminPanel">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center space-x-2">
-                  <Tag className="h-5 w-5 text-purple-600" />
-                  <CardTitle>Tags Management</CardTitle>
+                  <Tag className="h-5 w-5 text-teal-600" />
+                  <CardTitle>Tag Management</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">
-                  Create and manage tags for blog posts
+                  Manage content tags and categories
                 </p>
                 <Button asChild className="w-full">
                   <Link href="/admin/tags">
@@ -186,7 +169,30 @@ export default async function AdminPage() {
             </Card>
           </RoleGuard>
 
-          {/* Analytics */}
+          {/* Communities Management - For all teachers and up */}
+          <RoleGuard permission="canAccessAdminPanel">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <MessageSquare className="h-5 w-5 text-cyan-600" />
+                  <CardTitle>Communities</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Manage community questions and discussions
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/communities">
+                    Manage Communities
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </RoleGuard>
+
+          {/* Analytics - For all teachers and up */}
           <RoleGuard permission="canAccessAdminPanel">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -209,7 +215,7 @@ export default async function AdminPage() {
             </Card>
           </RoleGuard>
 
-          {/* System Settings */}
+          {/* System Settings - Only for Lead Teachers and Admins */}
           <RoleGuard permission="canAccessAdminPanel">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -234,31 +240,14 @@ export default async function AdminPage() {
         </div>
 
         {/* User Info */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Current User</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="font-medium">Username:</label>
-                <p className="text-gray-600">{user.username}</p>
-              </div>
-              <div>
-                <label className="font-medium">Role:</label>
-                <p className="text-gray-600 capitalize">{user.role}</p>
-              </div>
-              <div>
-                <label className="font-medium">Email:</label>
-                <p className="text-gray-600">{user.email}</p>
-              </div>
-              <div>
-                <label className="font-medium">User ID:</label>
-                <p className="text-gray-600">{user._id}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">Current User</h3>
+          <p className="text-gray-600">
+            <strong>Username:</strong> {user.username} | 
+            <strong>Role:</strong> {user.role} | 
+            <strong>Email:</strong> {user.email}
+          </p>
+        </div>
       </div>
     </div>
   );

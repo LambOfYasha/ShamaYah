@@ -101,7 +101,7 @@ export async function approveCommunityResponse(responseId: string) {
         }
 
         // Check if user has permission to approve responses - only senior_teacher, lead_teacher, and admin
-        if (user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'dev' && user.role !== 'admin') {
+        if (user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'admin') {
             return { error: "Only Senior Teachers, Lead Teachers, and Admins can approve responses" };
         }
 
@@ -153,7 +153,7 @@ export async function unapproveCommunityResponse(responseId: string) {
         }
 
         // Check if user has permission to unapprove responses - only senior_teacher, lead_teacher, and admin
-        if (user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'dev' && user.role !== 'admin') {
+        if (user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'admin') {
             return { error: "Only Senior Teachers, Lead Teachers, and Admins can unapprove responses" };
         }
 

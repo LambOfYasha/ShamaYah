@@ -230,8 +230,25 @@ export async function deleteUser(userId: string) {
     }
 
     const currentUser = await getUser();
-    if ('error' in currentUser || currentUser.role !== 'admin') {
+    if ('error' in currentUser) {
+      return { success: false, error: 'User not found' };
+    }
+
+    // Check if user has permission to delete users
+    if (!['admin', 'lead_teacher', 'senior_teacher'].includes(currentUser.role)) {
       return { success: false, error: 'Insufficient permissions' };
+    }
+
+    // Get the user to be deleted
+    const userToDelete = await adminClient.fetch(`*[_type == "user" && _id == $userId][0]`, { userId });
+    
+    if (!userToDelete) {
+      return { success: false, error: 'User not found' };
+    }
+
+    // Senior teachers can only delete members, not moderators and up
+    if (currentUser.role === 'senior_teacher' && userToDelete.role && ['moderator', 'teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev', 'admin'].includes(userToDelete.role)) {
+      return { success: false, error: 'Senior teachers can only delete members' };
     }
 
     // Check if user is trying to delete themselves
@@ -239,13 +256,13 @@ export async function deleteUser(userId: string) {
       return { success: false, error: 'Cannot delete your own account' };
     }
 
-    // Soft delete - mark as deleted instead of actually deleting
+    // Soft delete the user
     await adminClient
       .patch(userId)
       .set({ 
-        isDeleted: true,
+        isDeleted: true, 
         deletedAt: new Date().toISOString(),
-        deletedBy: currentUserId
+        deletedBy: currentUser._id
       })
       .commit();
 

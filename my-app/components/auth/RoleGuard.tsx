@@ -4,10 +4,12 @@ import { ReactNode } from 'react';
 import { hasPermission, UserRole } from '@/lib/auth/roles';
 import { useRole } from '@/hooks/useRole';
 
+type PermissionType = 'canCreatePosts' | 'canComment' | 'canCreateCommunities' | 'canModerate' | 'canManageUsers' | 'canManageTeachers' | 'canAccessAdminPanel' | 'canManageBlogs' | 'canDeleteMembers' | 'canGiveTeacherApprovals' | 'canDeleteOtherContent';
+
 interface RoleGuardProps {
   children: ReactNode;
   requiredRole?: UserRole;
-  permission?: keyof ReturnType<typeof hasPermission>;
+  permission?: PermissionType;
   fallback?: ReactNode;
 }
 
@@ -40,7 +42,7 @@ export function RoleGuard({
 
 interface PermissionGuardProps {
   children: ReactNode;
-  permission: keyof ReturnType<typeof hasPermission>;
+  permission: PermissionType;
   fallback?: ReactNode;
 }
 

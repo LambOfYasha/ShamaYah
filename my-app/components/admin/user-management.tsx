@@ -12,12 +12,15 @@ import {
   type UserFilters
 } from '@/action/userActions';
 import SharedManagement, { type ManagementConfig } from './shared-management';
+import { useRole } from '@/hooks/useRole';
 
 interface UserManagementProps {
   initialUsers?: UserData[];
 }
 
 export default function UserManagement({ initialUsers = [] }: UserManagementProps) {
+  const { user: currentUser } = useRole();
+  
   const config: ManagementConfig = {
     title: 'Users',
     icon: Users,
@@ -59,7 +62,21 @@ export default function UserManagement({ initialUsers = [] }: UserManagementProp
     loadData: getAllUsers,
     updateRole: updateUserRole,
     toggleStatus: toggleUserStatus,
-    deleteItem: deleteUser,
+    deleteItem: async (userId: string) => {
+      // Check if current user is senior teacher and target user is not a member
+      if (currentUser?.role === 'senior_teacher') {
+        // Get the user data to check their role
+        const userData = await getAllUsers({ limit: 1000 });
+        if (userData.success) {
+          const targetUser = userData.users.find((u: UserData) => u._id === userId);
+          if (targetUser && targetUser.role !== 'member') {
+            return { success: false, error: 'Senior teachers can only delete members' };
+          }
+        }
+      }
+      
+      return deleteUser(userId);
+    },
     bulkUpdate: bulkUpdateUsers
   };
 
