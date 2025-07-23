@@ -236,10 +236,6 @@ export default async function AdminBlogsPage() {
                   </Link>
                   <EditBlogButton 
                     blog={blog}
-                    onEdit={async (data) => {
-                      // This would be handled by the EditBlogButton component
-                      console.log('Edit blog:', data);
-                    }}
                   />
                   <DeleteBlogButton 
                     blogId={blog._id}

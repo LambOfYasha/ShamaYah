@@ -5,6 +5,7 @@ import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings, BookOpen } 
 import { useAuth, useUser } from "@clerk/nextjs"
 
 import { SearchForm } from "@/components/search-form"
+import { Suspense } from "react"
 import {
   Collapsible,
   CollapsibleContent,
@@ -163,7 +164,9 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <SearchForm />
+        <Suspense fallback={<div className="p-4">Loading search...</div>}>
+          <SearchForm />
+        </Suspense>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

@@ -32,7 +32,7 @@ export function useRole() {
     fetchUserRole();
   }, [user, isLoaded]);
 
-  const hasRolePermission = (permission: keyof ReturnType<typeof hasPermission>) => {
+  const hasRolePermission = (permission: 'canCreatePosts' | 'canComment' | 'canCreateCommunities' | 'canModerate' | 'canManageUsers' | 'canManageTeachers' | 'canAccessAdminPanel' | 'canManageBlogs') => {
     if (!userWithRole) return false;
     return hasPermission(userWithRole.role, permission);
   };

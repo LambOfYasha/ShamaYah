@@ -38,6 +38,9 @@ import NotificationManager from "@/components/admin/notification-manager";
 import ReportManager from "@/components/admin/report-manager";
 import TestNotificationButton from "@/components/ui/test-notification-button";
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 export default async function AdvancedModerationDashboard() {
   const user = await getCurrentUser();
   if (user.role !== 'admin' && user.role !== 'teacher') {
