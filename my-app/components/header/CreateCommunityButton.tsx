@@ -126,9 +126,21 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
 
   startTransition(async () => {
     try {
-      const result = await createCommunityQuestion(name, slug, description, imageFile)
+      // Pass imageFile as undefined if not present, and as a string (URL) if needed
+      // But createCommunityQuestion expects string | null | undefined for image
+      // If imageFile is a File, you need to upload it first and get a URL or asset ref
+      // For now, pass undefined if no image, or handle upload here if needed
+      let image: string | null | undefined = undefined
+      if (imageFile instanceof File) {
+        // You need to upload the file and get a URL or asset ref string
+        // For now, just set image to undefined (or handle upload logic here)
+        // image = await uploadImageAndGetUrl(imageFile)
+        setErrorMessage("Image upload not implemented.")
+        return
+      }
+      const result = await createCommunityQuestion(name, slug, description, image)
       
-      if (result.success) {
+      if ("createdCommunity" in result) {
         setOpen(false)
         resetForm()
         router.push(`/community-questions/${slug}`)
