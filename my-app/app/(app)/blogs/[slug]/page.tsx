@@ -25,7 +25,7 @@ import DeleteBlogButton from "@/components/blog/DeleteBlogButton";
 import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedCommentSectionWrapper";
 import FavoriteButton from "@/components/ui/favorite-button";
 import { editBlog } from "@/action/editBlog";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, calculateReadTime } from "@/lib/utils";
 import { ReportButton } from "@/components/ui/report-button";
 import RichContentRenderer from "@/components/ui/rich-content-renderer";
 import { TagList } from "@/components/ui/tag";
@@ -93,6 +93,7 @@ export default async function BlogPage({
       content,
       slug,
       publishedAt,
+      _createdAt,
       author->{
         _id,
         username,
@@ -102,7 +103,7 @@ export default async function BlogPage({
       tags[]->{
         _id,
         name,
-        slug,
+        "slug": slug.current,
         color
       }
     }
@@ -150,7 +151,7 @@ export default async function BlogPage({
     description: blog.description || '',
     slug: {
       _type: 'slug',
-      current: blog.slug || ''
+      current: typeof blog.slug === 'string' ? blog.slug : blog.slug?.current || ''
     },
     content: blog.content || '',
     image: blog.image,
@@ -223,12 +224,21 @@ export default async function BlogPage({
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   <span>
-                    {new Date(blog.createdAt || blog._createdAt).toLocaleDateString()}
+                    {(() => {
+                      const blogWithDates = blog as any;
+                      const date = blogWithDates.publishedAt || blogWithDates._createdAt;
+                      if (!date) return 'Date not available';
+                      try {
+                        return new Date(date).toLocaleDateString();
+                      } catch (error) {
+                        return 'Date not available';
+                      }
+                    })()}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  <span>5 min read</span>
+                  <span>{calculateReadTime(blog.content).formatted}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Eye className="w-4 h-4" />
@@ -346,7 +356,16 @@ export default async function BlogPage({
                   {blog.author.role === "teacher" || blog.author.role === "junior_teacher" || blog.author.role === "senior_teacher" || blog.author.role === "lead_teacher" ? "Teacher" : "Author"}
                 </p>
                 <p className="text-gray-500 text-sm">
-                  Published on {new Date(blog.createdAt || blog._createdAt).toLocaleDateString()}
+                  Published on {(() => {
+                    const blogWithDates = blog as any;
+                    const date = blogWithDates.publishedAt || blogWithDates._createdAt;
+                    if (!date) return 'Date not available';
+                    try {
+                      return new Date(date).toLocaleDateString();
+                    } catch (error) {
+                      return 'Date not available';
+                    }
+                  })()}
                 </p>
               </div>
             </div>
