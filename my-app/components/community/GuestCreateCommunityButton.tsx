@@ -152,13 +152,13 @@ export default function GuestCreateCommunityButton() {
           
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-              Short Description *
+              Question *
             </label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief description of your question"
+              placeholder="Ask your question here..."
               required
               rows={2}
             />
