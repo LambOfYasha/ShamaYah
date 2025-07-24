@@ -49,7 +49,7 @@ export default async function CommunitiesPage() {
   const recommendedCommunities = await getRecommendedCommunities(6);
 
   const userCommunities = "error" in userCommunitiesResult 
-    ? { joined: [], moderated: [], stats: { totalCommunities: 0, totalMembers: 0, totalPosts: 0, moderatedCommunities: 0 } }
+    ? { joined: [], moderated: [], stats: { totalCommunities: 0, totalViews: 0, totalPosts: 0, moderatedCommunities: 0 } }
     : userCommunitiesResult;
 
   const stats = userCommunities.stats;
@@ -59,8 +59,8 @@ export default async function CommunitiesPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Communities</h1>
-            <p className="text-gray-600">Manage and discover communities</p>
+            <h1 className="text-3xl font-bold">Questions</h1>
+            <p className="text-gray-600">Manage and discover questions</p>
           </div>
           <CreateCommunityButton />
         </div>
@@ -70,7 +70,7 @@ export default async function CommunitiesPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">My Communities</CardTitle>
+              <CardTitle className="text-sm font-medium">My Questions</CardTitle>
               <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
@@ -80,11 +80,11 @@ export default async function CommunitiesPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Members</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Views</CardTitle>
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalMembers.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{stats.totalViews?.toLocaleString() || '0'}</div>
             </CardContent>
           </Card>
 
@@ -113,7 +113,7 @@ export default async function CommunitiesPage() {
 
         {/* My Communities */}
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">My Communities</h2>
+          <h2 className="text-2xl font-semibold mb-4">My Questions</h2>
           {userCommunities.joined.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {userCommunities.joined.map((community) => (
@@ -139,7 +139,7 @@ export default async function CommunitiesPage() {
                     </p>
                     
                     <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                      <span>{(community.memberCount || 0).toLocaleString()} members</span>
+                      <span>{(community.viewCount || 0).toLocaleString()} views</span>
                       <span>{community.postCount || 0} posts</span>
                     </div>
                     
@@ -167,9 +167,9 @@ export default async function CommunitiesPage() {
             <Card>
               <CardContent className="p-12 text-center">
                 <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No communities joined</h3>
+                <h3 className="text-lg font-semibold mb-2">No questions asked</h3>
                 <p className="text-gray-600 mb-4">
-                  Start by joining some communities or create your own
+                  Start by asking some questions or create your own
                 </p>
                 <Button asChild>
                   <Link href="/search">
@@ -184,7 +184,7 @@ export default async function CommunitiesPage() {
 
         {/* Recommended Communities */}
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Recommended Communities</h2>
+          <h2 className="text-2xl font-semibold mb-4">Recommended Questions</h2>
           {recommendedCommunities.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {recommendedCommunities.map((community) => (
@@ -208,7 +208,7 @@ export default async function CommunitiesPage() {
                     </p>
                     
                     <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                      <span>{(community.memberCount || 0).toLocaleString()} members</span>
+                      <span>{(community.viewCount || 0).toLocaleString()} views</span>
                       <span>{community.postCount || 0} posts</span>
                     </div>
                     
@@ -219,7 +219,7 @@ export default async function CommunitiesPage() {
                     <Button size="sm" className="w-full" asChild>
                       <Link href={`/community-questions/${community.slug}`}>
                         <UserPlus className="w-4 h-4 mr-2" />
-                        View Community
+                        View Question
                       </Link>
                     </Button>
                   </CardContent>
@@ -230,9 +230,9 @@ export default async function CommunitiesPage() {
             <Card>
               <CardContent className="p-12 text-center">
                 <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No recommended communities</h3>
+                <h3 className="text-lg font-semibold mb-2">No recommended questions</h3>
                 <p className="text-gray-600 mb-4">
-                  Check back later for community recommendations
+                  Check back later for question recommendations
                 </p>
               </CardContent>
             </Card>

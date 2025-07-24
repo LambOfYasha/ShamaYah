@@ -23,12 +23,13 @@ export interface UserCommunity {
   isModerator: boolean;
   memberCount: number;
   postCount: number;
+  viewCount: number;
   joinedAt?: string;
 }
 
 export interface CommunityStats {
   totalCommunities: number;
-  totalMembers: number;
+  totalViews: number;
   totalPosts: number;
   moderatedCommunities: number;
 }
@@ -69,6 +70,7 @@ export async function getUserCommunities(): Promise<UserCommunitiesData | { erro
           "isModerator": moderator._ref == $userId,
           "memberCount": count(members),
           "postCount": count(posts[]->),
+          "viewCount": viewCount || 0,
           "joinedAt": _createdAt
         },
         "totalJoined": count(*[_type == "communityQuestion" && (isDeleted == false || isDeleted == null) && (
@@ -85,12 +87,12 @@ export async function getUserCommunities(): Promise<UserCommunitiesData | { erro
     const moderated = joined.filter((community: UserCommunity) => community.isModerator);
     
     // Calculate totals from the joined communities
-    const totalMembers = joined.reduce((sum: number, community: UserCommunity) => sum + (community.memberCount || 0), 0);
+    const totalViews = joined.reduce((sum: number, community: UserCommunity) => sum + (community.viewCount || 0), 0);
     const totalPosts = joined.reduce((sum: number, community: UserCommunity) => sum + (community.postCount || 0), 0);
     
     const stats: CommunityStats = {
       totalCommunities: result.totalJoined || 0,
-      totalMembers,
+      totalViews,
       totalPosts,
       moderatedCommunities: result.totalModerated || 0,
     };
@@ -134,7 +136,8 @@ export async function getRecommendedCommunities(limit: number = 6): Promise<User
           _createdAt,
           "isModerator": false,
           "memberCount": count(members),
-          "postCount": count(posts[]->)
+          "postCount": count(posts[]->),
+          "viewCount": viewCount || 0
         }
     `);
 
