@@ -44,12 +44,10 @@ import {
 import { getUserDashboardData } from "@/lib/user/getUserDashboardData";
 
 // Try to import the main progress component, fallback to simple version
-let Progress;
-try {
-  Progress = require('@/components/ui/progress').Progress;
-} catch (error) {
-  Progress = require('@/components/ui/simple-progress').Progress;
-}
+import { Progress as MainProgress } from "@/components/ui/progress";
+import { Progress as SimpleProgress } from "@/components/ui/simple-progress";
+
+const Progress = MainProgress ?? SimpleProgress;
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
