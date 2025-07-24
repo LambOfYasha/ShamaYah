@@ -8,7 +8,7 @@ import Link from "next/link";
 import { 
   MessageSquare, 
   Heart, 
-  Bookmark, 
+  Bookmark,
   TrendingUp, 
   Calendar,
   Plus,
@@ -39,7 +39,8 @@ import {
   TrendingDown,
   AlertCircle,
   CheckCircle,
-  XCircle
+  XCircle,
+  BookOpen
 } from "lucide-react";
 import { getUserDashboardData } from "@/lib/user/getUserDashboardData";
 
@@ -207,9 +208,15 @@ export default async function DashboardPage() {
                       </Link>
                     </Button>
                     <Button asChild variant="outline" className="w-full justify-start">
-                      <Link href="/communities">
+                      <Link href="/questions">
                         <Users className="w-4 h-4 mr-2" />
-                        Browse Questiions
+                        Browse Questions
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="w-full justify-start">
+                      <Link href="/blogs">
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Browse Blogs
                       </Link>
                     </Button>
                     <Button asChild variant="outline" className="w-full justify-start">
