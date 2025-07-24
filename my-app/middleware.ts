@@ -8,8 +8,15 @@ const isProtectedRoute = createRouteMatcher([
   '/api/communities(.*)',
   '/api/reports(.*)',
   '/api/search(.*)',
-  '/api/user(.*)',
+  '/api/user(?!.*guest|.*comments/guest)(.*)',
   '/api/webhooks(.*)',
+]);
+
+const isPublicApiRoute = createRouteMatcher([
+  '/api/user/guest(.*)',
+  '/api/comments/guest(.*)',
+  '/api/posts/guest(.*)',
+  '/api/search(.*)',
 ]);
 
 const middleware = clerkMiddleware({
@@ -22,6 +29,10 @@ const middleware = clerkMiddleware({
   afterAuth: (auth, req) => {
     // Handle protected routes
     if (isProtectedRoute(req) && !auth.userId) {
+      // Allow guest API routes for unauthenticated users
+      if (isPublicApiRoute(req)) {
+        return;
+      }
       const signInUrl = new URL('/sign-in', req.url);
       signInUrl.searchParams.set('redirect_url', req.url);
       return Response.redirect(signInUrl);

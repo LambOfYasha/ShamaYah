@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { CheckCircle, MessageSquare, Calendar, User, Eye } from 'lucide-react';
 import { getCommunityResponses } from '@/action/postActions';
 import ApproveResponseButton from '@/components/ui/approve-response-button';
 import AddResponseForm from '@/components/community/AddResponseForm';
+import GuestAddResponseForm from '@/components/community/GuestAddResponseForm';
 import FavoriteButton from '@/components/ui/favorite-button';
 import EditResponseButton from '@/components/ui/edit-response-button';
 import DeleteResponseButton from '@/components/ui/delete-response-button';
@@ -49,6 +51,7 @@ interface Response {
 export default function CommunityResponses({ communityQuestionId, user, communityQuestionTitle }: CommunityResponsesProps) {
   const [responses, setResponses] = useState<Response[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isLoaded, isSignedIn, user: clerkUser } = useUser();
 
   const fetchData = async () => {
     try {
@@ -78,6 +81,9 @@ export default function CommunityResponses({ communityQuestionId, user, communit
   const canEdit = (response: Response) => {
     if (!user) return false;
     
+    // Guests cannot edit
+    if (user.role === 'guest') return false;
+    
     // Check if user is author or has admin/teacher role
     const isAuthor = user._id === response.author._id;
     const isAdmin = user.role === 'admin';
@@ -95,6 +101,9 @@ export default function CommunityResponses({ communityQuestionId, user, communit
   
   const canDelete = (response: Response) => {
     if (!user) return false;
+    
+    // Guests cannot delete
+    if (user.role === 'guest') return false;
     
     // Check if user is author or has admin/teacher role
     const isAuthor = user._id === response.author._id;
@@ -133,11 +142,19 @@ export default function CommunityResponses({ communityQuestionId, user, communit
           <p className="text-gray-600 mb-4">
             Be the first to respond to this community question
           </p>
-          <AddResponseForm 
-            communityQuestionId={communityQuestionId}
-            communityQuestionTitle={communityQuestionTitle || 'this community'}
-            onSuccess={refreshResponses}
-          />
+          {isSignedIn ? (
+            <AddResponseForm 
+              communityQuestionId={communityQuestionId}
+              communityQuestionTitle={communityQuestionTitle || 'this community'}
+              onSuccess={refreshResponses}
+            />
+          ) : (
+            <GuestAddResponseForm 
+              communityQuestionId={communityQuestionId}
+              communityQuestionTitle={communityQuestionTitle || 'this community'}
+              onSuccess={refreshResponses}
+            />
+          )}
         </CardContent>
       </Card>
     );
@@ -147,11 +164,19 @@ export default function CommunityResponses({ communityQuestionId, user, communit
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Responses ({responses.length})</h2>
-        <AddResponseForm 
-          communityQuestionId={communityQuestionId}
-          communityQuestionTitle={communityQuestionTitle || 'this community'}
-          onSuccess={refreshResponses}
-        />
+        {isSignedIn ? (
+          <AddResponseForm 
+            communityQuestionId={communityQuestionId}
+            communityQuestionTitle={communityQuestionTitle || 'this community'}
+            onSuccess={refreshResponses}
+          />
+        ) : (
+          <GuestAddResponseForm 
+            communityQuestionId={communityQuestionId}
+            communityQuestionTitle={communityQuestionTitle || 'this community'}
+            onSuccess={refreshResponses}
+          />
+        )}
       </div>
 
       <div className="space-y-4">
@@ -213,13 +238,15 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                     </Button>
                   </Link>
                   
-                  <FavoriteButton 
-                    postId={response._id}
-                    postType="response"
-                    size="sm"
-                    variant="outline"
-                    className="h-8 px-2"
-                  />
+                  {isSignedIn && (
+                    <FavoriteButton 
+                      postId={response._id}
+                      postType="response"
+                      size="sm"
+                      variant="outline"
+                      className="h-8 px-2"
+                    />
+                  )}
 
                   {/* Conditional actions - compact on mobile */}
                   {canEdit(response) && (

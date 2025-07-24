@@ -3,8 +3,8 @@
 import { addEmbeddedComment, editEmbeddedComment, deleteEmbeddedComment, addFavorite, removeFavorite, checkFavorite, addPostFavorite, removePostFavorite, checkPostFavorite, getUserFavorites, cleanupFavoritesForDeletedPost, cleanupFavoritesForDeletedComment, updateCommentPathFavorites, deleteIndividualFavorite, clearAllFavorites } from './embeddedComments';
 
 // Comment action functions
-export async function addCommentAction(postId: string, postType: 'blog' | 'community', content: string, parentCommentId?: string) {
-    const result = await addEmbeddedComment(postId, postType, content, parentCommentId);
+export async function addCommentAction(postId: string, postType: 'blog' | 'community', content: string, parentCommentId?: string, guestUser?: { _id: string, username: string, role: string, imageURL?: string }) {
+    const result = await addEmbeddedComment(postId, postType, content, parentCommentId, guestUser);
     if ("error" in result) {
         throw new Error(result.error);
     }

@@ -5,12 +5,22 @@ import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
 import { client } from "@/sanity/lib/client";
 
-export async function addEmbeddedComment(postId: string, postType: 'blog' | 'community', content: string, parentCommentPath?: string) {
+export async function addEmbeddedComment(postId: string, postType: 'blog' | 'community', content: string, parentCommentPath?: string, guestUser?: { _id: string, username: string, role: string, imageURL?: string }) {
     try {
-        const user = await getUser();
+        let user;
         
-        if ("error" in user) {
-            return { error: user.error };
+        if (guestUser) {
+            // Use provided guest user
+            user = guestUser;
+        } else {
+            // Try to get authenticated user
+            const userResult = await getUser();
+            
+            if ("error" in userResult) {
+                return { error: userResult.error };
+            }
+            
+            user = userResult;
         }
 
         const commentData = {

@@ -2039,6 +2039,10 @@
           "of": [
             {
               "type": "string",
+              "value": "guest"
+            },
+            {
+              "type": "string",
               "value": "member"
             },
             {

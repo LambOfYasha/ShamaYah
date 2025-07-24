@@ -14,7 +14,7 @@ export interface User extends SanityDocument {
   username: string
   email: string
   imageURL?: string
-  role: 'user' | 'admin' | 'moderator' | 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher' | 'dev'
+  role: 'guest' | 'user' | 'admin' | 'moderator' | 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher' | 'dev'
   joinedAt: string
   isActive: boolean
   lastActive?: string

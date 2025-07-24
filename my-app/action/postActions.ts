@@ -11,17 +11,28 @@ export async function createCommunityResponse(
     body: string,
     imageBase64?: string,
     imageFilename?: string,
-    imageContentType?: string
+    imageContentType?: string,
+    guestUser?: { _id: string, username: string, role: string, imageURL?: string }
 ) {
     try {
-        const user = await getUser();
+        let user;
         
-        if ("error" in user) {
-            return { error: user.error };
+        if (guestUser) {
+            // Use provided guest user
+            user = guestUser;
+        } else {
+            // Try to get authenticated user
+            const userResult = await getUser();
+            
+            if ("error" in userResult) {
+                return { error: userResult.error };
+            }
+            
+            user = userResult;
         }
 
         // Check if user has permission to create responses
-        if (user.role !== 'member' && user.role !== 'teacher' && user.role !== 'junior_teacher' && user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'admin') {
+        if (user.role !== 'guest' && user.role !== 'member' && user.role !== 'teacher' && user.role !== 'junior_teacher' && user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'admin') {
             return { error: "You don't have permission to create responses" };
         }
 

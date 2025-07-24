@@ -1,4 +1,4 @@
-export type UserRole = 'member' | 'moderator' | 'admin' | 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher' | 'dev';
+export type UserRole = 'guest' | 'member' | 'moderator' | 'admin' | 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher' | 'dev';
 
 export interface UserWithRole {
   _id: string;
@@ -9,6 +9,7 @@ export interface UserWithRole {
 }
 
 export const ROLES = {
+  GUEST: 'guest',
   MEMBER: 'member',
   MODERATOR: 'moderator',
   ADMIN: 'admin',
@@ -20,6 +21,7 @@ export const ROLES = {
 } as const;
 
 export const ROLE_HIERARCHY: Record<UserRole, number> = {
+  guest: 0,
   member: 1,
   teacher: 2,
   junior_teacher: 3,
@@ -31,6 +33,19 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
 };
 
 export const ROLE_PERMISSIONS = {
+  [ROLES.GUEST]: {
+    canCreatePosts: true,
+    canComment: true,
+    canCreateCommunities: false,
+    canModerate: false,
+    canManageUsers: false,
+    canManageTeachers: false,
+    canAccessAdminPanel: false,
+    canManageBlogs: false,
+    canDeleteMembers: false,
+    canGiveTeacherApprovals: false,
+    canDeleteOtherContent: false,
+  },
   [ROLES.MEMBER]: {
     canCreatePosts: true,
     canComment: true,

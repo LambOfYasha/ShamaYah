@@ -55,24 +55,38 @@ export default async function CommunityQuestionPage({
 }) {
   const { slug } = await params;
   const communityQuestion = await getCommunityQuestion(slug);
-  const currentUser = await getCurrentUser();
 
   if (!communityQuestion) {
     notFound();
   }
 
-  // Use the same user object for permission checks
-  const user = await getCurrentUser();
+  // Try to get current user, but don't require authentication
+  let user = null;
+  try {
+    user = await getCurrentUser();
+  } catch (error) {
+    // User is not authenticated, which is fine for guest access
+    console.log('User not authenticated, allowing guest access');
+  }
+
+  console.log("Community page - Community ID:", communityQuestion._id);
+  console.log("Community page - Moderator ID:", communityQuestion.moderator?._id);
+  console.log("Community page - User ID:", user?._id);
+  console.log("Community page - User role:", user?.role);
 
   const canEdit = user && (
     user._id === communityQuestion.moderator?._id || 
-    user.role === "admin"
+    user.role === "admin" ||
+    user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher"
   );
 
   const canDelete = user && (
     user._id === communityQuestion.moderator?._id || 
     user.role === "admin"
   );
+
+  console.log("Community page - Can edit:", canEdit);
+  console.log("Community page - Can delete:", canDelete);
 
   const handleEditCommunity = async (data: {
     title: string;

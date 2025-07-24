@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
 import CommentSection from './CommentSection';
+import GuestCommentForm from './GuestCommentForm';
 import { getEmbeddedComments } from '@/action/embeddedComments';
 import { addCommentAction, editCommentAction, deleteCommentAction, addFavoriteAction, removeFavoriteAction, checkFavoriteAction } from '@/action/embeddedCommentActions';
 
@@ -29,6 +31,7 @@ export default function EmbeddedCommentSectionWrapper({
   postId,
   postType
 }: CommentSectionWrapperProps) {
+  const { user, isLoaded } = useUser();
   const [comments, setComments] = useState<EmbeddedComment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -135,6 +138,39 @@ export default function EmbeddedCommentSectionWrapper({
             </div>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  // Show guest comment form for unauthenticated users
+  if (!isLoaded || !user) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 bg-gray-200 rounded"></div>
+          <h3 className="text-lg font-semibold">Comments</h3>
+        </div>
+        
+        {/* Guest Comment Form */}
+        <GuestCommentForm 
+          postId={postId}
+          postType={postType}
+          onCommentAdded={fetchComments}
+        />
+        
+        {/* Display existing comments */}
+        <CommentSection
+          postId={postId}
+          postType={postType}
+          comments={comments}
+          onAddComment={handleAddComment}
+          onEditComment={handleEditComment}
+          onDeleteComment={handleDeleteComment}
+          onAddFavorite={handleAddFavorite}
+          onRemoveFavorite={handleRemoveFavorite}
+          onCheckFavorite={handleCheckFavorite}
+          onCommentAdded={fetchComments}
+        />
       </div>
     );
   }

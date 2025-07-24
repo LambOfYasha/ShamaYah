@@ -40,6 +40,7 @@ export const userType = defineType({
       description: 'User role in the system',
       options: {
         list: [
+          {title: 'Guest', value: 'guest'},
           {title: 'Member', value: 'member'},
           {title: 'Moderator', value: 'moderator'},
           {title: 'Admin', value: 'admin'},

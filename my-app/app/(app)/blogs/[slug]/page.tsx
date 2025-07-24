@@ -83,19 +83,24 @@ export default async function BlogPage({
 }) {
   const { slug } = await params;
   const blog = await getBlog(slug);
-  const currentUser = await getCurrentUser();
 
   if (!blog) {
     notFound();
   }
 
-  // Use the same user object for permission checks
-  const user = await getCurrentUser();
+  // Try to get current user, but don't require authentication
+  let user = null;
+  try {
+    user = await getCurrentUser();
+  } catch (error) {
+    // User is not authenticated, which is fine for guest access
+    console.log('User not authenticated, allowing guest access');
+  }
 
   console.log("Blog page - Blog ID:", blog._id);
   console.log("Blog page - Blog author ID:", blog.author?._id);
-  console.log("Blog page - User ID:", user._id);
-  console.log("Blog page - User role:", user.role);
+  console.log("Blog page - User ID:", user?._id);
+  console.log("Blog page - User role:", user?.role);
 
   const canEdit = user && (
     user._id === blog.author?._id || 
