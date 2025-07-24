@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageSquare, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useModeration } from '@/hooks/useModeration';
+import { ModerationFeedback } from '@/components/ui/moderation-feedback';
 
 interface GuestCommentFormProps {
   postId: string;
@@ -20,6 +22,37 @@ export default function GuestCommentForm({ postId, postType, onCommentAdded }: G
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showGuestForm, setShowGuestForm] = useState(false);
   const { toast } = useToast();
+
+  // Initialize moderation for guest comment content
+  const {
+    content: moderatedContent,
+    updateContent: updateModeratedContent,
+    moderationState,
+    checkModeration,
+    clearModeration,
+    getModerationFeedback,
+    canSubmit
+  } = useModeration({
+    contentType: 'comment',
+    debounceMs: 1000,
+    autoCheck: true
+  });
+
+  // Update moderated content when comment changes
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setComment(value);
+    // Check comment and guest name together
+    updateModeratedContent(`${value}\n\nGuest: ${guestName}`);
+  };
+
+  // Update moderated content when guest name changes
+  const handleGuestNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setGuestName(value);
+    // Check comment and guest name together
+    updateModeratedContent(`${comment}\n\nGuest: ${value}`);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +70,15 @@ export default function GuestCommentForm({ postId, postType, onCommentAdded }: G
       toast({
         title: "Error",
         description: "Please enter your name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!canSubmit) {
+      toast({
+        title: "Error",
+        description: "Please wait for content moderation to complete",
         variant: "destructive",
       });
       return;
@@ -84,6 +126,7 @@ export default function GuestCommentForm({ postId, postType, onCommentAdded }: G
       setComment('');
       setGuestName('');
       setShowGuestForm(false);
+      clearModeration();
       onCommentAdded();
       
       toast({
@@ -137,7 +180,7 @@ export default function GuestCommentForm({ postId, postType, onCommentAdded }: G
               id="guestName"
               type="text"
               value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
+              onChange={handleGuestNameChange}
               placeholder="Enter your name"
               required
               minLength={2}
@@ -152,17 +195,29 @@ export default function GuestCommentForm({ postId, postType, onCommentAdded }: G
             <Textarea
               id="comment"
               value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              onChange={handleCommentChange}
               placeholder="Share your thoughts..."
               required
               rows={4}
             />
+            
+            {/* Moderation Feedback */}
+            {(comment.trim() || guestName.trim()) && (
+              <div className="mt-2">
+                <ModerationFeedback
+                  isChecking={moderationState.isChecking}
+                  result={moderationState.result}
+                  error={moderationState.error}
+                  showDetails={false}
+                />
+              </div>
+            )}
           </div>
           
           <div className="flex gap-2">
             <Button 
               type="submit" 
-              disabled={isSubmitting || !comment.trim() || !guestName.trim()}
+              disabled={isSubmitting || !comment.trim() || !guestName.trim() || !canSubmit}
             >
               {isSubmitting ? 'Posting...' : 'Post Comment'}
             </Button>

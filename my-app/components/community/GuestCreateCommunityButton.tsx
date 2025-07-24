@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, X, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useModeration } from '@/hooks/useModeration';
+import { ModerationFeedback } from '@/components/ui/moderation-feedback';
 
 export default function GuestCreateCommunityButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +20,45 @@ export default function GuestCreateCommunityButton() {
   const [guestName, setGuestName] = useState('');
   const { toast } = useToast();
 
+  // Initialize moderation for guest community question content
+  const {
+    content: moderatedContent,
+    updateContent: updateModeratedContent,
+    moderationState,
+    checkModeration,
+    clearModeration,
+    getModerationFeedback,
+    canSubmit
+  } = useModeration({
+    contentType: 'post',
+    debounceMs: 1500,
+    autoCheck: true
+  });
+
+  // Update moderated content when title changes
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTitle(value);
+    // Check title, description, and content together
+    updateModeratedContent(`${value}\n\n${description}\n\n${content}`);
+  };
+
+  // Update moderated content when description changes
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setDescription(value);
+    // Check title, description, and content together
+    updateModeratedContent(`${title}\n\n${value}\n\n${content}`);
+  };
+
+  // Update moderated content when content changes
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setContent(value);
+    // Check title, description, and content together
+    updateModeratedContent(`${title}\n\n${description}\n\n${value}`);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -25,6 +66,15 @@ export default function GuestCreateCommunityButton() {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!canSubmit) {
+      toast({
+        title: "Error",
+        description: "Please wait for content moderation to complete",
         variant: "destructive",
       });
       return;
@@ -75,6 +125,7 @@ export default function GuestCreateCommunityButton() {
       setContent('');
       setGuestName('');
       setIsOpen(false);
+      clearModeration();
       
       toast({
         title: "Success",
@@ -100,6 +151,7 @@ export default function GuestCreateCommunityButton() {
     setDescription('');
     setContent('');
     setGuestName('');
+    clearModeration();
     setIsOpen(false);
   };
 
@@ -144,7 +196,7 @@ export default function GuestCreateCommunityButton() {
               id="title"
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={handleTitleChange}
               placeholder="Enter the question title"
               required
             />
@@ -157,7 +209,7 @@ export default function GuestCreateCommunityButton() {
             <Textarea
               id="description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={handleDescriptionChange}
               placeholder="Ask your question here..."
               required
               rows={2}
@@ -171,11 +223,23 @@ export default function GuestCreateCommunityButton() {
             <Textarea
               id="content"
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={handleContentChange}
               placeholder="Provide more details about your question..."
               rows={4}
             />
           </div>
+          
+          {/* Moderation Feedback */}
+          {(title.trim() || description.trim() || content.trim()) && (
+            <div className="mt-4">
+              <ModerationFeedback
+                isChecking={moderationState.isChecking}
+                result={moderationState.result}
+                error={moderationState.error}
+                showDetails={true}
+              />
+            </div>
+          )}
           
           <div className="flex justify-end gap-3 flex-shrink-0 pt-4 border-t bg-white">
             <Button type="button" variant="outline" onClick={handleCancel}>
@@ -184,7 +248,7 @@ export default function GuestCreateCommunityButton() {
             </Button>
             <Button 
               type="submit" 
-              disabled={isLoading || !title.trim() || !description.trim() || !guestName.trim()}
+              disabled={isLoading || !title.trim() || !description.trim() || !guestName.trim() || !canSubmit}
             >
               {isLoading ? (
                 <>

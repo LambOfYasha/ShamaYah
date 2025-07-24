@@ -53,25 +53,32 @@ This document outlines the implementation of a guest role that allows unauthenti
 - **File**: `action/postActions.ts` - Updated to remove guest user support for responses
 
 ### 6. **UI Components**
-- **File**: `components/comments/GuestCommentForm.tsx` - Guest comment form
-- **File**: `components/community/GuestCreateCommunityButton.tsx` - Guest community creation
+- **File**: `components/comments/GuestCommentForm.tsx` - Guest comment form with AI moderation
+- **File**: `components/community/GuestCreateCommunityButton.tsx` - Guest community creation with AI moderation
 - **File**: `components/comments/EmbeddedCommentSectionWrapper.tsx` - Shows guest forms for unauthenticated users
 
-### 7. **Authentication & Middleware**
+### 7. **AI Moderation Features**
+- **Guest Comments**: Real-time AI moderation with feedback
+- **Guest Community Questions**: AI moderation for title, description, and content
+- **Moderation Feedback**: Visual feedback showing moderation status and results
+- **Content Validation**: Prevents submission of inappropriate content
+- **Auto-check**: Automatic moderation as users type with configurable debounce
+
+### 8. **Authentication & Middleware**
 - **File**: `middleware.ts` - Allows public access to guest API routes
 - **File**: `lib/auth/middleware.ts` - Updated `getCurrentUser()` to handle unauthenticated users gracefully
 - **Public Routes**: Guest-specific API endpoints bypass authentication
 
-### 8. **Page Access**
+### 9. **Page Access**
 - **File**: `app/(app)/blogs/[slug]/page.tsx` - Allows guest access to blog posts
 - **File**: `app/(app)/community-questions/[slug]/page.tsx` - Allows guest access to community questions
 - **Error Handling**: Graceful handling of unauthenticated users without redirects
 
-### 9. **Sidebar Integration**
+### 10. **Sidebar Integration**
 - **File**: `components/app-sidebar.tsx` - Shows guest community creation button for unauthenticated users
 - **Conditional Rendering**: Different UI elements based on authentication status
 
-### 10. **Favorite Button Handling**
+### 11. **Favorite Button Handling**
 - **Approach**: Hide favorite buttons completely for guests instead of handling errors
 - **Updated Files**:
   - `app/(app)/blogs/[slug]/page.tsx` - Wrapped FavoriteButton with `{user && (...)}`
@@ -132,6 +139,10 @@ await createCommunityQuestion(title, description, content, guestUser);
 - [ ] Guest cannot see favorite buttons
 - [ ] Guest cannot access dashboard
 - [ ] Guest can report content
+- [ ] AI moderation works for guest comments
+- [ ] AI moderation works for guest community questions
+- [ ] Moderation feedback shows appropriate messages
+- [ ] Inappropriate content is blocked from submission
 - [ ] No authentication errors in console
 
 ## Future Enhancements
