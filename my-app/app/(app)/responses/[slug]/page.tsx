@@ -21,6 +21,9 @@ import { getImageUrl } from '@/lib/utils';
 import { ReportButton } from '@/components/ui/report-button';
 import RichContentRenderer from '@/components/ui/rich-content-renderer';
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 interface Response {
   _id: string;
   title: string;

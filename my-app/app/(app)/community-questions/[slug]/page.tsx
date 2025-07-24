@@ -27,6 +27,9 @@ import CommunityResponses from "@/components/community/CommunityResponses";
 import { editCommunity } from "@/action/editCommunity";
 import { ReportButton } from "@/components/ui/report-button";
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 interface CommunityQuestionWithModerator extends CommunityQuestion {
   moderator: Teacher;
 }

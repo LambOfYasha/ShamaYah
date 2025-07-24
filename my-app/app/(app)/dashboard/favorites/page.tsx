@@ -10,6 +10,9 @@ import {
 } from "lucide-react";
 import FavoritesClient from "./favorites-client";
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 export default async function FavoritesPage() {
   const favoritesResult = await getUserFavoritesAction();
   const favorites = favoritesResult.favorites || [];

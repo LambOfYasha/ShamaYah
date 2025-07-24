@@ -31,6 +31,9 @@ import RichContentRenderer from "@/components/ui/rich-content-renderer";
 import { TagList } from "@/components/ui/tag";
 import ViewCounter from "@/components/ui/view-counter";
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 interface BlogWithAuthor extends Omit<Blog, 'author'> {
   author?: Teacher;
   viewCount?: number;
