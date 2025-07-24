@@ -34,7 +34,7 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
 
 export const ROLE_PERMISSIONS = {
   [ROLES.GUEST]: {
-    canCreatePosts: true,
+    canCreatePosts: false,
     canComment: true,
     canCreateCommunities: true,
     canModerate: false,
@@ -47,7 +47,7 @@ export const ROLE_PERMISSIONS = {
     canDeleteOtherContent: false,
   },
   [ROLES.MEMBER]: {
-    canCreatePosts: true,
+    canCreatePosts: false,
     canComment: true,
     canCreateCommunities: false,
     canModerate: false,

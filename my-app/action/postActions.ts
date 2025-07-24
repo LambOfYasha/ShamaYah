@@ -4,6 +4,7 @@ import { getUser } from "@/lib/user/getUser";
 import { adminClient } from "@/sanity/lib/adminClient";
 import { defineQuery } from "groq";
 import { cleanupFavoritesForDeletedPost } from "./embeddedComments";
+import { isTeacher } from "@/lib/auth/roles";
 
 export async function createCommunityResponse(
     communityQuestionId: string,
@@ -11,29 +12,21 @@ export async function createCommunityResponse(
     body: string,
     imageBase64?: string,
     imageFilename?: string,
-    imageContentType?: string,
-    guestUser?: { _id: string, username: string, role: string, imageURL?: string }
+    imageContentType?: string
 ) {
     try {
-        let user;
+        // Get authenticated user
+        const userResult = await getUser();
         
-        if (guestUser) {
-            // Use provided guest user
-            user = guestUser;
-        } else {
-            // Try to get authenticated user
-            const userResult = await getUser();
-            
-            if ("error" in userResult) {
-                return { error: userResult.error };
-            }
-            
-            user = userResult;
+        if ("error" in userResult) {
+            return { error: userResult.error };
         }
+        
+        const user = userResult;
 
-        // Check if user has permission to create responses
-        if (user.role !== 'guest' && user.role !== 'member' && user.role !== 'teacher' && user.role !== 'junior_teacher' && user.role !== 'senior_teacher' && user.role !== 'lead_teacher' && user.role !== 'admin') {
-            return { error: "You don't have permission to create responses" };
+        // Check if user has permission to create responses (teachers only)
+        if (!isTeacher(user.role) && user.role !== 'admin') {
+            return { error: "You don't have permission to create responses. Only teachers can create responses." };
         }
 
         // Verify community question exists

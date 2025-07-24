@@ -9,12 +9,12 @@ This document outlines the implementation of a guest role that allows unauthenti
 - **View Posts**: Browse blogs and community questions
 - **Make Comments**: Add comments to posts using a guest name
 - **Create Community Questions**: Ask questions in community sections
-- **Create Community Responses**: Respond to community questions
 - **Search Content**: Use the search functionality
 - **Report Content**: Report inappropriate content
 - **View Tags**: Browse and filter by tags
 
 ### ❌ **What Guests Cannot Do:**
+- **Create Community Responses**: Cannot add responses to community questions (reserved for teachers only)
 - **Favorites**: Cannot save/favorite posts or comments (buttons are hidden)
 - **Edit Content**: Cannot edit their own or others' content
 - **Delete Content**: Cannot delete any content
@@ -45,17 +45,15 @@ This document outlines the implementation of a guest role that allows unauthenti
 ### 4. **API Endpoints for Guests**
 - **File**: `app/api/user/guest/route.ts` - Create guest users
 - **File**: `app/api/comments/guest/route.ts` - Guest comment submission
-- **File**: `app/api/posts/guest/route.ts` - Guest community response creation
 - **File**: `app/api/communities/guest/route.ts` - Guest community question creation
 
 ### 5. **Server Actions**
 - **File**: `action/embeddedComments.ts` - Updated to accept `guestUser` parameter
 - **File**: `action/embeddedCommentActions.ts` - Updated to pass guest user data
-- **File**: `action/postActions.ts` - Updated to accept guest users for community responses
+- **File**: `action/postActions.ts` - Updated to remove guest user support for responses
 
 ### 6. **UI Components**
 - **File**: `components/comments/GuestCommentForm.tsx` - Guest comment form
-- **File**: `components/community/GuestAddResponseForm.tsx` - Guest response form
 - **File**: `components/community/GuestCreateCommunityButton.tsx` - Guest community creation
 - **File**: `components/comments/EmbeddedCommentSectionWrapper.tsx` - Shows guest forms for unauthenticated users
 
@@ -126,8 +124,10 @@ await createCommunityQuestion(title, description, content, guestUser);
 - [ ] Guest can view blog posts
 - [ ] Guest can view community questions
 - [ ] Guest can add comments with name
-- [ ] Guest can create community responses
 - [ ] Guest can create community questions
+- [ ] Guest cannot create community responses (shows sign-in prompt)
+- [ ] Members cannot create community responses (shows permission error)
+- [ ] Teachers can create community responses
 - [ ] Guest can search content
 - [ ] Guest cannot see favorite buttons
 - [ ] Guest cannot access dashboard

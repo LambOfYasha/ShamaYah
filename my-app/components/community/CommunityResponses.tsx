@@ -10,7 +10,6 @@ import { CheckCircle, MessageSquare, Calendar, User, Eye } from 'lucide-react';
 import { getCommunityResponses } from '@/action/postActions';
 import ApproveResponseButton from '@/components/ui/approve-response-button';
 import AddResponseForm from '@/components/community/AddResponseForm';
-import GuestAddResponseForm from '@/components/community/GuestAddResponseForm';
 import FavoriteButton from '@/components/ui/favorite-button';
 import EditResponseButton from '@/components/ui/edit-response-button';
 import DeleteResponseButton from '@/components/ui/delete-response-button';
@@ -149,11 +148,12 @@ export default function CommunityResponses({ communityQuestionId, user, communit
               onSuccess={refreshResponses}
             />
           ) : (
-            <GuestAddResponseForm 
-              communityQuestionId={communityQuestionId}
-              communityQuestionTitle={communityQuestionTitle || 'this community'}
-              onSuccess={refreshResponses}
-            />
+            <div className="flex flex-col items-center justify-center p-6">
+              <h4 className="text-lg font-semibold mb-2">You need to be signed in to add a response</h4>
+              <Button onClick={() => clerkUser?.signIn()} className="h-10 px-6">
+                Sign In
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -171,11 +171,12 @@ export default function CommunityResponses({ communityQuestionId, user, communit
             onSuccess={refreshResponses}
           />
         ) : (
-          <GuestAddResponseForm 
-            communityQuestionId={communityQuestionId}
-            communityQuestionTitle={communityQuestionTitle || 'this community'}
-            onSuccess={refreshResponses}
-          />
+          <div className="flex flex-col items-center justify-center p-6">
+            <h4 className="text-lg font-semibold mb-2">You need to be signed in to add a response</h4>
+            <Button onClick={() => clerkUser?.signIn()} className="h-10 px-6">
+              Sign In
+            </Button>
+          </div>
         )}
       </div>
 

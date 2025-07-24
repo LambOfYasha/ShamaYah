@@ -12,13 +12,12 @@ const isProtectedRoute = createRouteMatcher([
   '/api/webhooks(.*)',
 ]);
 
-const isPublicApiRoute = createRouteMatcher([
-  '/api/user/guest(.*)',
-  '/api/comments/guest(.*)',
-  '/api/posts/guest(.*)',
-  '/api/communities/guest(.*)',
-  '/api/search(.*)',
-]);
+  // Public API routes for guest functionality
+  const isPublicApiRoute = createRouteMatcher([
+    '/api/user/guest(.*)',
+    '/api/comments/guest(.*)',
+    '/api/communities/guest(.*)',
+  ]);
 
 const middleware = clerkMiddleware({
   beforeAuth: (req) => {
