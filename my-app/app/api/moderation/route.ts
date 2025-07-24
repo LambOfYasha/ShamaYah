@@ -9,8 +9,21 @@ export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
     
+    // Handle unauthenticated users (guests)
+    let userResult;
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      // Create a mock user for guest moderation
+      userResult = {
+        _id: 'guest_moderation',
+        role: 'guest',
+        username: 'Guest User'
+      };
+    } else {
+      // Get user information for authenticated users
+      userResult = await getUser();
+      if ('error' in userResult) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      }
     }
 
     const body = await request.json();
@@ -21,12 +34,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         error: 'Missing required fields: content, contentType' 
       }, { status: 400 });
-    }
-
-    // Get user information
-    const userResult = await getUser();
-    if ('error' in userResult) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Create moderation request
@@ -69,8 +76,35 @@ export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
     
+    // Allow unauthenticated users to access moderation guidelines
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      // Return moderation guidelines for guests
+      return NextResponse.json({
+        success: true,
+        guidelines: {
+          inappropriateTopics: [
+            'explicit sexual content',
+            'graphic violence',
+            'illegal activities',
+            'personal attacks',
+            'harassment',
+            'discrimination',
+            'spam',
+            'self-promotion without value',
+            'offensive language',
+            'religious intolerance'
+          ],
+          communityGuidelines: `
+            This is a Christian community focused on spiritual growth and biblical discussion.
+            Content should be:
+            - Respectful and edifying
+            - Biblically sound
+            - Encouraging to others
+            - Relevant to the community topic
+            - Free from personal attacks or divisive language
+          `
+        }
+      });
     }
 
     // Return moderation guidelines for frontend

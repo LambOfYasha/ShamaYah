@@ -17,6 +17,7 @@ const isProtectedRoute = createRouteMatcher([
     '/api/user/guest(.*)',
     '/api/comments/guest(.*)',
     '/api/communities/guest(.*)',
+    '/api/moderation(.*)',
   ]);
 
 const middleware = clerkMiddleware({
