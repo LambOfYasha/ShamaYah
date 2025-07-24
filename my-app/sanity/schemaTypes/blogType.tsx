@@ -80,6 +80,14 @@ export const blogType = defineType({
             of: [{type: 'reference', to: [{type: 'tag'}]}],
             description: 'Tags associated with this blog post',
         }),
+        defineField({
+            name: 'viewCount',
+            title: 'View Count',
+            type: 'number',
+            description: 'Number of views this blog post has received',
+            initialValue: 0,
+            validation: (Rule: ValidationRule) => Rule.min(0),
+        }),
     ],
     preview: {
         select: {

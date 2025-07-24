@@ -73,3 +73,18 @@ export function calculateReadTime(content: string | any[] | undefined): { minute
   
   return { minutes, formatted };
 }
+
+/**
+ * Format view count in a user-friendly way
+ * @param count - The view count number
+ * @returns Formatted string (e.g., "1.2k", "1.5M")
+ */
+export function formatViewCount(count: number): string {
+  if (count < 1000) {
+    return count.toString();
+  } else if (count < 1000000) {
+    return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  } else {
+    return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+}

@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import CreateBlogButton from "@/components/header/CreateBlogButton";
 import { formatDistanceToNow } from 'date-fns';
+import { formatViewCount } from '@/lib/utils';
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
@@ -121,6 +122,12 @@ export default async function BlogsPage() {
                         <User className="w-4 h-4 mr-2" />
                         {blog.author.username}
                       </div>
+                      <div className="flex items-center space-x-4">
+                        <span className="flex items-center">
+                          <Eye className="w-4 h-4 mr-1" />
+                          {formatViewCount(blog.viewCount || 0)} views
+                        </span>
+                      </div>
                     </div>
                     
                     <div className="flex space-x-2">
@@ -173,6 +180,10 @@ export default async function BlogsPage() {
                         <span className="flex items-center">
                           <Calendar className="w-4 h-4 mr-1" />
                           {formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true })}
+                        </span>
+                        <span className="flex items-center">
+                          <Eye className="w-4 h-4 mr-1" />
+                          {formatViewCount(blog.viewCount || 0)} views
                         </span>
                       </div>
                     </div>

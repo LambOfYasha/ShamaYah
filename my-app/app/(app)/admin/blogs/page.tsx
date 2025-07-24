@@ -17,104 +17,19 @@ import CreateBlogButton from "@/components/header/CreateBlogButton";
 import EditBlogButton from "@/components/blog/EditBlogButton";
 import DeleteBlogButton from "@/components/blog/DeleteBlogButton";
 import { deleteBlog } from "@/action/deleteBlog";
+import { getBlogs } from "@/sanity/lib/blogs/getBlogs";
+import { formatViewCount } from '@/lib/utils';
 
 export default async function AdminBlogsPage() {
-  // Mock data - replace with actual data fetching
-  const blogs = [
-    {
-      _id: "1",
-      title: "Understanding Biblical Hermeneutics",
-      description: "A comprehensive guide to interpreting biblical texts with proper methodology and historical context.",
-      slug: {
-        _type: "slug",
-        current: "understanding-biblical-hermeneutics"
-      },
-      content: [
-        {
-          _type: "block",
-          children: [
-            {
-              _type: "span",
-              text: "Blog content here..."
-            }
-          ]
-        }
-      ],
-      author: {
-        username: "Dr. Sarah Johnson",
-        role: "teacher"
-      },
-      createdAt: "2024-01-15",
-      status: "published",
-      views: 1250,
-      category: "Biblical Studies",
-      isPublished: true,
-    },
-    {
-      _id: "2",
-      title: "The Role of Prayer in Christian Life",
-      description: "Exploring the importance of prayer and its transformative power in the believer's journey.",
-      slug: {
-        _type: "slug",
-        current: "role-of-prayer-christian-life"
-      },
-      content: [
-        {
-          _type: "block",
-          children: [
-            {
-              _type: "span",
-              text: "Blog content here..."
-            }
-          ]
-        }
-      ],
-      author: {
-        username: "Pastor Michael Chen",
-        role: "teacher"
-      },
-      createdAt: "2024-01-10",
-      status: "draft",
-      views: 0,
-      category: "Spiritual Life",
-      isPublished: false,
-    },
-    {
-      _id: "3",
-      title: "Church History: The Early Church Fathers",
-      description: "An examination of the early church fathers and their contributions to Christian theology.",
-      slug: {
-        _type: "slug",
-        current: "church-history-early-fathers"
-      },
-      content: [
-        {
-          _type: "block",
-          children: [
-            {
-              _type: "span",
-              text: "Blog content here..."
-            }
-          ]
-        }
-      ],
-      author: {
-        username: "Prof. David Williams",
-        role: "teacher"
-      },
-      createdAt: "2024-01-08",
-      status: "published",
-      views: 890,
-      category: "Church History",
-      isPublished: true,
-    },
-  ];
+  // Get real blog data
+  const blogs = await getBlogs();
 
+  // Calculate stats
   const stats = {
     totalBlogs: blogs.length,
-    publishedBlogs: blogs.filter(blog => blog.isPublished).length,
-    totalViews: blogs.reduce((sum, blog) => sum + blog.views, 0),
-    draftBlogs: blogs.filter(blog => !blog.isPublished).length,
+    publishedBlogs: blogs.filter(blog => blog.createdAt).length,
+    draftBlogs: blogs.filter(blog => !blog.createdAt).length,
+    totalViews: blogs.reduce((sum, blog) => sum + (blog.viewCount || 0), 0),
   };
 
   const handleDeleteBlog = async () => {
@@ -163,7 +78,7 @@ export default async function AdminBlogsPage() {
               <Eye className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{formatViewCount(stats.totalViews)}</div>
             </CardContent>
           </Card>
 
@@ -198,10 +113,9 @@ export default async function AdminBlogsPage() {
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <CardTitle className="text-lg">{blog.title}</CardTitle>
-                      <Badge variant={blog.isPublished ? "default" : "secondary"}>
-                        {blog.status}
+                      <Badge variant={blog.createdAt ? "default" : "secondary"}>
+                        {blog.createdAt ? "published" : "draft"}
                       </Badge>
-                      <Badge variant="outline">{blog.category}</Badge>
                     </div>
                     <p className="text-gray-600 line-clamp-2">
                       {blog.description}
@@ -218,17 +132,17 @@ export default async function AdminBlogsPage() {
                     </span>
                     <span className="flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(blog.createdAt).toLocaleDateString()}
+                      {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString() : 'Draft'}
                     </span>
                     <span className="flex items-center">
                       <Eye className="w-4 h-4 mr-1" />
-                      {blog.views} views
+                      {formatViewCount(blog.viewCount || 0)} views
                     </span>
                   </div>
                 </div>
                 
                 <div className="flex space-x-2">
-                  <Link href={`/blogs/${blog._id}`}>
+                  <Link href={`/blogs/${blog.slug}`}>
                     <Button size="sm" className="flex-1">
                       <Eye className="w-4 h-4 mr-2" />
                       View

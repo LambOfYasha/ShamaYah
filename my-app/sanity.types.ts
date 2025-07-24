@@ -80,6 +80,7 @@ export interface Blog extends SanityDocument {
   }
   createdAt: string
   updatedAt?: string
+  viewCount?: number
 }
 
 export interface CommunityQuestion extends SanityDocument {

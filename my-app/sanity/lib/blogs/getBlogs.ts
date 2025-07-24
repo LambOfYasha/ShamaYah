@@ -7,6 +7,7 @@ export interface BlogWithAuthor {
   slug: string;
   description: string;
   content: any[];
+  viewCount?: number;
   author: {
     _id: string;
     username: string;
@@ -34,6 +35,7 @@ const getBlogsQuery = defineQuery(`
     "slug": slug.current,
     description,
     content,
+    viewCount,
     "author": author->{
       _id,
       username,

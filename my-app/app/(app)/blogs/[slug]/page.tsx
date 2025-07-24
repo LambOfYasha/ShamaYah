@@ -29,9 +29,11 @@ import { getImageUrl, calculateReadTime } from "@/lib/utils";
 import { ReportButton } from "@/components/ui/report-button";
 import RichContentRenderer from "@/components/ui/rich-content-renderer";
 import { TagList } from "@/components/ui/tag";
+import ViewCounter from "@/components/ui/view-counter";
 
 interface BlogWithAuthor extends Omit<Blog, 'author'> {
   author?: Teacher;
+  viewCount?: number;
   tags?: Array<{
     _id: string;
     name: string;
@@ -94,6 +96,7 @@ export default async function BlogPage({
       slug,
       publishedAt,
       _createdAt,
+      viewCount,
       author->{
         _id,
         username,
@@ -241,8 +244,10 @@ export default async function BlogPage({
                   <span>{calculateReadTime(blog.content).formatted}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4" />
-                  <span>1.2k views</span>
+                  <ViewCounter 
+                    blogId={blog._id} 
+                    initialViewCount={blog.viewCount || 0}
+                  />
                 </div>
                 {blog.author && (
                   <div className="flex items-center gap-2">

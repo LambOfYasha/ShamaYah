@@ -9,6 +9,7 @@ const getBlogsByTagQuery = defineQuery(`
     "slug": slug.current,
     description,
     content,
+    viewCount,
     "author": author->{
       _id,
       username,
