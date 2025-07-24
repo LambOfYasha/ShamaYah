@@ -23,7 +23,6 @@ export interface UserAnalytics {
   engagement: {
     totalViews: number;
     totalFavorites: number;
-    averageRating: number;
     responseRate: number;
   };
   activity: {
@@ -138,9 +137,6 @@ export async function getUserAnalytics(): Promise<UserAnalytics | { error: strin
     const engagementPosts = engagementData.posts || [];
     const totalViews = engagementPosts.reduce((sum: number, post: any) => sum + (post.viewCount || 0), 0);
     const totalFavorites = engagementData.totalFavorites || 0;
-    const averageRating = engagementPosts.length > 0 
-      ? engagementPosts.reduce((sum: number, post: any) => sum + (post.rating || 0), 0) / engagementPosts.length
-      : 0;
 
     // Calculate response rate (posts with comments)
     const postsWithComments = posts.filter((post: any) => post.commentCount > 0).length;
@@ -179,7 +175,6 @@ export async function getUserAnalytics(): Promise<UserAnalytics | { error: strin
       engagement: {
         totalViews,
         totalFavorites,
-        averageRating: Math.round(averageRating * 10) / 10,
         responseRate,
       },
       activity: {

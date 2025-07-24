@@ -27,6 +27,24 @@ export const dynamic = 'force-dynamic';
 export default async function ProfilePage() {
   const user = await getCurrentUser();
   
+  if (!user) {
+    return (
+      <div className="p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center py-12">
+            <h2 className="text-xl font-semibold mb-2">Unable to Load Profile</h2>
+            <p className="text-gray-600 mb-4">Please sign in to view your profile</p>
+            <Button asChild>
+              <Link href="/sign-in">
+                Sign In
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   // Get real user statistics
   const userStatsResult = await getUserStats();
   const userStats: UserStats = "error" in userStatsResult 
@@ -71,7 +89,6 @@ export default async function ProfilePage() {
         engagement: {
           totalViews: 0,
           totalFavorites: 0,
-          averageRating: 0,
           responseRate: 0,
         },
         activity: {
@@ -162,13 +179,7 @@ export default async function ProfilePage() {
                   </div>
                   <span className="font-semibold">{analytics.engagement.totalFavorites}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 text-yellow-500" />
-                    <span>Avg Rating</span>
-                  </div>
-                  <span className="font-semibold">{analytics.engagement.averageRating}/5</span>
-                </div>
+
               </CardContent>
             </Card>
 
@@ -191,7 +202,7 @@ export default async function ProfilePage() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Activity className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm capitalize">{user.role} account</span>
+                  <span className="text-sm capitalize">{user?.role || 'member'} account</span>
                 </div>
               </CardContent>
             </Card>

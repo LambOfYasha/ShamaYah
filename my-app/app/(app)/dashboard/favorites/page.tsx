@@ -79,7 +79,7 @@ export default async function FavoritesPage() {
                       <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                         <div className="flex items-center space-x-1">
                           <User className="w-4 h-4" />
-                          <span>{favorite.post.author.username}</span>
+                          <span>{favorite.post.author?.username || 'Unknown Author'}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-4 h-4" />
@@ -88,10 +88,6 @@ export default async function FavoritesPage() {
                         <div className="flex items-center space-x-1">
                           <Eye className="w-4 h-4" />
                           <span>{favorite.post.viewCount || 0} views</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <ThumbsUp className="w-4 h-4" />
-                          <span>{favorite.post.likeCount || 0} likes</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <MessageSquare className="w-4 h-4" />
