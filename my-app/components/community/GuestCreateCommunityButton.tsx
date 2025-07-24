@@ -108,14 +108,14 @@ export default function GuestCreateCommunityButton() {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="w-full">
           <Plus className="w-4 h-4 mr-2" />
-          Create Community as Guest
+          Ask a Question as Guest
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <User className="w-4 h-4" />
-            Create Community Question as Guest
+            Ask a Question as Guest
           </DialogTitle>
         </DialogHeader>
         
