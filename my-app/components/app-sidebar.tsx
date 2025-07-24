@@ -45,8 +45,8 @@ const memberNavigation = [
     icon: Heart,
   },
   {
-    title: "Communities",
-    url: "/dashboard/communities",
+    title: "Questions",
+    url: "/dashboard/questions",
     icon: Users,
   },
   {
@@ -217,9 +217,9 @@ export default function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href="/dashboard/communities">
+                  <Link href="/dashboard/questions">
                     <Users className="mr-2 h-4 w-4" />
-                    Communities
+                    Questions
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

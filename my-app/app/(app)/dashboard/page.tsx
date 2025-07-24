@@ -166,7 +166,7 @@ export default async function DashboardPage() {
 
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Communities</CardTitle>
+              <CardTitle className="text-sm font-medium">Questions</CardTitle>
               <Users className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
@@ -211,7 +211,7 @@ export default async function DashboardPage() {
                     <Button asChild variant="outline" className="w-full justify-start">
                       <Link href="/communities">
                         <Users className="w-4 h-4 mr-2" />
-                        Browse Communities
+                        Browse Questiions
                       </Link>
                     </Button>
                     <Button asChild variant="outline" className="w-full justify-start">
@@ -429,7 +429,7 @@ export default async function DashboardPage() {
             {/* My Communities */}
             <Card>
               <CardHeader>
-                <CardTitle>My Communities</CardTitle>
+                <CardTitle>My Questions</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -456,11 +456,11 @@ export default async function DashboardPage() {
                   ) : (
                     <div className="text-center py-8 text-gray-500">
                       <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                      <p>Not a member of any communities yet</p>
+                      <p>Not a member of any questions yet</p>
                       <Button className="mt-4" asChild>
                         <Link href="/communities">
                           <Users className="w-4 h-4 mr-2" />
-                          Join Communities
+                          Participate in Questions
                         </Link>
                       </Button>
                     </div>
@@ -495,7 +495,7 @@ export default async function DashboardPage() {
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span>Community Activity</span>
+                        <span>Question Activity</span>
                         <span>{stats.communitiesJoined}/10</span>
                       </div>
                       <Progress value={Math.min((stats.communitiesJoined / 10) * 100, 100) / 100} />
