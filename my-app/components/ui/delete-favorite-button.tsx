@@ -3,51 +3,66 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import { deleteIndividualFavoriteAction } from '@/action/embeddedCommentActions';
-import { useRouter } from 'next/navigation';
+import { deleteFavorite } from '@/action/favoriteActions';
+import { useToast } from '@/hooks/use-toast';
 
 interface DeleteFavoriteButtonProps {
   favoriteId: string;
-  className?: string;
+  onDelete?: () => void;
   size?: 'sm' | 'md' | 'lg';
-  variant?: 'default' | 'outline' | 'ghost' | 'destructive';
+  variant?: 'outline' | 'destructive';
+  className?: string;
 }
 
 export default function DeleteFavoriteButton({ 
   favoriteId, 
-  className = '',
-  size = 'sm',
-  variant = 'outline'
+  onDelete, 
+  size = 'sm', 
+  variant = 'outline',
+  className = ''
 }: DeleteFavoriteButtonProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
 
   const handleDelete = async () => {
-    if (isLoading) return;
-
-    if (!confirm('Are you sure you want to remove this favorite?')) {
-      return;
-    }
-
-    setIsLoading(true);
+    if (isDeleting) return;
+    
+    setIsDeleting(true);
+    
     try {
-      await deleteIndividualFavoriteAction(favoriteId);
-      // Refresh the page to show updated favorites
-      router.refresh();
+      const result = await deleteFavorite(favoriteId);
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: result.message || "Favorite removed successfully",
+        });
+        onDelete?.();
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to remove favorite",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
-      console.error('Error deleting favorite:', error);
-      alert('Failed to delete favorite. Please try again.');
+      console.error('Delete favorite error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
     } finally {
-      setIsLoading(false);
+      setIsDeleting(false);
     }
   };
 
   return (
     <Button
-      variant={variant}
       size={size}
+      variant={variant}
       onClick={handleDelete}
-      disabled={isLoading}
+      disabled={isDeleting}
       className={className}
     >
       <Trash2 className="w-4 h-4" />

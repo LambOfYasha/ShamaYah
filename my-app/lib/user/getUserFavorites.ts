@@ -13,10 +13,10 @@ export interface UserFavorite {
     author: {
       _id: string;
       username: string;
+      imageURL?: string;
     };
     publishedAt: string;
     viewCount: number;
-    likeCount: number;
     commentCount: number;
   };
   createdAt: string;
@@ -41,11 +41,11 @@ export async function getUserFavorites(limit: number = 10): Promise<UserFavorite
           slug,
           publishedAt,
           viewCount,
-          likeCount,
           commentCount,
           author->{
             _id,
-            username
+            username,
+            imageURL
           }
         }
       }
