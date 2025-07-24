@@ -1,171 +1,143 @@
 # Guest Role Implementation
 
 ## Overview
+This document outlines the implementation of a guest role that allows unauthenticated users to view content and interact with the platform without requiring authentication.
 
-This implementation adds a 'guest' role to the system that allows unauthenticated users to view posts and make comments without requiring authentication. Guest users have limited permissions compared to registered users.
+## Guest Role Features
 
-## Features Implemented
+### ✅ **What Guests Can Do:**
+- **View Posts**: Browse blogs and community questions
+- **Make Comments**: Add comments to posts using a guest name
+- **Create Community Questions**: Ask questions in community sections
+- **Create Community Responses**: Respond to community questions
+- **Search Content**: Use the search functionality
+- **Report Content**: Report inappropriate content
+- **View Tags**: Browse and filter by tags
 
-### 1. Guest Role System
-- Added 'guest' role to the UserRole type
-- Updated role hierarchy (guest: 0, member: 1, etc.)
-- Added guest permissions (canComment: true, canCreatePosts: false, etc.)
-- Updated Sanity schema to include guest role option
-
-### 2. Guest User Creation
-- Created `createGuestUser()` function in `lib/user/addUser.ts`
-- Added `/api/user/guest` endpoint for creating guest users
-- Guest users get a unique ID and temporary email
-- Guest users are stored in the database with role 'guest'
-
-### 3. Guest Comment System
-- Created `GuestCommentForm` component for unauthenticated users
-- Added `/api/comments/guest` endpoint for guest comments
-- Updated `addEmbeddedComment()` to handle guest users
-- Guest comments are associated with temporary guest user accounts
-
-### 4. Public Access Updates
-- Updated blog and community question pages to allow guest access
-- Modified middleware to allow guest API routes
-- Search functionality remains public
-- Guest users can view all posts without authentication
-
-### 5. UI Components
-- `GuestCommentForm`: Form for guest users to provide name and comment
-- Updated `EmbeddedCommentSectionWrapper` to show guest form for unauthenticated users
-- Guest users see "Comment as Guest" button instead of regular comment form
-
-## Guest User Permissions
-
-### Allowed Actions:
-- ✅ View all blog posts
-- ✅ View all community questions
-- ✅ Search content
-- ✅ Make comments (with name)
-- ✅ Create community responses (with name)
-- ✅ Create community questions (with name) ✨ NEW
-- ✅ View existing comments
-- ✅ Report content
-
-### Restricted Actions:
-- ❌ Create blog posts
-- ❌ Create community questions
-- ❌ Edit content
-- ❌ Delete content
-- ❌ Favorite posts/responses
-- ❌ Access dashboard
-- ❌ Access admin panel
-- ❌ Moderate content
-- ❌ Manage users
+### ❌ **What Guests Cannot Do:**
+- **Favorites**: Cannot save/favorite posts or comments (buttons are hidden)
+- **Edit Content**: Cannot edit their own or others' content
+- **Delete Content**: Cannot delete any content
+- **Access Dashboard**: Cannot access user dashboard features
+- **Access Admin Panel**: Cannot access administrative functions
+- **Manage Users**: Cannot manage other users
+- **Moderate Content**: Cannot moderate or approve content
 
 ## Technical Implementation
 
-### Database Changes
-1. **User Schema**: Added 'guest' role option
-2. **Guest Users**: Stored with temporary IDs and emails
-3. **Comments**: Can be authored by guest users
+### 1. **Role System**
+- **File**: `lib/auth/roles.ts`
+- **Guest Role**: Added `'guest'` to `UserRole` type and `ROLES` constant
+- **Permissions**: Defined `ROLE_PERMISSIONS.GUEST` with appropriate capabilities
+- **Hierarchy**: Guest has lowest priority (0) in `ROLE_HIERARCHY`
 
-### API Routes
-1. **POST /api/user/guest**: Creates guest user accounts
-2. **POST /api/comments/guest**: Creates comments for guest users
-3. **POST /api/posts/guest**: Creates community responses for guest users
-4. **POST /api/communities/guest**: Creates community questions for guest users
-5. **GET /api/search**: Public search (no changes needed)
+### 2. **Database Schema**
+- **File**: `sanity/schemaTypes/userType.tsx`
+- **Update**: Added `'guest'` as valid role option in user schema
+- **File**: `sanity.types.ts`
+- **Update**: Added `'guest'` to User interface role union type
 
-### Authentication Flow
-1. Unauthenticated user visits a post, community question, or the sidebar
-2. User sees "Comment as Guest", "Add Response as Guest", or "Create Community as Guest" button
-3. User provides name and content (comment, response, or community question)
-4. System creates temporary guest user
-5. Content is posted with guest user as author
+### 3. **Guest User Creation**
+- **File**: `lib/user/addUser.ts`
+- **Function**: `createGuestUser(guestName: string)` creates temporary user accounts
+- **Features**: Generates unique guest IDs, stores in Sanity database
 
-### Middleware Updates
-- Added public API routes for guest functionality
-- Protected routes still require authentication
-- Guest routes bypass authentication checks
+### 4. **API Endpoints for Guests**
+- **File**: `app/api/user/guest/route.ts` - Create guest users
+- **File**: `app/api/comments/guest/route.ts` - Guest comment submission
+- **File**: `app/api/posts/guest/route.ts` - Guest community response creation
+- **File**: `app/api/communities/guest/route.ts` - Guest community question creation
+
+### 5. **Server Actions**
+- **File**: `action/embeddedComments.ts` - Updated to accept `guestUser` parameter
+- **File**: `action/embeddedCommentActions.ts` - Updated to pass guest user data
+- **File**: `action/postActions.ts` - Updated to accept guest users for community responses
+
+### 6. **UI Components**
+- **File**: `components/comments/GuestCommentForm.tsx` - Guest comment form
+- **File**: `components/community/GuestAddResponseForm.tsx` - Guest response form
+- **File**: `components/community/GuestCreateCommunityButton.tsx` - Guest community creation
+- **File**: `components/comments/EmbeddedCommentSectionWrapper.tsx` - Shows guest forms for unauthenticated users
+
+### 7. **Authentication & Middleware**
+- **File**: `middleware.ts` - Allows public access to guest API routes
+- **File**: `lib/auth/middleware.ts` - Updated `getCurrentUser()` to handle unauthenticated users gracefully
+- **Public Routes**: Guest-specific API endpoints bypass authentication
+
+### 8. **Page Access**
+- **File**: `app/(app)/blogs/[slug]/page.tsx` - Allows guest access to blog posts
+- **File**: `app/(app)/community-questions/[slug]/page.tsx` - Allows guest access to community questions
+- **Error Handling**: Graceful handling of unauthenticated users without redirects
+
+### 9. **Sidebar Integration**
+- **File**: `components/app-sidebar.tsx` - Shows guest community creation button for unauthenticated users
+- **Conditional Rendering**: Different UI elements based on authentication status
+
+### 10. **Favorite Button Handling**
+- **Approach**: Hide favorite buttons completely for guests instead of handling errors
+- **Updated Files**:
+  - `app/(app)/blogs/[slug]/page.tsx` - Wrapped FavoriteButton with `{user && (...)}`
+  - `app/(app)/community-questions/[slug]/page.tsx` - Wrapped FavoriteButton with `{user && (...)}`
+  - `app/(app)/responses/[slug]/page.tsx` - Wrapped FavoriteButton with `{user && (...)}`
+  - `components/community/CommunityResponses.tsx` - Wrapped FavoriteButton with `{isSignedIn && (...)}`
+  - `components/comments/NestedComment.tsx` - Wrapped favorite button with `{user && (...)}`
+- **Benefits**: Cleaner UX, no authentication errors, proper separation of concerns
 
 ## Usage Examples
 
-### For Guest Users:
-1. Visit any blog post, community question, or use the sidebar
-2. Click "Comment as Guest", "Add Response as Guest", or "Create Community as Guest"
-3. Enter your name and content
-4. Submit to post comment, response, or community question
-
-### For Developers:
+### Guest Commenting
 ```typescript
-// Create a guest user
-const guestUser = await createGuestUser("John Doe");
+// Guest fills out form with name
+const guestName = "Anonymous Guest";
+const comment = "Great post!";
 
-// Add comment as guest
-const result = await addEmbeddedComment(
-  postId, 
-  postType, 
-  content, 
-  undefined, 
-  guestUser
-);
+// System creates guest user and comment
+const guestUser = await createGuestUser(guestName);
+await addEmbeddedComment(postId, postType, comment, undefined, guestUser);
+```
+
+### Guest Community Creation
+```typescript
+// Guest creates community question
+const guestName = "Curious Guest";
+const question = "How do I implement...";
+
+// System creates guest user and community question
+const guestUser = await createGuestUser(guestName);
+await createCommunityQuestion(title, description, content, guestUser);
 ```
 
 ## Security Considerations
 
-1. **Rate Limiting**: Consider implementing rate limiting for guest comments
-2. **Content Moderation**: Guest comments should go through the same moderation as regular comments
-3. **Spam Prevention**: Monitor for spam from guest users
-4. **Data Retention**: Consider how long to keep guest user data
-
-## Future Enhancements
-
-1. **Guest User Management**: Admin panel to view/manage guest users
-2. **Guest to Member Conversion**: Allow guests to convert to full accounts
-3. **Enhanced Moderation**: Special moderation rules for guest comments
-4. **Analytics**: Track guest user engagement
-5. **Temporary Sessions**: Allow guests to maintain session across page visits
+1. **Guest User Persistence**: Guest users are stored in database but marked with `role: 'guest'`
+2. **Content Attribution**: All guest content is properly attributed to guest users
+3. **Rate Limiting**: Consider implementing rate limiting for guest actions
+4. **Moderation**: Guest content goes through same moderation as authenticated users
+5. **No Privilege Escalation**: Guests cannot access authenticated-only features
 
 ## Testing
 
-Visit `/test-guest` to test the guest functionality:
-- View posts without authentication
-- Make comments as a guest
-- Test search functionality
-- Verify proper permissions
+### Test Page
+- **File**: `app/(app)/test-guest/page.tsx`
+- **Features**: Comprehensive testing of all guest capabilities
+- **Sections**: Viewing, commenting, searching, creating posts, limitations
 
-## Files Modified
+### Manual Testing Checklist
+- [ ] Guest can view blog posts
+- [ ] Guest can view community questions
+- [ ] Guest can add comments with name
+- [ ] Guest can create community responses
+- [ ] Guest can create community questions
+- [ ] Guest can search content
+- [ ] Guest cannot see favorite buttons
+- [ ] Guest cannot access dashboard
+- [ ] Guest can report content
+- [ ] No authentication errors in console
 
-### Core System Files:
-- `lib/auth/roles.ts` - Added guest role and permissions
-- `lib/user/addUser.ts` - Added guest user creation
-- `action/embeddedComments.ts` - Updated to handle guest users
-- `action/embeddedCommentActions.ts` - Updated action functions
+## Future Enhancements
 
-### API Routes:
-- `app/api/user/guest/route.ts` - Guest user creation
-- `app/api/comments/guest/route.ts` - Guest comment creation
-- `app/api/posts/guest/route.ts` - Guest post creation
-- `app/api/communities/guest/route.ts` - Guest community creation
-
-### Components:
-- `components/comments/GuestCommentForm.tsx` - Guest comment form
-- `components/community/GuestAddResponseForm.tsx` - Guest post creation form
-- `components/community/GuestCreateCommunityButton.tsx` - Guest community creation form
-- `components/comments/EmbeddedCommentSectionWrapper.tsx` - Updated for guest support
-- `components/community/CommunityResponses.tsx` - Updated for guest support
-- `components/app-sidebar.tsx` - Updated for guest community creation
-
-### Pages:
-- `app/(app)/blogs/[slug]/page.tsx` - Allow guest access
-- `app/(app)/community-questions/[slug]/page.tsx` - Allow guest access
-- `app/(app)/test-guest/page.tsx` - Test page
-
-### Schema Files:
-- `sanity/schemaTypes/userType.tsx` - Added guest role option
-- `sanity.types.ts` - Updated User interface
-- `schema.json` - Updated schema definition
-
-### Configuration:
-- `middleware.ts` - Updated to allow guest routes
-- `sanity.config.ts` - No changes needed
-
-## Conclusion
-
-The guest role implementation provides a seamless experience for unauthenticated users while maintaining security and proper access controls. Guest users can participate in discussions without the friction of account creation, while registered users retain full access to all features. 
+1. **Guest Session Management**: Track guest sessions for better UX
+2. **Guest Content Cleanup**: Periodic cleanup of old guest content
+3. **Guest Analytics**: Track guest engagement metrics
+4. **Guest Conversion**: Encourage guest users to sign up
+5. **Advanced Moderation**: Enhanced moderation for guest content 

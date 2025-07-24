@@ -266,15 +266,17 @@ export default function NestedComment({
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleToggleFavorite}
-                    disabled={isCheckingFavorite || isSubmitting}
-                    className={`${isFavorited ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}
-                  >
-                    <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
-                  </Button>
+                  {user && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleToggleFavorite}
+                      disabled={isCheckingFavorite || isSubmitting}
+                      className={`${isFavorited ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}
+                    >
+                      <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
+                    </Button>
+                  )}
                   
                   {user && level < maxLevel && (
                     <Button

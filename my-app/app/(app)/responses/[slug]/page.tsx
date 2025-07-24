@@ -232,12 +232,14 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <FavoriteButton 
-                  postId={response._id}
-                  postType="response"
-                  size="sm"
-                  variant="outline"
-                />
+                {user && (
+                  <FavoriteButton 
+                    postId={response._id}
+                    postType="response"
+                    size="sm"
+                    variant="outline"
+                  />
+                )}
                 {canApprove && (
                   <ApproveResponseButton
                     responseId={response._id}

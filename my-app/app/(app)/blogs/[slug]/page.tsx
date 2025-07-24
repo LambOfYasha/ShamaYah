@@ -81,40 +81,67 @@ export default async function BlogPage({
 }: { 
   params: Promise<{ slug: string }> 
 }) {
-  const { slug } = await params;
-  const blog = await getBlog(slug);
+  const resolvedParams = await params;
+  const { slug } = resolvedParams;
+
+  // Get the blog data
+  const blogQuery = defineQuery(`
+    *[_type == "blog" && slug.current == $slug][0] {
+      _id,
+      title,
+      description,
+      content,
+      slug,
+      publishedAt,
+      author->{
+        _id,
+        username,
+        imageURL
+      },
+      image,
+      tags[]->{
+        _id,
+        name,
+        slug,
+        color
+      }
+    }
+  `);
+
+  const blog = await client.fetch(blogQuery, { slug }) as BlogWithAuthor;
 
   if (!blog) {
     notFound();
   }
 
-  // Try to get current user, but don't require authentication
+  // Get current user
   let user = null;
   try {
     user = await getCurrentUser();
   } catch (error) {
-    // User is not authenticated, which is fine for guest access
-    console.log('User not authenticated, allowing guest access');
+    // Handle unauthenticated users gracefully
+    console.log('User not authenticated, showing as guest');
   }
+
+  // Check permissions
+  const canEdit = user && (
+    user.role === 'admin' || 
+    user.role === 'moderator' || 
+    (user.role === 'teacher' && blog.author?._id === user._id) ||
+    (user.role === 'member' && blog.author?._id === user._id)
+  );
+
+  const canDelete = user && (
+    user.role === 'admin' || 
+    user.role === 'moderator' || 
+    (user.role === 'teacher' && blog.author?._id === user._id) ||
+    (user.role === 'member' && blog.author?._id === user._id)
+  );
 
   console.log("Blog page - Blog ID:", blog._id);
   console.log("Blog page - Blog author ID:", blog.author?._id);
   console.log("Blog page - User ID:", user?._id);
   console.log("Blog page - User role:", user?.role);
-
-  const canEdit = user && (
-    user._id === blog.author?._id || 
-    user.role === "admin" ||
-    user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher"
-  );
-
-  const canDelete = user && (
-    user._id === blog.author?._id || 
-    user.role === "admin"
-  );
-
-  console.log("Blog page - Can edit:", canEdit);
-  console.log("Blog page - Can delete:", canDelete);
 
   // Create a properly typed blog object for the EditBlogButton
   const blogForEdit = {
@@ -241,12 +268,14 @@ export default async function BlogPage({
                 <Share className="w-4 h-4 mr-2" />
                 Share
               </Button>
-              <FavoriteButton 
-                postId={blog._id}
-                postType="blog"
-                size="sm"
-                variant="outline"
-              />
+              {user && (
+                <FavoriteButton 
+                  postId={blog._id}
+                  postType="blog"
+                  size="sm"
+                  variant="outline"
+                />
+              )}
               <ReportButton 
                 contentId={blog._id}
                 contentType="blog"

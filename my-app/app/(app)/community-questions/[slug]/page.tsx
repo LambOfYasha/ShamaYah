@@ -195,12 +195,14 @@ export default async function CommunityQuestionPage({
                 <Share className="w-4 h-4 mr-2" />
                 Share
               </Button>
-              <FavoriteButton 
-                postId={communityQuestion._id}
-                postType="community"
-                size="sm"
-                variant="outline"
-              />
+              {user && (
+                <FavoriteButton 
+                  postId={communityQuestion._id}
+                  postType="community"
+                  size="sm"
+                  variant="outline"
+                />
+              )}
               <ReportButton 
                 contentId={communityQuestion._id}
                 contentType="communityQuestion"

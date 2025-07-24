@@ -20,10 +20,11 @@ import { createCommunityQuestion } from "@/action/createCommunityQuestion"
 import { useRouter } from "next/navigation"
 import { useModeration } from "@/hooks/useModeration"
 import { ModerationFeedback } from "@/components/ui/moderation-feedback"
+import GuestCreateCommunityButton from "../community/GuestCreateCommunityButton"
 
 function CreateCommunityButton() {
 
-  const { user } = useUser()
+  const { user, isSignedIn } = useUser()
   const [open, setOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [name, setName] = useState("")
@@ -103,6 +104,7 @@ const resetForm = () => {
   setDescription("")
   setImagePreview(null)
   setImageFile(null)
+  setErrorMessage("")
   clearModeration()
   if (fileInputRef.current) {
     fileInputRef.current.value = ""
@@ -111,80 +113,47 @@ const resetForm = () => {
 
 const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault()
-  if(!name.trim()) {
-    setErrorMessage("Name is required")
+  
+  if (!user) {
+    setErrorMessage("You must be signed in to create a community question.")
     return
   }
 
-  if(!slug.trim()) {
-    setErrorMessage("Slug is required")
-    return
-  }
-
-  if(!description.trim()) {
-    setErrorMessage("Description is required")
-    return
-  }
-
-  // Check if content is appropriate before submitting
   if (!canSubmit) {
-    setErrorMessage("Please review the content guidelines before submitting.")
+    setErrorMessage("Please wait for content moderation to complete.")
     return
   }
-
-  setErrorMessage("")
 
   startTransition(async () => {
     try {
-      let imageBase64: string | null = null
-      let fileName: string | null = null
-      let fileType: string | null = null
-
-      if(imageFile) {
-        const reader = new FileReader()
-          imageBase64 = await new Promise<string>((resolve) => {
-            reader.onload = () => {
-              resolve(reader.result as string)
-            }
-            reader.readAsDataURL(imageFile)
-          })
-
-          fileName = imageFile.name
-          fileType = imageFile.type
-        }
-
-        const result = await createCommunityQuestion(
-  name.trim(),
-  imageBase64,
-  fileName,
-  fileType,
-  slug.trim(),
-  description.trim() || undefined,
-        )  
-
-        console.log("created community:", result)
+      const result = await createCommunityQuestion(name, slug, description, imageFile)
       
-      if ("error" in result && result.error) {
-        setErrorMessage(result.error)
-      } else if ("createdCommunity" in result && result.createdCommunity) {
+      if (result.success) {
         setOpen(false)
         resetForm()
-        router.push(`/community-questions/${result.createdCommunity.slug?.current}`)
-      }} catch (err) {
-          console.error("failed to create community", err)
-          setErrorMessage("failed to create community")
-        }
-      })
+        router.push(`/community-questions/${slug}`)
+      } else {
+        setErrorMessage(result.error || "Failed to create community question.")
+      }
+    } catch (error) {
+      console.error("Error creating community question:", error)
+      setErrorMessage("An unexpected error occurred. Please try again.")
+    }
+  })
 }
+
+  // If user is not signed in, show the guest community creation button
+  if (!isSignedIn) {
+    return <GuestCreateCommunityButton />
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="w-full p-2 pl-5 flex items-center rounded-md 
       cursor-pointer bg-black text-white 
-      hover:bg-black transition-all duration-200 
-      disabled:text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled={!user}>
+      hover:bg-black transition-all duration-200">
         <Plus />
-        {user ? "Ask a Question" : "Sign in to ask a question"}
+        Ask a Question
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
