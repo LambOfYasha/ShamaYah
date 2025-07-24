@@ -43,6 +43,7 @@ This implementation adds a 'guest' role to the system that allows unauthenticate
 - ✅ Search content
 - ✅ Make comments (with name)
 - ✅ Create community responses (with name)
+- ✅ Create community questions (with name) ✨ NEW
 - ✅ View existing comments
 - ✅ Report content
 
@@ -68,12 +69,13 @@ This implementation adds a 'guest' role to the system that allows unauthenticate
 1. **POST /api/user/guest**: Creates guest user accounts
 2. **POST /api/comments/guest**: Creates comments for guest users
 3. **POST /api/posts/guest**: Creates community responses for guest users
-4. **GET /api/search**: Public search (no changes needed)
+4. **POST /api/communities/guest**: Creates community questions for guest users
+5. **GET /api/search**: Public search (no changes needed)
 
 ### Authentication Flow
-1. Unauthenticated user visits a post or community question
-2. User sees "Comment as Guest" button or "Add Response as Guest" button
-3. User provides name and content (comment or response)
+1. Unauthenticated user visits a post, community question, or the sidebar
+2. User sees "Comment as Guest", "Add Response as Guest", or "Create Community as Guest" button
+3. User provides name and content (comment, response, or community question)
 4. System creates temporary guest user
 5. Content is posted with guest user as author
 
@@ -85,11 +87,10 @@ This implementation adds a 'guest' role to the system that allows unauthenticate
 ## Usage Examples
 
 ### For Guest Users:
-1. Visit any blog post or community question
-2. Scroll to comments section
-3. Click "Comment as Guest" or "Add Response as Guest"
-4. Enter your name and content
-5. Submit to post comment or response
+1. Visit any blog post, community question, or use the sidebar
+2. Click "Comment as Guest", "Add Response as Guest", or "Create Community as Guest"
+3. Enter your name and content
+4. Submit to post comment, response, or community question
 
 ### For Developers:
 ```typescript
@@ -141,12 +142,15 @@ Visit `/test-guest` to test the guest functionality:
 - `app/api/user/guest/route.ts` - Guest user creation
 - `app/api/comments/guest/route.ts` - Guest comment creation
 - `app/api/posts/guest/route.ts` - Guest post creation
+- `app/api/communities/guest/route.ts` - Guest community creation
 
 ### Components:
 - `components/comments/GuestCommentForm.tsx` - Guest comment form
 - `components/community/GuestAddResponseForm.tsx` - Guest post creation form
+- `components/community/GuestCreateCommunityButton.tsx` - Guest community creation form
 - `components/comments/EmbeddedCommentSectionWrapper.tsx` - Updated for guest support
 - `components/community/CommunityResponses.tsx` - Updated for guest support
+- `components/app-sidebar.tsx` - Updated for guest community creation
 
 ### Pages:
 - `app/(app)/blogs/[slug]/page.tsx` - Allow guest access

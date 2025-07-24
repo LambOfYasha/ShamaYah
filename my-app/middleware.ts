@@ -8,7 +8,7 @@ const isProtectedRoute = createRouteMatcher([
   '/api/communities(.*)',
   '/api/reports(.*)',
   '/api/search(.*)',
-  '/api/user(?!.*guest|.*comments/guest)(.*)',
+  '/api/user(.*)',
   '/api/webhooks(.*)',
 ]);
 
@@ -16,6 +16,7 @@ const isPublicApiRoute = createRouteMatcher([
   '/api/user/guest(.*)',
   '/api/comments/guest(.*)',
   '/api/posts/guest(.*)',
+  '/api/communities/guest(.*)',
   '/api/search(.*)',
 ]);
 

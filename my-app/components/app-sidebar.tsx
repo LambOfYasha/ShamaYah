@@ -26,6 +26,7 @@ import {
 import Link from "next/link"
 import CreateCommunityButton from "./header/CreateCommunityButton"
 import CreateBlogButton from "./header/CreateBlogButton"
+import GuestCreateCommunityButton from "./community/GuestCreateCommunityButton"
 
 // Member navigation items
 const memberNavigation = [
@@ -277,6 +278,11 @@ export default function AppSidebar() {
                     </CollapsibleContent>
                 )}
                 </SidebarMenuItem>
+                {!isSignedIn && (
+                  <SidebarMenuItem>
+                    <GuestCreateCommunityButton />
+                  </SidebarMenuItem>
+                )}
               </Collapsible>
           </SidebarMenu>
         </SidebarGroup>

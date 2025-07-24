@@ -36,7 +36,7 @@ export const ROLE_PERMISSIONS = {
   [ROLES.GUEST]: {
     canCreatePosts: true,
     canComment: true,
-    canCreateCommunities: false,
+    canCreateCommunities: true,
     canModerate: false,
     canManageUsers: false,
     canManageTeachers: false,

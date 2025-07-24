@@ -215,7 +215,8 @@ export async function requireAdminOrLeadTeacher() {
 
 export async function getCurrentUser() {
   try {
-    const userId = await requireAuth();
+    // Handle authentication directly instead of using requireAuth
+    const { userId } = await auth();
     
     if (!userId) {
       // During build time, return a mock user to prevent errors
@@ -227,19 +228,22 @@ export async function getCurrentUser() {
           role: 'member' as UserRole
         };
       }
-      redirect('/sign-in');
+      // Return null for unauthenticated users
+      return null;
     }
     
     const user = await getUser();
     
     if ('error' in user) {
       console.log('User not found in database:', user.error);
-      redirect('/sign-in');
+      // Return null for unauthenticated users
+      return null;
     }
     
     return user;
   } catch (error) {
     console.error('Auth error in getCurrentUser:', error);
-    redirect('/sign-in');
+    // Return null for unauthenticated users
+    return null;
   }
 } 
