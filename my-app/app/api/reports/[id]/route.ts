@@ -22,7 +22,8 @@ export async function PATCH(
     }
 
     // Allow admins, moderators, and teachers with moderation capabilities to update reports
-    const allowedRoles = ['admin', 'moderator', 'senior_teacher', 'lead_teacher', 'dev'];
+    // This should match the permissions used in the admin page (requireAdminOrTeacher)
+    const allowedRoles = ['admin', 'teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev'];
     if (!allowedRoles.includes(userResult.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -84,7 +85,8 @@ export async function GET(
     }
 
     // Allow admins, moderators, and teachers with moderation capabilities to view individual reports
-    const allowedRoles = ['admin', 'moderator', 'senior_teacher', 'lead_teacher', 'dev'];
+    // This should match the permissions used in the admin page (requireAdminOrTeacher)
+    const allowedRoles = ['admin', 'teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev'];
     if (!allowedRoles.includes(userResult.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

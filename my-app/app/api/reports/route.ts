@@ -128,7 +128,8 @@ export async function GET(request: Request) {
     });
 
     // Allow admins, moderators, and teachers with moderation capabilities to view reports
-    const allowedRoles = ['admin', 'moderator', 'senior_teacher', 'lead_teacher', 'dev', 'member', 'teacher', 'junior_teacher'];
+    // This should match the permissions used in the admin page (requireAdminOrTeacher)
+    const allowedRoles = ['admin', 'teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev'];
     console.log('GET /api/reports: Checking role permissions. User role:', userResult.role, 'Allowed roles:', allowedRoles);
     
     if (!allowedRoles.includes(userResult.role)) {
