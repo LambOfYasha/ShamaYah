@@ -56,6 +56,7 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
                 imageURL: existingUser.imageURL,
                 email: existingUser.email,
                 role: existingUser.role || 'member',
+                joinedAt: existingUser.joinedAt || new Date().toISOString(),
             }
             return user
         }
@@ -78,6 +79,7 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
                 imageURL: existingTeacher.imageURL,
                 email: existingTeacher.email,
                 role: existingTeacher.role || 'teacher',
+                joinedAt: existingTeacher.joinedAt || new Date().toISOString(),
             }
             return teacher
         }
@@ -105,6 +107,7 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
             imageURL: newUser.imageURL,
             email: newUser.email,
             role: newUser.role || 'member',
+            joinedAt: newUser.joinedAt || new Date().toISOString(),
         }
 
         return user

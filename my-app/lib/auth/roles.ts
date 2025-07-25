@@ -6,6 +6,7 @@ export interface UserWithRole {
   imageURL: string;
   email: string;
   role: UserRole;
+  joinedAt?: string;
 }
 
 export const ROLES = {

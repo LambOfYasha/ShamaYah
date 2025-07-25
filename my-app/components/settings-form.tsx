@@ -170,7 +170,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold">{user.username}</h3>
                 <p className="text-gray-600">{user.email}</p>
-                <p className="text-sm text-gray-500">Member since {new Date(user.joinedAt).toLocaleDateString()}</p>
+                <p className="text-sm text-gray-500">Member since {user.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : 'Recently'}</p>
               </div>
               <Button 
                 variant="outline" 
