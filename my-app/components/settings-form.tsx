@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { updateUserProfile } from "@/action/profileActions";
+import { updateUserProfile, updateUserSettings, getUserSettings } from "@/action/settingsActions";
+import { useToast } from "@/hooks/use-toast";
 import { 
   User,
   Bell,
@@ -45,8 +46,12 @@ interface SettingsFormProps {
 }
 
 export function SettingsForm({ user }: SettingsFormProps) {
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
   const [formData, setFormData] = useState({
     username: user.username,
     email: user.email,
@@ -54,6 +59,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
     location: user.location || '',
     website: user.website || ''
   });
+  
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
@@ -61,18 +67,33 @@ export function SettingsForm({ user }: SettingsFormProps) {
     community: true,
     marketing: false
   });
+  
   const [privacy, setPrivacy] = useState({
-    profileVisibility: 'public',
+    profileVisibility: 'public' as 'public' | 'friends' | 'private',
     activityStatus: true,
-    contentVisibility: 'public',
+    contentVisibility: 'public' as 'public' | 'friends' | 'private',
     dataCollection: true
   });
+  
   const [appearance, setAppearance] = useState({
-    theme: 'light',
-    fontSize: 'medium',
+    theme: 'light' as 'light' | 'dark' | 'system',
+    fontSize: 'medium' as 'small' | 'medium' | 'large',
     compactMode: false,
     reducedMotion: false
   });
+
+  // Load user settings on component mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      const result = await getUserSettings();
+      if (result.success && result.settings) {
+        setNotifications(result.settings.notifications || notifications);
+        setPrivacy(result.settings.privacy || privacy);
+        setAppearance(result.settings.appearance || appearance);
+      }
+    };
+    loadSettings();
+  }, []);
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,20 +103,80 @@ export function SettingsForm({ user }: SettingsFormProps) {
       const formDataObj = new FormData();
       formDataObj.append('username', formData.username);
       formDataObj.append('email', formData.email);
+      formDataObj.append('bio', formData.bio);
+      formDataObj.append('location', formData.location);
+      formDataObj.append('website', formData.website);
       
       const result = await updateUserProfile(formDataObj);
       
       if (result.success) {
-        // Show success message
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been updated successfully.",
+        });
         setIsEditing(false);
+        setHasUnsavedChanges(false);
       } else {
-        // Show error message
-        console.error('Update failed:', result.error);
+        toast({
+          title: "Update Failed",
+          description: result.error || "Failed to update profile.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Update error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSettingsSave = async (settingsType: 'notifications' | 'privacy' | 'appearance') => {
+    setIsSavingSettings(true);
+    
+    try {
+      let settingsToUpdate: any = {};
+      
+      switch (settingsType) {
+        case 'notifications':
+          settingsToUpdate = { notifications };
+          break;
+        case 'privacy':
+          settingsToUpdate = { privacy };
+          break;
+        case 'appearance':
+          settingsToUpdate = { appearance };
+          break;
+      }
+      
+      const result = await updateUserSettings(settingsToUpdate);
+      
+      if (result.success) {
+        toast({
+          title: "Settings Saved",
+          description: `${settingsType.charAt(0).toUpperCase() + settingsType.slice(1)} settings have been saved successfully.`,
+        });
+        setHasUnsavedChanges(false);
+      } else {
+        toast({
+          title: "Save Failed",
+          description: result.error || "Failed to save settings.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Settings save error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingSettings(false);
     }
   };
 
@@ -104,6 +185,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
       ...prev,
       [key]: !prev[key as keyof typeof prev]
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handlePrivacyToggle = (key: string) => {
@@ -111,6 +193,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
       ...prev,
       [key]: !prev[key as keyof typeof prev]
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleAppearanceToggle = (key: string) => {
@@ -118,6 +201,23 @@ export function SettingsForm({ user }: SettingsFormProps) {
       ...prev,
       [key]: !prev[key as keyof typeof prev]
     }));
+    setHasUnsavedChanges(true);
+  };
+
+  const handlePrivacyChange = (key: string, value: string) => {
+    setPrivacy(prev => ({
+      ...prev,
+      [key]: value
+    }));
+    setHasUnsavedChanges(true);
+  };
+
+  const handleAppearanceChange = (key: string, value: string) => {
+    setAppearance(prev => ({
+      ...prev,
+      [key]: value
+    }));
+    setHasUnsavedChanges(true);
   };
 
   const exportUserData = () => {
@@ -148,6 +248,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Data Exported",
+      description: "Your data has been downloaded successfully.",
+    });
   };
 
   return (
@@ -389,6 +494,25 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 />
               </div>
             </div>
+            
+            <div className="flex justify-end pt-4 border-t">
+              <Button 
+                onClick={() => handleSettingsSave('notifications')}
+                disabled={isSavingSettings}
+              >
+                {isSavingSettings ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Notification Settings
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
@@ -412,7 +536,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <p className="text-sm text-gray-600">Who can see your profile</p>
                   </div>
                 </div>
-                <Select value={privacy.profileVisibility} onValueChange={(value) => setPrivacy(prev => ({ ...prev, profileVisibility: value }))}>
+                <Select value={privacy.profileVisibility} onValueChange={(value) => handlePrivacyChange('profileVisibility', value)}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -446,7 +570,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <p className="text-sm text-gray-600">Who can see your posts</p>
                   </div>
                 </div>
-                <Select value={privacy.contentVisibility} onValueChange={(value) => setPrivacy(prev => ({ ...prev, contentVisibility: value }))}>
+                <Select value={privacy.contentVisibility} onValueChange={(value) => handlePrivacyChange('contentVisibility', value)}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -472,6 +596,25 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 />
               </div>
             </div>
+            
+            <div className="flex justify-end pt-4 border-t">
+              <Button 
+                onClick={() => handleSettingsSave('privacy')}
+                disabled={isSavingSettings}
+              >
+                {isSavingSettings ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Privacy Settings
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
@@ -495,7 +638,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <p className="text-sm text-gray-600">Choose your preferred theme</p>
                   </div>
                 </div>
-                <Select value={appearance.theme} onValueChange={(value) => setAppearance(prev => ({ ...prev, theme: value }))}>
+                <Select value={appearance.theme} onValueChange={(value) => handleAppearanceChange('theme', value)}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -515,7 +658,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <p className="text-sm text-gray-600">Adjust text size</p>
                   </div>
                 </div>
-                <Select value={appearance.fontSize} onValueChange={(value) => setAppearance(prev => ({ ...prev, fontSize: value }))}>
+                <Select value={appearance.fontSize} onValueChange={(value) => handleAppearanceChange('fontSize', value)}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -554,6 +697,25 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   onCheckedChange={() => handleAppearanceToggle('reducedMotion')}
                 />
               </div>
+            </div>
+            
+            <div className="flex justify-end pt-4 border-t">
+              <Button 
+                onClick={() => handleSettingsSave('appearance')}
+                disabled={isSavingSettings}
+              >
+                {isSavingSettings ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Appearance Settings
+                  </>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
