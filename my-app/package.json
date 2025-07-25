@@ -9,7 +9,8 @@
     "build:force": "set DISABLE_ESLINT_PLUGIN=true && set NODE_ENV=production && set FORCE_BUILD=true && set SKIP_TYPE_CHECK=true && next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "next lint --fix"
+    "lint:fix": "next lint --fix",
+    "typegen": "sanity schema extract && sanity schema generate"
   },
   "dependencies": {
     "@clerk/agent-toolkit": "^0.1.11",
