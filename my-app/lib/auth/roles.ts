@@ -73,14 +73,14 @@ export const ROLE_PERMISSIONS = {
     canAccessAdminPanel: true,
     canManageBlogs: true,
     canDeleteMembers: false,
-    canGiveTeacherApprovals: true,
+    canGiveTeacherApprovals: false,
     canDeleteOtherContent: false,
   },
   [ROLES.JUNIOR_TEACHER]: {
     canCreatePosts: true,
     canComment: true,
     canCreateCommunities: true,
-    canModerate: false,
+    canModerate: true,
     canManageUsers: false,
     canManageTeachers: false,
     canAccessAdminPanel: true,
@@ -99,7 +99,7 @@ export const ROLE_PERMISSIONS = {
     canAccessAdminPanel: true,
     canManageBlogs: false,
     canDeleteMembers: false,
-    canGiveTeacherApprovals: true,
+    canGiveTeacherApprovals: false,
     canDeleteOtherContent: false,
   },
   [ROLES.SENIOR_TEACHER]: {
@@ -113,7 +113,7 @@ export const ROLE_PERMISSIONS = {
     canManageBlogs: true,
     canDeleteMembers: true,
     canGiveTeacherApprovals: true,
-    canDeleteOtherContent: false,
+    canDeleteOtherContent: true,
   },
   [ROLES.LEAD_TEACHER]: {
     canCreatePosts: true,
@@ -173,5 +173,5 @@ export function isAdmin(userRole: UserRole): boolean {
 }
 
 export function isModerator(userRole: UserRole): boolean {
-  return ['moderator', 'senior_teacher', 'lead_teacher', 'dev', 'admin'].includes(userRole);
+  return ['moderator', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev', 'admin'].includes(userRole);
 } 
