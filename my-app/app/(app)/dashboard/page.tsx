@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import Link from "next/link";
 import { 
   MessageSquare, 
@@ -85,10 +85,7 @@ export default async function DashboardPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Avatar className="w-12 h-12">
-                <AvatarImage src={dashboardData.user.imageURL} />
-                <AvatarFallback>{dashboardData.user.username.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
+              <UserAvatar user={dashboardData.user} size="md" />
               <div>
                 <h1 className="text-3xl font-bold mb-2">Welcome back, {dashboardData.user.username}!</h1>
                 <p className="text-gray-600">Here's your activity overview and insights</p>
