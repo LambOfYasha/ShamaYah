@@ -15,6 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { updateUserProfile, updateUserSettings, getUserSettings } from "@/action/settingsActions";
 import { useToast } from "@/hooks/use-toast";
+import { getImageUrl } from "@/lib/utils";
 import { 
   User,
   Bell,
@@ -268,10 +269,28 @@ export function SettingsForm({ user }: SettingsFormProps) {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center space-x-4">
-              <Avatar className="w-16 h-16">
-                <AvatarImage src={user.imageURL} />
-                <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                  {user.imageURL ? (
+                    <img 
+                      src={getImageUrl(user.imageURL) || ''} 
+                      alt={user.username}
+                      className="w-16 h-16 rounded-full object-cover"
+                      onError={(e) => {
+                        // Fallback to user icon if image fails to load
+                        e.currentTarget.style.display = 'none';
+                        const userIcon = e.currentTarget.parentElement?.querySelector('.user-icon');
+                        if (userIcon) {
+                          userIcon.classList.remove('hidden');
+                        }
+                      }}
+                    />
+                  ) : null}
+                  {!user.imageURL && (
+                    <User className="w-8 h-8 text-gray-600 user-icon" />
+                  )}
+                </div>
+              </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold">{user.username}</h3>
                 <p className="text-gray-600">{user.email}</p>
