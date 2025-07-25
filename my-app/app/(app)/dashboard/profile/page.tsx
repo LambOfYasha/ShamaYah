@@ -107,7 +107,20 @@ export default async function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Profile Info */}
           <div className="lg:col-span-2">
-            <ProfileForm user={user} memberSince={userStats.memberSince} />
+            <ProfileForm 
+              user={{
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                imageURL: user.imageURL,
+                bio: user.bio,
+                location: user.location,
+                website: user.website,
+                joinedAt: user.joinedAt
+              }} 
+              memberSince={userStats.memberSince} 
+            />
           </div>
 
           {/* Stats & Info */}

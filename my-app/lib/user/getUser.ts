@@ -57,6 +57,9 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
                 email: existingUser.email,
                 role: existingUser.role || 'member',
                 joinedAt: existingUser.joinedAt || new Date().toISOString(),
+                bio: existingUser.bio || '',
+                location: existingUser.location || '',
+                website: existingUser.website || ''
             }
             return user
         }
@@ -80,6 +83,9 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
                 email: existingTeacher.email,
                 role: existingTeacher.role || 'teacher',
                 joinedAt: existingTeacher.joinedAt || new Date().toISOString(),
+                bio: existingTeacher.bio || '',
+                location: existingTeacher.location || '',
+                website: existingTeacher.website || ''
             }
             return teacher
         }
@@ -108,6 +114,9 @@ export async function getUser(): Promise<UserWithRole | {error: string}> {
             email: newUser.email,
             role: newUser.role || 'member',
             joinedAt: newUser.joinedAt || new Date().toISOString(),
+            bio: newUser.bio || '',
+            location: newUser.location || '',
+            website: newUser.website || ''
         }
 
         return user

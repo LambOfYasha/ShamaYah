@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -13,7 +14,8 @@ import {
   Camera,
   X,
   Upload,
-  Loader2
+  Loader2,
+  CheckCircle
 } from "lucide-react";
 import { updateUserProfile } from "@/action/profileActions";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +28,10 @@ interface ProfileFormProps {
     email: string;
     role: string;
     imageURL?: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    joinedAt?: string;
   };
   memberSince: string;
 }
@@ -36,6 +42,9 @@ export default function ProfileForm({ user, memberSince }: ProfileFormProps) {
   const [formData, setFormData] = useState({
     username: user.username,
     email: user.email,
+    bio: user.bio || '',
+    location: user.location || '',
+    website: user.website || ''
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   // Initialize with the user's image URL, which might be a base64 URL from Clerk
@@ -91,6 +100,9 @@ export default function ProfileForm({ user, memberSince }: ProfileFormProps) {
       const formDataToSend = new FormData();
       formDataToSend.append('username', formData.username);
       formDataToSend.append('email', formData.email);
+      formDataToSend.append('bio', formData.bio);
+      formDataToSend.append('location', formData.location);
+      formDataToSend.append('website', formData.website);
       if (avatarFile) {
         formDataToSend.append('avatar', avatarFile);
       }
@@ -130,6 +142,9 @@ export default function ProfileForm({ user, memberSince }: ProfileFormProps) {
     setFormData({
       username: user.username,
       email: user.email,
+      bio: user.bio || '',
+      location: user.location || '',
+      website: user.website || ''
     });
     setAvatarFile(null);
     setAvatarPreview(getImageUrl(user.imageURL || ''));
@@ -261,7 +276,75 @@ export default function ProfileForm({ user, memberSince }: ProfileFormProps) {
             <Label htmlFor="joined">Joined</Label>
             <Input id="joined" value={memberSince} disabled />
           </div>
+          <div>
+            <Label htmlFor="location">Location</Label>
+            <Input 
+              id="location" 
+              value={formData.location}
+              onChange={(e) => handleInputChange('location', e.target.value)}
+              placeholder="City, Country"
+              disabled={!isEditing || isLoading}
+            />
+          </div>
+          <div>
+            <Label htmlFor="website">Website</Label>
+            <Input 
+              id="website" 
+              value={formData.website}
+              onChange={(e) => handleInputChange('website', e.target.value)}
+              placeholder="https://example.com"
+              disabled={!isEditing || isLoading}
+            />
+          </div>
         </div>
+
+        {/* Bio Field */}
+        <div>
+          <Label htmlFor="bio">Bio</Label>
+          <Textarea 
+            id="bio" 
+            value={formData.bio}
+            onChange={(e) => handleInputChange('bio', e.target.value)}
+            placeholder="Tell us about yourself..."
+            rows={3}
+            disabled={!isEditing || isLoading}
+          />
+        </div>
+
+        {/* Display Current Information (Read-only) */}
+        {!isEditing && (
+          <div className="space-y-4 pt-4 border-t">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {user.bio && (
+                <div className="md:col-span-2">
+                  <Label className="text-sm font-medium">Bio</Label>
+                  <p className="text-gray-600">{user.bio}</p>
+                </div>
+              )}
+              {user.location && (
+                <div>
+                  <Label className="text-sm font-medium">Location</Label>
+                  <p className="text-gray-600">{user.location}</p>
+                </div>
+              )}
+              {user.website && (
+                <div>
+                  <Label className="text-sm font-medium">Website</Label>
+                  <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    {user.website}
+                  </a>
+                </div>
+              )}
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Account Status</Label>
+              <Badge variant="default" className="flex items-center gap-1">
+                <CheckCircle className="w-3 h-3" />
+                Active
+              </Badge>
+            </div>
+          </div>
+        )}
 
         {isEditing && (
           <div className="flex justify-end">

@@ -7,6 +7,9 @@ export interface UserWithRole {
   email: string;
   role: UserRole;
   joinedAt?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
 }
 
 export const ROLES = {
