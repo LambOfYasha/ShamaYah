@@ -35,7 +35,7 @@ export default function DeleteCommunityButton({ communityId, communityTitle }: D
       
       console.log('DeleteCommunityButton: Delete successful, redirecting');
       // Redirect to communities page after successful deletion
-      router.push('/dashboard/communities');
+      router.push('/dashboard/questions');
     } catch (error) {
       console.error('DeleteCommunityButton: Failed to delete community:', error);
       alert(`Failed to delete community: ${error instanceof Error ? error.message : 'Unknown error'}`);
