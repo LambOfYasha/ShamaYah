@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { 
   MessageSquare, 
   User, 
@@ -21,8 +22,10 @@ import EditResponseButton from '@/components/ui/edit-response-button';
 import DeleteResponseButton from '@/components/ui/delete-response-button';
 import ApproveResponseButton from '@/components/ui/approve-response-button';
 import FavoriteButton from '@/components/ui/favorite-button';
+import { ReportButton } from '@/components/ui/report-button';
 import { canEditContent, canDeleteContent } from '@/lib/auth/roles';
 import RichContentRenderer from '@/components/ui/rich-content-renderer';
+import { getImageUrl } from '@/lib/utils';
 
 interface CommunityResponsesProps {
   communityQuestionId: string;
@@ -188,17 +191,11 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                   
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-2">
-                      <Avatar className="w-6 h-6">
-                        {response.author.imageURL && getImageUrl(response.author.imageURL) ? (
-                          <AvatarImage 
-                            src={getImageUrl(response.author.imageURL)!} 
-                            alt={response.author.username}
-                          />
-                        ) : null}
-                        <AvatarFallback>
-                          <User className="w-3 h-3" />
-                        </AvatarFallback>
-                      </Avatar>
+                      <UserAvatar 
+                        user={response.author}
+                        size="sm"
+                        className="w-6 h-6"
+                      />
                       <span>{response.author.username}</span>
                     </div>
                     <div className="flex items-center gap-1">

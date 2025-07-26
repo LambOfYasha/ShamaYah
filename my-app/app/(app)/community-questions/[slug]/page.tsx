@@ -126,7 +126,7 @@ export default async function CommunityQuestionPage({
       <div className="max-w-4xl mx-auto p-6">
         {/* Back Button */}
         <div className="mb-6">
-          <Link href="/dashboard/communities">
+          <Link href="/dashboard/questions">
             <Button variant="ghost" className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
               Back to Communities
