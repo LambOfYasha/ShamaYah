@@ -59,6 +59,20 @@ export default function TestSpoilerPage() {
             )}
             
             <div>
+              <h3 className="text-lg font-semibold mb-2">Test Direct Spoiler</h3>
+              <Card>
+                <CardContent className="p-4">
+                  <details className="spoiler-container">
+                    <summary className="spoiler-summary">Click to reveal test spoiler</summary>
+                    <div className="spoiler-content">
+                      <p>This is a test spoiler that should work directly.</p>
+                    </div>
+                  </details>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div>
               <h3 className="text-lg font-semibold mb-2">Raw HTML</h3>
               <Card>
                 <CardContent className="p-4">

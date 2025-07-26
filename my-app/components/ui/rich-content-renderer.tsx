@@ -67,13 +67,6 @@ export default function RichContentRenderer({ content, className }: RichContentR
         "[&_.video-container]:relative [&_.video-container]:pb-[56.25%] [&_.video-container]:h-0 [&_.video-container]:overflow-hidden [&_.video-container]:max-w-full [&_.video-container]:my-4",
         "[&_.video-container_iframe]:absolute [&_.video-container_iframe]:top-0 [&_.video-container_iframe]:left-0 [&_.video-container_iframe]:w-full [&_.video-container_iframe]:h-full [&_.video-container_iframe]:border-0",
         "[&_iframe]:max-w-full [&_iframe]:rounded-lg",
-        // Custom styles for spoiler functionality
-        "[&_details]:my-4 [&_details]:p-4 [&_details]:border [&_details]:border-gray-300 [&_details]:rounded-lg [&_details]:bg-gray-50",
-        "[&_summary]:cursor-pointer [&_summary]:font-semibold [&_details]:text-gray-700 [&_summary]:outline-none [&_summary]:hover:text-gray-900",
-        "[&_details_summary::-webkit-details-marker]:hidden",
-        "[&_details_summary::before]:content-['▶'] [&_details_summary::before]:mr-2 [&_details_summary::before]:text-gray-500 [&_details_summary::before]:transition-transform [&_details_summary::before]:duration-200",
-        "[&_details[open]_summary::before]:rotate-90",
-        "[&_details_div]:mt-4 [&_details_div]:pt-4 [&_details_div]:border-t [&_details_div]:border-gray-200",
         className
       )}
       dangerouslySetInnerHTML={{ __html: processedContent }}

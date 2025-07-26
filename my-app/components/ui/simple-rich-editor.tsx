@@ -256,9 +256,9 @@ export default function SimpleRichEditor({
 
   const addSpoiler = () => {
     editor?.chain().focus().insertContent(`
-      <details style="margin: 1rem 0; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; background-color: #f9fafb;">
-        <summary style="cursor: pointer; font-weight: 600; color: #374151;">Click to reveal spoiler</summary>
-        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+      <details class="spoiler-container">
+        <summary class="spoiler-summary">Click to reveal spoiler</summary>
+        <div class="spoiler-content">
           <p>This is hidden content that can be revealed by clicking the spoiler button above.</p>
         </div>
       </details>
