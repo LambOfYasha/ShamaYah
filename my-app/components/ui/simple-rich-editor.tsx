@@ -17,6 +17,10 @@ import { TextAlign } from '@tiptap/extension-text-align';
 import { Highlight } from '@tiptap/extension-highlight';
 import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
 import { Iframe } from '@/lib/extensions/iframe';
 import { 
   Bold, 
@@ -40,8 +44,6 @@ import {
   Highlighter,
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
-  Eye,
-  EyeOff,
   X,
   Plus,
   Minus,
@@ -111,10 +113,23 @@ export default function SimpleRichEditor({
         bulletList: {
           keepMarks: true,
           keepAttributes: false,
+          HTMLAttributes: {
+            class: 'list-disc list-inside',
+          },
         },
         orderedList: {
           keepMarks: true,
           keepAttributes: false,
+          HTMLAttributes: {
+            class: 'list-decimal list-inside',
+          },
+        },
+        listItem: {
+          keepMarks: true,
+          keepAttributes: false,
+          HTMLAttributes: {
+            class: 'mb-1',
+          },
         },
       }),
       TextStyle,
@@ -151,6 +166,26 @@ export default function SimpleRichEditor({
       }),
       Subscript,
       Superscript,
+      Table.configure({
+        HTMLAttributes: {
+          class: 'border-collapse w-full',
+        },
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: 'border-b',
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: 'border-r border-b px-3 py-2',
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: 'border-b px-3 py-2 font-bold',
+        },
+      }),
       Iframe.configure({
         HTMLAttributes: {
           class: 'max-w-full rounded-lg',
@@ -229,40 +264,14 @@ export default function SimpleRichEditor({
   };
 
   const addTable = () => {
-    editor?.chain().focus().insertContent(`
-      <table style="border-collapse: collapse; width: 100%; margin: 1rem 0;">
-        <thead>
-          <tr>
-            <th style="border: 1px solid #ddd; padding: 12px; text-align: left; background-color: #f8f9fa; font-weight: 600;">Header 1</th>
-            <th style="border: 1px solid #ddd; padding: 12px; text-align: left; background-color: #f8f9fa; font-weight: 600;">Header 2</th>
-            <th style="border: 1px solid #ddd; padding: 12px; text-align: left; background-color: #f8f9fa; font-weight: 600;">Header 3</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="border: 1px solid #ddd; padding: 12px;">Cell 1</td>
-            <td style="border: 1px solid #ddd; padding: 12px;">Cell 2</td>
-            <td style="border: 1px solid #ddd; padding: 12px;">Cell 3</td>
-          </tr>
-          <tr>
-            <td style="border: 1px solid #ddd; padding: 12px;">Cell 4</td>
-            <td style="border: 1px solid #ddd; padding: 12px;">Cell 5</td>
-            <td style="border: 1px solid #ddd; padding: 12px;">Cell 6</td>
-          </tr>
-        </tbody>
-      </table>
-    `).run();
-  };
-
-  const addSpoiler = () => {
-    editor?.chain().focus().insertContent(`
-      <details class="spoiler-container">
-        <summary class="spoiler-summary">Click to reveal spoiler</summary>
-        <div class="spoiler-content">
-          <p>This is hidden content that can be revealed by clicking the spoiler button above.</p>
-        </div>
-      </details>
-    `).run();
+    console.log('Table button clicked');
+    if (!editor) {
+      console.log('Editor not available');
+      return;
+    }
+    console.log('Inserting table');
+    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    console.log('Table inserted');
   };
 
   const addHorizontalRule = () => {
@@ -482,7 +491,10 @@ export default function SimpleRichEditor({
           <Button
             variant={editor.isActive('bulletList') ? 'default' : 'outline'}
             size="sm"
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            onClick={() => {
+              console.log('Bullet list button clicked');
+              editor.chain().focus().toggleBulletList().run();
+            }}
           >
             <List className="w-4 h-4" />
           </Button>
@@ -490,7 +502,10 @@ export default function SimpleRichEditor({
           <Button
             variant={editor.isActive('orderedList') ? 'default' : 'outline'}
             size="sm"
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            onClick={() => {
+              console.log('Ordered list button clicked');
+              editor.chain().focus().toggleOrderedList().run();
+            }}
           >
             <ListOrdered className="w-4 h-4" />
           </Button>
@@ -524,15 +539,6 @@ export default function SimpleRichEditor({
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
           >
             <Quote className="w-4 h-4" />
-          </Button>
-          
-          {/* Spoiler */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={addSpoiler}
-          >
-            <Eye className="w-4 h-4" />
           </Button>
 
           <div className="w-px h-6 bg-gray-300 mx-1" />

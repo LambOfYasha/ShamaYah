@@ -6,27 +6,27 @@ import RichContentRenderer from '@/components/ui/rich-content-renderer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function TestSpoilerPage() {
-  const [content, setContent] = useState('<p>Test the spoiler functionality...</p>');
+export default function TestRichEditorPage() {
+  const [content, setContent] = useState('<p>Test the rich text editor functionality...</p>');
   const [showPreview, setShowPreview] = useState(true);
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Test Spoiler Functionality</CardTitle>
+          <CardTitle>Rich Text Editor Test</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
               <h3 className="text-lg font-semibold mb-2">Editor</h3>
               <p className="text-sm text-gray-600 mb-4">
-                Click the eye icon (👁️) in the toolbar to add a spoiler. Then test if it works in the preview below.
+                Test all the rich text editor features including formatting, media, and layout options.
               </p>
               <ClientRichEditor
                 content={content}
                 onChange={setContent}
-                placeholder="Test the spoiler functionality..."
+                placeholder="Test the rich text editor functionality..."
                 maxHeight="300px"
               />
             </div>
@@ -59,25 +59,38 @@ export default function TestSpoilerPage() {
             )}
             
             <div>
-              <h3 className="text-lg font-semibold mb-2">Test Direct Spoiler</h3>
+              <h3 className="text-lg font-semibold mb-2">Raw HTML (Debug)</h3>
               <Card>
                 <CardContent className="p-4">
-                  <details className="spoiler-container">
-                    <summary className="spoiler-summary">Click to reveal test spoiler</summary>
-                    <div className="spoiler-content">
-                      <p>This is a test spoiler that should work directly.</p>
-                    </div>
-                  </details>
+                  <pre className="text-xs bg-gray-100 p-4 rounded overflow-x-auto max-h-96 overflow-y-auto">
+                    {content}
+                  </pre>
                 </CardContent>
               </Card>
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold mb-2">Raw HTML</h3>
+              <h3 className="text-lg font-semibold mb-2">Processed HTML (Debug)</h3>
               <Card>
                 <CardContent className="p-4">
-                  <pre className="text-xs bg-gray-100 p-4 rounded overflow-x-auto">
-                    {content}
+                  <pre className="text-xs bg-gray-100 p-4 rounded overflow-x-auto max-h-96 overflow-y-auto">
+                    {(() => {
+                      // Simulate the same processing as RichContentRenderer
+                      let processed = content
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&quot;/g, '"')
+                        .replace(/&#39;/g, "'")
+                        .replace(/&nbsp;/g, ' ');
+                      
+                      const sanitized = processed
+                        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                        .replace(/javascript:/gi, '')
+                        .replace(/on\w+\s*=/gi, '');
+                      
+                      return sanitized;
+                    })()}
                   </pre>
                 </CardContent>
               </Card>
