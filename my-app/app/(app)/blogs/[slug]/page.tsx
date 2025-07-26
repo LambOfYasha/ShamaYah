@@ -30,6 +30,7 @@ import { ReportButton } from "@/components/ui/report-button";
 import RichContentRenderer from "@/components/ui/rich-content-renderer";
 import { TagList } from "@/components/ui/tag";
 import ViewCounter from "@/components/ui/view-counter";
+import { canEditContent, canDeleteContent } from "@/lib/auth/roles";
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
@@ -131,19 +132,9 @@ export default async function BlogPage({
   }
 
   // Check permissions
-  const canEdit = user && (
-    user.role === 'admin' || 
-    user.role === 'moderator' || 
-    (user.role === 'teacher' && blog.author?._id === user._id) ||
-    (user.role === 'member' && blog.author?._id === user._id)
-  );
-
-  const canDelete = user && (
-    user.role === 'admin' || 
-    user.role === 'moderator' || 
-    (user.role === 'teacher' && blog.author?._id === user._id) ||
-    (user.role === 'member' && blog.author?._id === user._id)
-  );
+  const isOwnContent = user ? blog.author?._id === user._id : false;
+  const canEdit = user ? canEditContent(user.role, isOwnContent) : false;
+  const canDelete = user ? canDeleteContent(user.role, isOwnContent) : false;
 
   console.log("Blog page - Blog ID:", blog._id);
   console.log("Blog page - Blog author ID:", blog.author?._id);

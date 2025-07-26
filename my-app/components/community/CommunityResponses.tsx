@@ -1,21 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CheckCircle, MessageSquare, Calendar, User, Eye } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { 
+  MessageSquare, 
+  User, 
+  Calendar, 
+  Eye, 
+  CheckCircle,
+  Clock
+} from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useUser } from '@clerk/nextjs';
 import { getCommunityResponses } from '@/action/postActions';
-import ApproveResponseButton from '@/components/ui/approve-response-button';
-import AddResponseForm from '@/components/community/AddResponseForm';
-import FavoriteButton from '@/components/ui/favorite-button';
+import AddResponseForm from './AddResponseForm';
 import EditResponseButton from '@/components/ui/edit-response-button';
 import DeleteResponseButton from '@/components/ui/delete-response-button';
-import { ReportButton } from '@/components/ui/report-button';
-import Link from 'next/link';
-import { getImageUrl } from '@/lib/utils';
+import ApproveResponseButton from '@/components/ui/approve-response-button';
+import FavoriteButton from '@/components/ui/favorite-button';
+import { canEditContent, canDeleteContent } from '@/lib/auth/roles';
 import RichContentRenderer from '@/components/ui/rich-content-renderer';
 
 interface CommunityResponsesProps {
@@ -83,19 +89,8 @@ export default function CommunityResponses({ communityQuestionId, user, communit
     // Guests cannot edit
     if (user.role === 'guest') return false;
     
-    // Check if user is author or has admin/teacher role
-    const isAuthor = user._id === response.author._id;
-    const isAdmin = user.role === 'admin';
-    const isTeacher = user.role === 'teacher' || user.role === 'junior_teacher' || user.role === 'senior_teacher' || user.role === 'lead_teacher';
-    
-    if (!isAuthor && !isAdmin && !isTeacher) return false;
-    
-    // Junior teachers can only edit member content, not teacher content
-    if (user.role === 'junior_teacher' && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
-        return false;
-    }
-    
-    return true;
+    const isOwnContent = user._id === response.author._id;
+    return canEditContent(user.role, isOwnContent);
   };
   
   const canDelete = (response: Response) => {
@@ -104,19 +99,8 @@ export default function CommunityResponses({ communityQuestionId, user, communit
     // Guests cannot delete
     if (user.role === 'guest') return false;
     
-    // Check if user is author or has admin/teacher role
-    const isAuthor = user._id === response.author._id;
-    const isAdmin = user.role === 'admin';
-    const isTeacher = user.role === 'teacher' || user.role === 'junior_teacher' || user.role === 'senior_teacher' || user.role === 'lead_teacher';
-    
-    if (!isAuthor && !isAdmin && !isTeacher) return false;
-    
-    // Junior teachers can only delete member content, not teacher content
-    if (user.role === 'junior_teacher' && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
-        return false;
-    }
-    
-    return true;
+    const isOwnContent = user._id === response.author._id;
+    return canDeleteContent(user.role, isOwnContent);
   };
 
   if (loading) {

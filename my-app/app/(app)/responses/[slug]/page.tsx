@@ -1,25 +1,30 @@
-import { notFound } from 'next/navigation';
-import { defineQuery } from 'groq';
-import { client } from '@/sanity/lib/client';
-import { adminClient } from '@/sanity/lib/adminClient';
-import { getCurrentUser } from '@/lib/auth/middleware';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Eye, Calendar, User, MessageSquare, ThumbsUp } from 'lucide-react';
-import Link from 'next/link';
-import { PortableText } from '@portabletext/react';
-import ApproveResponseButton from '@/components/ui/approve-response-button';
-import FavoriteButton from '@/components/ui/favorite-button';
-import EditResponseButton from '@/components/ui/edit-response-button';
-import DeleteResponseButton from '@/components/ui/delete-response-button';
-import { formatDistanceToNow } from 'date-fns';
-import { Metadata } from 'next';
-import { getImageUrl } from '@/lib/utils';
-import { ReportButton } from '@/components/ui/report-button';
-import RichContentRenderer from '@/components/ui/rich-content-renderer';
+import { notFound } from "next/navigation";
+import { client } from "@/sanity/lib/client";
+import { defineQuery } from "groq";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Calendar, 
+  User, 
+  MessageSquare, 
+  ArrowLeft,
+  Eye,
+  CheckCircle,
+  Clock
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { getCurrentUser } from "@/lib/auth/middleware";
+import EditResponseButton from "@/components/ui/edit-response-button";
+import DeleteResponseButton from "@/components/ui/delete-response-button";
+import ApproveResponseButton from "@/components/ui/approve-response-button";
+import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedCommentSectionWrapper";
+import FavoriteButton from "@/components/ui/favorite-button";
+import { getImageUrl } from "@/lib/utils";
+import { ReportButton } from "@/components/ui/report-button";
+import RichContentRenderer from "@/components/ui/rich-content-renderer";
+import { canEditContent, canDeleteContent } from "@/lib/auth/roles";
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
@@ -150,40 +155,25 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
   }
 
   const canApprove = user && (user.role === 'admin' || user.role === 'senior_teacher' || user.role === 'lead_teacher');
-  const isAuthor = user && user._id === response.author._id;
   
   const canEdit = (response: any) => {
       if (!user) return false;
       
-      const isAuthor = user._id === response.author._id;
-      const isAdmin = user.role === 'admin';
-      const isTeacher = user.role === 'teacher' || user.role === 'junior_teacher' || user.role === 'senior_teacher' || user.role === 'lead_teacher';
+      // Guests cannot edit
+      if (user.role === 'guest') return false;
       
-      if (!isAuthor && !isAdmin && !isTeacher) return false;
-      
-      // Junior teachers can only edit member content, not teacher content
-      if (user.role === 'junior_teacher' && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
-          return false;
-      }
-      
-      return true;
+      const isOwnContent = user._id === response.author._id;
+      return canEditContent(user.role, isOwnContent);
   };
   
   const canDelete = (response: any) => {
       if (!user) return false;
       
-      const isAuthor = user._id === response.author._id;
-      const isAdmin = user.role === 'admin';
-      const isTeacher = user.role === 'teacher' || user.role === 'junior_teacher' || user.role === 'senior_teacher' || user.role === 'lead_teacher';
+      // Guests cannot delete
+      if (user.role === 'guest') return false;
       
-      if (!isAuthor && !isAdmin && !isTeacher) return false;
-      
-      // Junior teachers can only delete member content, not teacher content
-      if (user.role === 'junior_teacher' && !isAuthor && response.author.role && ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"].includes(response.author.role)) {
-          return false;
-      }
-      
-      return true;
+      const isOwnContent = user._id === response.author._id;
+      return canDeleteContent(user.role, isOwnContent);
   };
 
   return (

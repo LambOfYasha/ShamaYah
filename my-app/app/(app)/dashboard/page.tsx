@@ -198,12 +198,6 @@ export default async function DashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 gap-3">
-                    <Button asChild className="w-full justify-start">
-                      <Link href="/create-post">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create New Post
-                      </Link>
-                    </Button>
                     <Button asChild variant="outline" className="w-full justify-start">
                       <Link href="/questions">
                         <Users className="w-4 h-4 mr-2" />

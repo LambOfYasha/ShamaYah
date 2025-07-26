@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { client } from "@/sanity/lib/client";
 import { defineQuery } from "groq";
-import { CommunityQuestion, Teacher } from "@/sanity.types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,12 +8,9 @@ import {
   Calendar, 
   User, 
   MessageSquare, 
-  Users, 
   ArrowLeft,
   Share,
-  Bookmark,
-  Edit,
-  Settings
+  Users
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,9 +19,11 @@ import EditCommunityButton from "@/components/community/EditCommunityButton";
 import DeleteCommunityButton from "@/components/community/DeleteCommunityButton";
 import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedCommentSectionWrapper";
 import FavoriteButton from "@/components/ui/favorite-button";
-import CommunityResponses from "@/components/community/CommunityResponses";
 import { editCommunity } from "@/action/editCommunity";
+import { getImageUrl } from "@/lib/utils";
 import { ReportButton } from "@/components/ui/report-button";
+import CommunityResponses from "@/components/community/CommunityResponses";
+import { canEditContent, canDeleteContent } from "@/lib/auth/roles";
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
@@ -79,13 +77,12 @@ export default async function CommunityQuestionPage({
 
   const canEdit = user && (
     user._id === communityQuestion.moderator?._id || 
-    user.role === "admin" ||
-    user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher"
+    canEditContent(user.role, false) // false because it's not their own content, but they can edit as teachers/admins
   );
 
   const canDelete = user && (
     user._id === communityQuestion.moderator?._id || 
-    user.role === "admin"
+    canDeleteContent(user.role, false) // false because it's not their own content, but they can delete as teachers/admins
   );
 
   console.log("Community page - Can edit:", canEdit);
