@@ -92,18 +92,39 @@ export default async function TeachersPage() {
                 <Award className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-sm space-y-1">
-                  <div className="flex justify-between">
-                    <span>Lead Teachers:</span>
+                <div className="text-sm space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                      Lead Teachers
+                    </span>
                     <span className="font-medium">{initialStats.roleBreakdown?.leadTeachers || 0}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Senior Teachers:</span>
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      Senior Teachers
+                    </span>
                     <span className="font-medium">{initialStats.roleBreakdown?.seniorTeachers || 0}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Regular Teachers:</span>
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      Junior Teachers
+                    </span>
+                    <span className="font-medium">{initialStats.roleBreakdown?.juniorTeachers || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-gray-500"></div>
+                      Regular Teachers
+                    </span>
                     <span className="font-medium">{initialStats.roleBreakdown?.regularTeachers || 0}</span>
+                  </div>
+                </div>
+                <div className="mt-3 pt-2 border-t">
+                  <div className="text-xs text-muted-foreground">
+                    Total: {initialStats.totalTeachers} teachers
                   </div>
                 </div>
               </CardContent>

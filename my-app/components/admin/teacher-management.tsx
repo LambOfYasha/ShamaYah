@@ -63,7 +63,6 @@ export default function TeacherManagement({ initialTeachers = [] }: TeacherManag
         key: 'specialization',
         label: 'All Specializations',
         options: [
-          { value: 'all', label: 'All Specializations' },
           ...specialties.map(spec => ({
             value: spec.name,
             label: spec.name

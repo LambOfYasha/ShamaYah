@@ -326,6 +326,16 @@ export async function getTeacherStats() {
       }
     `);
 
+    // Get role breakdown
+    const roleBreakdown = await adminClient.fetch(`
+      {
+        "leadTeachers": count(*[_type == "user" && role == "lead_teacher" && isDeleted != true]),
+        "seniorTeachers": count(*[_type == "user" && role == "senior_teacher" && isDeleted != true]),
+        "juniorTeachers": count(*[_type == "user" && role == "junior_teacher" && isDeleted != true]),
+        "regularTeachers": count(*[_type == "user" && role == "teacher" && isDeleted != true])
+      }
+    `);
+
     return { 
       success: true, 
       stats: {
@@ -334,9 +344,10 @@ export async function getTeacherStats() {
         reportedTeachers: stats.reportedTeachers || 0,
         newTeachersThisMonth: stats.newTeachersThisMonth || 0,
         roleBreakdown: {
-          leadTeachers: 0, // Will be calculated separately if needed
-          seniorTeachers: 0,
-          regularTeachers: 0
+          leadTeachers: roleBreakdown.leadTeachers || 0,
+          seniorTeachers: roleBreakdown.seniorTeachers || 0,
+          juniorTeachers: roleBreakdown.juniorTeachers || 0,
+          regularTeachers: roleBreakdown.regularTeachers || 0
         }
       }
     };
