@@ -346,6 +346,35 @@ export async function getTeacherStats() {
   }
 }
 
+export async function getTeacherSpecializations() {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const currentUser = await getUser();
+    if ('error' in currentUser || currentUser.role !== 'admin') {
+      return { success: false, error: 'Insufficient permissions' };
+    }
+
+    // Get all active specialties
+    const specialties = await adminClient.fetch(`
+      *[_type == "specialty" && isActive == true && isDeleted != true] | order(name asc) {
+        _id,
+        name,
+        description,
+        color
+      }
+    `);
+
+    return { success: true, specialties };
+  } catch (error) {
+    console.error('Error fetching teacher specializations:', error);
+    return { success: false, error: 'Failed to fetch specializations' };
+  }
+}
+
 export async function bulkUpdateTeachers(teacherIds: string[], updates: Partial<TeacherData>) {
   try {
     const { userId: currentUserId } = await auth();

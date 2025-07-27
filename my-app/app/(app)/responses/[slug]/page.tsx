@@ -23,6 +23,7 @@ import EmbeddedCommentSectionWrapper from "@/components/comments/EmbeddedComment
 import FavoriteButton from "@/components/ui/favorite-button";
 import { getImageUrl } from "@/lib/utils";
 import { ReportButton } from "@/components/ui/report-button";
+import { ProfileLink } from "@/components/ui/profile-link";
 import RichContentRenderer from "@/components/ui/rich-content-renderer";
 import { canEditContent, canDeleteContent } from "@/lib/auth/roles";
 
@@ -263,7 +264,13 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold">{response.author.username}</h3>
+                  <ProfileLink 
+                    userId={response.author._id}
+                    username={response.author.username} 
+                    className="font-semibold"
+                  >
+                    {response.author.username}
+                  </ProfileLink>
                   <Badge variant="outline" className="text-xs">
                     {response.author.role}
                   </Badge>

@@ -19,6 +19,7 @@ import { ReportButton } from '@/components/ui/report-button'
 import { useModeration } from '@/hooks/useModeration'
 import { ModerationFeedback } from '@/components/ui/moderation-feedback'
 import { getImageUrl } from '@/lib/utils';
+import { ProfileLink } from '@/components/ui/profile-link';
 
 interface Comment {
   _id: string;
@@ -257,9 +258,13 @@ export default function NestedComment({
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm">
+                  <ProfileLink 
+                    userId={comment.author._id}
+                    username={comment.author.username}
+                    className="font-medium text-sm"
+                  >
                     {comment.author.username}
-                  </span>
+                  </ProfileLink>
                   <Badge variant="outline" className="text-xs">
                     {comment.author._id === user?.id ? 'You' : comment.authorRole}
                   </Badge>

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { ProfileLink } from '@/components/ui/profile-link'
 import {
   Select,
   SelectContent,
@@ -272,7 +273,12 @@ export function SearchResults() {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <User className="h-3 w-3" />
-                    <span>{result.author?.username || result.moderator?.username}</span>
+                    <ProfileLink 
+                      userId={result.author?._id || result.moderator?._id || ''}
+                      username={result.author?.username || result.moderator?.username || ''}
+                    >
+                      {result.author?.username || result.moderator?.username}
+                    </ProfileLink>
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />

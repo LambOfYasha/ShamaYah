@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
+import { ProfileLink } from "@/components/ui/profile-link";
 import { 
   Heart, 
   Eye, 
@@ -117,7 +118,12 @@ export default function FavoritesClient({ initialFavorites }: FavoritesClientPro
                             {favorite.comment.author?.username?.charAt(0).toUpperCase() || 'U'}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium">{favorite.comment.author?.username || 'Unknown Author'}</span>
+                        <ProfileLink 
+                          userId={favorite.comment.author?._id || ''}
+                          username={favorite.comment.author?.username || ''}
+                        >
+                          {favorite.comment.author?.username || 'Unknown Author'}
+                        </ProfileLink>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
@@ -135,9 +141,12 @@ export default function FavoritesClient({ initialFavorites }: FavoritesClientPro
                           {(favorite.post?.author?.username || favorite.post?.moderator?.username || 'U').charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium">
+                      <ProfileLink 
+                        userId={favorite.post?.author?._id || favorite.post?.moderator?._id || ''}
+                        username={favorite.post?.author?.username || favorite.post?.moderator?.username || ''}
+                      >
                         {favorite.post?.author?.username || favorite.post?.moderator?.username || 'Unknown Author'}
-                      </span>
+                      </ProfileLink>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />

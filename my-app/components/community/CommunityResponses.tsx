@@ -26,6 +26,7 @@ import { ReportButton } from '@/components/ui/report-button';
 import { canEditContent, canDeleteContent } from '@/lib/auth/roles';
 import RichContentRenderer from '@/components/ui/rich-content-renderer';
 import { getImageUrl } from '@/lib/utils';
+import { ProfileLink } from '@/components/ui/profile-link';
 
 interface CommunityResponsesProps {
   communityQuestionId: string;
@@ -196,7 +197,12 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                         size="sm"
                         className="w-6 h-6"
                       />
-                      <span>{response.author.username}</span>
+                      <ProfileLink 
+                        userId={response.author._id}
+                        username={response.author.username}
+                      >
+                        {response.author.username}
+                      </ProfileLink>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />

@@ -1,7 +1,7 @@
 "use client"
 // Client component for the sidebar
 import * as React from "react"
-import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings, BookOpen } from "lucide-react"
+import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings, BookOpen, UserCheck } from "lucide-react"
 import { useAuth, useUser } from "@clerk/nextjs"
 
 import { SearchForm } from "@/components/search-form"
@@ -236,6 +236,22 @@ export default function AppSidebar() {
                   <Link href="/dashboard/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/members">
+                    <Users className="mr-2 h-4 w-4" />
+                    Members
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/staff">
+                    <UserCheck className="mr-2 h-4 w-4" />
+                    Staff
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

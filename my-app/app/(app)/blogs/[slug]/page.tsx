@@ -27,6 +27,7 @@ import FavoriteButton from "@/components/ui/favorite-button";
 import { editBlog } from "@/action/editBlog";
 import { getImageUrl, calculateReadTime } from "@/lib/utils";
 import { ReportButton } from "@/components/ui/report-button";
+import { ProfileLink } from "@/components/ui/profile-link";
 import RichContentRenderer from "@/components/ui/rich-content-renderer";
 import { TagList } from "@/components/ui/tag";
 import ViewCounter from "@/components/ui/view-counter";
@@ -350,7 +351,13 @@ export default async function BlogPage({
                 </div>
               )}
               <div>
-                <h3 className="font-semibold text-lg">{blog.author.username}</h3>
+                <ProfileLink 
+                  userId={blog.author._id}
+                  username={blog.author.username} 
+                  className="font-semibold text-lg"
+                >
+                  {blog.author.username}
+                </ProfileLink>
                 <p className="text-gray-600 text-sm">
                   {blog.author.role === "teacher" || blog.author.role === "junior_teacher" || blog.author.role === "senior_teacher" || blog.author.role === "lead_teacher" ? "Teacher" : "Author"}
                 </p>

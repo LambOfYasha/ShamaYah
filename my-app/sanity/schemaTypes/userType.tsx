@@ -177,6 +177,145 @@ export const userType = defineType({
       ],
     }),
     defineField({
+      name: 'settings',
+      title: 'User Settings',
+      type: 'object',
+      description: 'Advanced user settings and preferences',
+      fields: [
+        {
+          name: 'notifications',
+          title: 'Notification Settings',
+          type: 'object',
+          fields: [
+            {
+              name: 'email',
+              title: 'Email Notifications',
+              type: 'boolean',
+              initialValue: true,
+            },
+            {
+              name: 'push',
+              title: 'Push Notifications',
+              type: 'boolean',
+              initialValue: true,
+            },
+            {
+              name: 'moderation',
+              title: 'Moderation Notifications',
+              type: 'boolean',
+              initialValue: true,
+            },
+            {
+              name: 'community',
+              title: 'Community Notifications',
+              type: 'boolean',
+              initialValue: true,
+            },
+            {
+              name: 'marketing',
+              title: 'Marketing Notifications',
+              type: 'boolean',
+              initialValue: false,
+            },
+          ],
+        },
+        {
+          name: 'privacy',
+          title: 'Privacy Settings',
+          type: 'object',
+          fields: [
+            {
+              name: 'profileVisibility',
+              title: 'Profile Visibility',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Public', value: 'public'},
+                  {title: 'Friends Only', value: 'friends'},
+                  {title: 'Private', value: 'private'},
+                ],
+                layout: 'radio'
+              },
+              initialValue: 'public',
+            },
+            {
+              name: 'activityStatus',
+              title: 'Show Activity Status',
+              type: 'boolean',
+              initialValue: true,
+            },
+            {
+              name: 'contentVisibility',
+              title: 'Content Visibility',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Public', value: 'public'},
+                  {title: 'Friends Only', value: 'friends'},
+                  {title: 'Private', value: 'private'},
+                ],
+                layout: 'radio'
+              },
+              initialValue: 'public',
+            },
+            {
+              name: 'dataCollection',
+              title: 'Allow Data Collection',
+              type: 'boolean',
+              initialValue: true,
+            },
+          ],
+        },
+        {
+          name: 'appearance',
+          title: 'Appearance Settings',
+          type: 'object',
+          fields: [
+            {
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Light', value: 'light'},
+                  {title: 'Dark', value: 'dark'},
+                  {title: 'System', value: 'system'},
+                ],
+                layout: 'radio'
+              },
+              initialValue: 'light',
+            },
+            {
+              name: 'fontSize',
+              title: 'Font Size',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Small', value: 'small'},
+                  {title: 'Medium', value: 'medium'},
+                  {title: 'Large', value: 'large'},
+                ],
+                layout: 'radio'
+              },
+              initialValue: 'medium',
+            },
+            {
+              name: 'compactMode',
+              title: 'Compact Mode',
+              type: 'boolean',
+              initialValue: false,
+            },
+            {
+              name: 'reducedMotion',
+              title: 'Reduced Motion',
+              type: 'boolean',
+              initialValue: false,
+            },
+          ],
+        },
+      ],
+    }),
+    defineField({
       name: 'blog',
       title: 'Blog',
       type: 'reference',

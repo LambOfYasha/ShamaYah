@@ -36,6 +36,27 @@ export interface User extends SanityDocument {
       activityVisible: boolean
     }
   }
+  settings?: {
+    notifications?: {
+      email: boolean
+      push: boolean
+      moderation: boolean
+      community: boolean
+      marketing: boolean
+    }
+    privacy?: {
+      profileVisibility: 'public' | 'friends' | 'private'
+      activityStatus: boolean
+      contentVisibility: 'public' | 'friends' | 'private'
+      dataCollection: boolean
+    }
+    appearance?: {
+      theme: 'light' | 'dark' | 'system'
+      fontSize: 'small' | 'medium' | 'large'
+      compactMode: boolean
+      reducedMotion: boolean
+    }
+  }
   blog?: Reference<'blog'>
   communityQuestion?: Reference<'communityQuestion'>
   teacherRole?: 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher'

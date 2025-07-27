@@ -2,7 +2,7 @@
 
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "../ui/button"
-import { ChevronLeftIcon, MenuIcon, Shield } from "lucide-react"
+import { ChevronLeftIcon, MenuIcon, Shield, Users, UserCheck } from "lucide-react"
 import { useSidebar } from "../ui/sidebar"
 import { RoleGuard } from "../auth/RoleGuard"
 import Link from "next/link"
@@ -28,6 +28,22 @@ function Header() {
     {/* Right side */}
     <div className="flex items-center gap-4">
         <SignedIn>
+            {/* Members Link */}
+            <Button variant="outline" size="sm" asChild>
+                <Link href="/members" className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Members
+                </Link>
+            </Button>
+            
+            {/* Staff Link */}
+            <Button variant="outline" size="sm" asChild>
+                <Link href="/staff" className="flex items-center gap-2">
+                    <UserCheck className="h-4 w-4" />
+                    Staff
+                </Link>
+            </Button>
+            
             {/* Admin Link */}
             <RoleGuard permission="canAccessAdminPanel">
                 <Button variant="outline" size="sm" asChild>
@@ -38,7 +54,7 @@ function Header() {
                 </Button>
             </RoleGuard>
             
-                        {/* Notification Icon */}
+            {/* Notification Icon */}
             <NotificationIcon userId={user?.id || ''} />
             
             <UserButton/>
