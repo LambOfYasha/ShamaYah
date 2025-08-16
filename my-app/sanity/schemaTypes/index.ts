@@ -12,7 +12,8 @@ import { reportType } from './reportType'
 import notificationType from './notificationType'
 import { adminSettingsType } from './adminSettingsType'
 import { specialtyType } from './specialtyType'
+import guestQuestionType from './guestQuestionType'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [userType, teacherType, postType, commentType, embeddedCommentType, favoriteType, blogType, communityType, tagType, reportType, notificationType, adminSettingsType, specialtyType],
+  types: [userType, teacherType, postType, commentType, embeddedCommentType, favoriteType, blogType, communityType, tagType, reportType, notificationType, adminSettingsType, specialtyType, guestQuestionType],
 }
