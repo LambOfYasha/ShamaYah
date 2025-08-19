@@ -90,9 +90,36 @@ export function SettingsForm({ user }: SettingsFormProps) {
     const loadSettings = async () => {
       const result = await getUserSettings();
       if (result.success && result.settings) {
-        setNotifications(result.settings.notifications || notifications);
-        setPrivacy(result.settings.privacy || privacy);
-        setAppearance(result.settings.appearance || appearance);
+        // Ensure notifications object has all required properties
+        if (result.settings.notifications) {
+          setNotifications({
+            email: result.settings.notifications.email ?? true,
+            push: result.settings.notifications.push ?? true,
+            moderation: result.settings.notifications.moderation ?? true,
+            community: result.settings.notifications.community ?? true,
+            marketing: result.settings.notifications.marketing ?? false
+          });
+        }
+        
+        // Ensure privacy object has all required properties
+        if (result.settings.privacy) {
+          setPrivacy({
+            profileVisibility: result.settings.privacy.profileVisibility ?? 'public',
+            activityStatus: result.settings.privacy.activityStatus ?? true,
+            contentVisibility: result.settings.privacy.contentVisibility ?? 'public',
+            dataCollection: result.settings.privacy.dataCollection ?? true
+          });
+        }
+        
+        // Ensure appearance object has all required properties
+        if (result.settings.appearance) {
+          setAppearance({
+            theme: result.settings.appearance.theme ?? 'light',
+            fontSize: result.settings.appearance.fontSize ?? 'medium',
+            compactMode: result.settings.appearance.compactMode ?? false,
+            reducedMotion: result.settings.appearance.reducedMotion ?? false
+          });
+        }
       }
     };
     loadSettings();
@@ -196,9 +223,17 @@ export function SettingsForm({ user }: SettingsFormProps) {
   };
 
   const handleNotificationToggle = (key: string) => {
+    const currentNotifications = notifications || {
+      email: true,
+      push: true,
+      moderation: true,
+      community: true,
+      marketing: false
+    };
+    
     const newNotifications = {
-      ...notifications,
-      [key]: !notifications[key as keyof typeof notifications]
+      ...currentNotifications,
+      [key]: !currentNotifications[key as keyof typeof currentNotifications]
     };
     setNotifications(newNotifications);
     updateSettings({ notifications: newNotifications });
@@ -206,9 +241,16 @@ export function SettingsForm({ user }: SettingsFormProps) {
   };
 
   const handlePrivacyToggle = (key: string) => {
+    const currentPrivacy = privacy || {
+      profileVisibility: 'public',
+      activityStatus: true,
+      contentVisibility: 'public',
+      dataCollection: true
+    };
+    
     const newPrivacy = {
-      ...privacy,
-      [key]: !privacy[key as keyof typeof privacy]
+      ...currentPrivacy,
+      [key]: !currentPrivacy[key as keyof typeof currentPrivacy]
     };
     setPrivacy(newPrivacy);
     updateSettings({ privacy: newPrivacy });
@@ -216,9 +258,16 @@ export function SettingsForm({ user }: SettingsFormProps) {
   };
 
   const handleAppearanceToggle = (key: string) => {
+    const currentAppearance = appearance || {
+      theme: 'light',
+      fontSize: 'medium',
+      compactMode: false,
+      reducedMotion: false
+    };
+    
     const newAppearance = {
-      ...appearance,
-      [key]: !appearance[key as keyof typeof appearance]
+      ...currentAppearance,
+      [key]: !currentAppearance[key as keyof typeof currentAppearance]
     };
     setAppearance(newAppearance);
     updateSettings({ appearance: newAppearance });
@@ -226,8 +275,15 @@ export function SettingsForm({ user }: SettingsFormProps) {
   };
 
   const handlePrivacyChange = (key: string, value: string) => {
+    const currentPrivacy = privacy || {
+      profileVisibility: 'public',
+      activityStatus: true,
+      contentVisibility: 'public',
+      dataCollection: true
+    };
+    
     const newPrivacy = {
-      ...privacy,
+      ...currentPrivacy,
       [key]: value
     };
     setPrivacy(newPrivacy);
@@ -236,8 +292,15 @@ export function SettingsForm({ user }: SettingsFormProps) {
   };
 
   const handleAppearanceChange = (key: string, value: string) => {
+    const currentAppearance = appearance || {
+      theme: 'light',
+      fontSize: 'medium',
+      compactMode: false,
+      reducedMotion: false
+    };
+    
     const newAppearance = {
-      ...appearance,
+      ...currentAppearance,
       [key]: value
     };
     setAppearance(newAppearance);
@@ -257,9 +320,25 @@ export function SettingsForm({ user }: SettingsFormProps) {
         website: user.website
       },
       settings: {
-        notifications,
-        privacy,
-        appearance
+        notifications: notifications || {
+          email: true,
+          push: true,
+          moderation: true,
+          community: true,
+          marketing: false
+        },
+        privacy: privacy || {
+          profileVisibility: 'public',
+          activityStatus: true,
+          contentVisibility: 'public',
+          dataCollection: true
+        },
+        appearance: appearance || {
+          theme: 'light',
+          fontSize: 'medium',
+          compactMode: false,
+          reducedMotion: false
+        }
       },
       exportDate: new Date().toISOString()
     };
@@ -461,7 +540,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   </div>
                 </div>
                 <Switch
-                  checked={notifications.email}
+                  checked={notifications?.email ?? true}
                   onCheckedChange={() => handleNotificationToggle('email')}
                 />
               </div>
@@ -475,7 +554,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   </div>
                 </div>
                 <Switch
-                  checked={notifications.push}
+                  checked={notifications?.push ?? true}
                   onCheckedChange={() => handleNotificationToggle('push')}
                 />
               </div>
@@ -489,7 +568,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   </div>
                 </div>
                 <Switch
-                  checked={notifications.moderation}
+                  checked={notifications?.moderation ?? true}
                   onCheckedChange={() => handleNotificationToggle('moderation')}
                 />
               </div>
@@ -503,7 +582,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   </div>
                 </div>
                 <Switch
-                  checked={notifications.community}
+                  checked={notifications?.community ?? true}
                   onCheckedChange={() => handleNotificationToggle('community')}
                 />
               </div>
@@ -517,7 +596,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   </div>
                 </div>
                 <Switch
-                  checked={notifications.marketing}
+                  checked={notifications?.marketing ?? false}
                   onCheckedChange={() => handleNotificationToggle('marketing')}
                 />
               </div>
@@ -566,7 +645,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <p className="text-xs sm:text-sm text-gray-600">Who can see your profile</p>
                   </div>
                 </div>
-                <Select value={privacy.profileVisibility} onValueChange={(value) => handlePrivacyChange('profileVisibility', value)}>
+                <Select value={privacy?.profileVisibility ?? 'public'} onValueChange={(value) => handlePrivacyChange('profileVisibility', value)}>
                   <SelectTrigger className="w-full sm:w-32 text-sm">
                     <SelectValue />
                   </SelectTrigger>
@@ -587,7 +666,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   </div>
                 </div>
                 <Switch
-                  checked={privacy.activityStatus}
+                  checked={privacy?.activityStatus ?? true}
                   onCheckedChange={() => handlePrivacyToggle('activityStatus')}
                 />
               </div>
@@ -600,7 +679,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <p className="text-xs sm:text-sm text-gray-600">Who can see your posts</p>
                   </div>
                 </div>
-                <Select value={privacy.contentVisibility} onValueChange={(value) => handlePrivacyChange('contentVisibility', value)}>
+                <Select value={privacy?.contentVisibility ?? 'public'} onValueChange={(value) => handlePrivacyChange('contentVisibility', value)}>
                   <SelectTrigger className="w-full sm:w-32 text-sm">
                     <SelectValue />
                   </SelectTrigger>
@@ -621,7 +700,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   </div>
                 </div>
                 <Switch
-                  checked={privacy.dataCollection}
+                  checked={privacy?.dataCollection ?? true}
                   onCheckedChange={() => handlePrivacyToggle('dataCollection')}
                 />
               </div>
@@ -670,7 +749,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <p className="text-xs sm:text-sm text-gray-600">Choose your preferred theme</p>
                   </div>
                 </div>
-                <Select value={appearance.theme} onValueChange={(value) => handleAppearanceChange('theme', value)}>
+                <Select value={appearance?.theme ?? 'light'} onValueChange={(value) => handleAppearanceChange('theme', value)}>
                   <SelectTrigger className="w-full sm:w-32 text-sm">
                     <SelectValue />
                   </SelectTrigger>
@@ -690,7 +769,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <p className="text-xs sm:text-sm text-gray-600">Adjust text size</p>
                   </div>
                 </div>
-                <Select value={appearance.fontSize} onValueChange={(value) => handleAppearanceChange('fontSize', value)}>
+                <Select value={appearance?.fontSize ?? 'medium'} onValueChange={(value) => handleAppearanceChange('fontSize', value)}>
                   <SelectTrigger className="w-full sm:w-32 text-sm">
                     <SelectValue />
                   </SelectTrigger>
@@ -711,7 +790,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   </div>
                 </div>
                 <Switch
-                  checked={appearance.compactMode}
+                  checked={appearance?.compactMode ?? false}
                   onCheckedChange={() => handleAppearanceToggle('compactMode')}
                 />
               </div>
@@ -725,7 +804,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   </div>
                 </div>
                 <Switch
-                  checked={appearance.reducedMotion}
+                  checked={appearance?.reducedMotion ?? false}
                   onCheckedChange={() => handleAppearanceToggle('reducedMotion')}
                 />
               </div>
