@@ -1,36 +1,28 @@
 import { NextResponse } from 'next/server';
+import { defineQuery } from 'groq';
 import { client } from '@/sanity/lib/client';
 
 export async function GET() {
   try {
-    // Fetch counts from Sanity
-    const [
-      totalQuestions,
-      totalTeachers,
-      totalBlogs,
-      totalMembers
-    ] = await Promise.all([
-      // Count community questions (posts)
-      client.fetch(`count(*[_type == "post"])`),
-      
-      // Count teachers
-      client.fetch(`count(*[_type == "teacher"])`),
-      
-      // Count blogs
-      client.fetch(`count(*[_type == "blog"])`),
-      
-      // Count users
-      client.fetch(`count(*[_type == "user"])`)
-    ]);
+    // Define GROQ query for site statistics
+    const siteStatsQuery = defineQuery(`
+      {
+        "totalQuestions": count(*[_type == "post" && (isDeleted == false || isDeleted == null)]),
+        "totalTeachers": count(*[_type == "user" && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"]]),
+        "totalBlogs": count(*[_type == "blog" && (isDeleted == false || isDeleted == null)]),
+        "totalMembers": count(*[_type == "user" && (isDeleted == false || isDeleted == null)])
+      }
+    `);
 
-    const stats = {
-      totalQuestions: totalQuestions || 0,
-      totalTeachers: totalTeachers || 0,
-      totalBlogs: totalBlogs || 0,
-      totalMembers: totalMembers || 0
-    };
+    // Execute the query
+    const stats = await client.fetch(siteStatsQuery);
 
-    return NextResponse.json(stats);
+    return NextResponse.json({
+      totalQuestions: stats.totalQuestions || 0,
+      totalTeachers: stats.totalTeachers || 0,
+      totalBlogs: stats.totalBlogs || 0,
+      totalMembers: stats.totalMembers || 0
+    });
 
   } catch (error) {
     console.error('Error fetching site stats:', error);

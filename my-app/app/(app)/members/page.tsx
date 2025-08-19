@@ -41,25 +41,25 @@ export default async function MembersPage() {
   const members = await adminClient.fetch(membersQuery);
   
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-6 lg:py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Community Members</h1>
-              <p className="text-gray-600">Discover and connect with our community members</p>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Community Members</h1>
+              <p className="text-sm sm:text-base text-gray-600">Discover and connect with our community members</p>
             </div>
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Users className="w-4 h-4" />
-              {members.length} Members
+            <Badge variant="outline" className="flex items-center gap-1 w-fit">
+              <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm">{members.length} Members</span>
             </Badge>
           </div>
         </div>
 
         {/* Search and Filters */}
-        <div className="mb-6">
-          <div className="flex items-center gap-4">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input 
@@ -67,28 +67,28 @@ export default async function MembersPage() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline">
-              <Activity className="w-4 h-4 mr-2" />
-              Active Members
+            <Button variant="outline" className="w-full sm:w-auto">
+              <Activity className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              <span className="text-sm sm:text-base">Active Members</span>
             </Button>
           </div>
         </div>
 
         {/* Members Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {members.map((member: any) => (
             <Card key={member._id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-start gap-3 sm:gap-4">
                   {/* Avatar */}
-                  <Avatar className="w-16 h-16">
+                  <Avatar className="w-12 h-12 sm:w-16 sm:h-16">
                     {member.imageURL && getImageUrl(member.imageURL) ? (
                       <AvatarImage 
                         src={getImageUrl(member.imageURL)!} 
                         alt={member.username}
                       />
                     ) : null}
-                    <AvatarFallback className="text-lg">
+                    <AvatarFallback className="text-sm sm:text-lg">
                       {member.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -99,7 +99,7 @@ export default async function MembersPage() {
                       <ProfileLink 
                         userId={member._id}
                         username={member.username}
-                        className="font-semibold text-lg hover:underline"
+                        className="font-semibold text-base sm:text-lg hover:underline"
                       >
                         {member.username}
                       </ProfileLink>
@@ -112,7 +112,7 @@ export default async function MembersPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                    <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
                       <div className="flex items-center gap-1">
                         <FileText className="w-3 h-3" />
                         <span>{member.postCount} posts</span>
@@ -124,7 +124,7 @@ export default async function MembersPage() {
                     </div>
 
                     {/* Additional Info */}
-                    <div className="space-y-1 text-sm text-gray-600">
+                    <div className="space-y-1 text-xs sm:text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         <span>Joined {formatDistanceToNow(new Date(member.joinedAt), { addSuffix: true })}</span>
@@ -152,7 +152,7 @@ export default async function MembersPage() {
 
                     {/* Bio Preview */}
                     {member.bio && (
-                      <p className="text-sm text-gray-700 mt-3 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-gray-700 mt-2 sm:mt-3 line-clamp-2">
                         {member.bio}
                       </p>
                     )}
@@ -166,10 +166,10 @@ export default async function MembersPage() {
         {/* Empty State */}
         {members.length === 0 && (
           <Card>
-            <CardContent className="p-12 text-center">
-              <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-lg font-semibold mb-2">No members found</h3>
-              <p className="text-gray-600">
+            <CardContent className="p-8 sm:p-12 text-center">
+              <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-gray-300" />
+              <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">No members found</h3>
+              <p className="text-sm sm:text-base text-gray-600">
                 There are currently no community members to display.
               </p>
             </CardContent>

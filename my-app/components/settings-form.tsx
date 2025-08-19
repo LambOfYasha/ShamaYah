@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { updateUserProfile, updateUserSettings, getUserSettings } from "@/action/settingsActions";
 import { useToast } from "@/hooks/use-toast";
 import { UserAvatar } from "@/components/ui/user-avatar";
+import { useSettings } from "@/contexts/settings-context";
 import { 
   User,
   Bell,
@@ -48,6 +49,7 @@ interface SettingsFormProps {
 
 export function SettingsForm({ user }: SettingsFormProps) {
   const { toast } = useToast();
+  const { settings, updateSettings } = useSettings();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
@@ -95,6 +97,15 @@ export function SettingsForm({ user }: SettingsFormProps) {
     };
     loadSettings();
   }, []);
+
+  // Sync with context settings
+  useEffect(() => {
+    if (settings) {
+      setNotifications(settings.notifications);
+      setPrivacy(settings.privacy);
+      setAppearance(settings.appearance);
+    }
+  }, [settings]);
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,6 +168,9 @@ export function SettingsForm({ user }: SettingsFormProps) {
       const result = await updateUserSettings(settingsToUpdate);
       
       if (result.success) {
+        // Update the context with new settings
+        updateSettings(settingsToUpdate);
+        
         toast({
           title: "Settings Saved",
           description: `${settingsType.charAt(0).toUpperCase() + settingsType.slice(1)} settings have been saved successfully.`,
@@ -182,42 +196,52 @@ export function SettingsForm({ user }: SettingsFormProps) {
   };
 
   const handleNotificationToggle = (key: string) => {
-    setNotifications(prev => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof prev]
-    }));
+    const newNotifications = {
+      ...notifications,
+      [key]: !notifications[key as keyof typeof notifications]
+    };
+    setNotifications(newNotifications);
+    updateSettings({ notifications: newNotifications });
     setHasUnsavedChanges(true);
   };
 
   const handlePrivacyToggle = (key: string) => {
-    setPrivacy(prev => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof prev]
-    }));
+    const newPrivacy = {
+      ...privacy,
+      [key]: !privacy[key as keyof typeof privacy]
+    };
+    setPrivacy(newPrivacy);
+    updateSettings({ privacy: newPrivacy });
     setHasUnsavedChanges(true);
   };
 
   const handleAppearanceToggle = (key: string) => {
-    setAppearance(prev => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof prev]
-    }));
+    const newAppearance = {
+      ...appearance,
+      [key]: !appearance[key as keyof typeof appearance]
+    };
+    setAppearance(newAppearance);
+    updateSettings({ appearance: newAppearance });
     setHasUnsavedChanges(true);
   };
 
   const handlePrivacyChange = (key: string, value: string) => {
-    setPrivacy(prev => ({
-      ...prev,
+    const newPrivacy = {
+      ...privacy,
       [key]: value
-    }));
+    };
+    setPrivacy(newPrivacy);
+    updateSettings({ privacy: newPrivacy });
     setHasUnsavedChanges(true);
   };
 
   const handleAppearanceChange = (key: string, value: string) => {
-    setAppearance(prev => ({
-      ...prev,
+    const newAppearance = {
+      ...appearance,
       [key]: value
-    }));
+    };
+    setAppearance(newAppearance);
+    updateSettings({ appearance: newAppearance });
     setHasUnsavedChanges(true);
   };
 
@@ -257,28 +281,29 @@ export function SettingsForm({ user }: SettingsFormProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Profile Tab */}
-      <TabsContent value="profile" className="space-y-6">
+      <TabsContent value="profile" className="space-y-4 sm:space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <User className="w-4 h-4 sm:w-5 sm:h-5" />
               Profile Information
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center space-x-4">
+          <CardContent className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <UserAvatar user={user} size="lg" />
               <div className="flex-1">
-                <h3 className="text-lg font-semibold">{user.username}</h3>
-                <p className="text-gray-600">{user.email}</p>
-                <p className="text-sm text-gray-500">Member since {user.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : 'Recently'}</p>
+                <h3 className="text-base sm:text-lg font-semibold">{user.username}</h3>
+                <p className="text-sm sm:text-base text-gray-600">{user.email}</p>
+                <p className="text-xs sm:text-sm text-gray-500">Member since {user.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : 'Recently'}</p>
               </div>
               <Button 
                 variant="outline" 
                 onClick={() => setIsEditing(!isEditing)}
                 disabled={isLoading}
+                className="w-full sm:w-auto"
               >
                 {isEditing ? (
                   <>
@@ -296,57 +321,62 @@ export function SettingsForm({ user }: SettingsFormProps) {
 
             {isEditing ? (
               <form onSubmit={handleProfileUpdate} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="username">Username</Label>
+                    <Label htmlFor="username" className="text-sm sm:text-base">Username</Label>
                     <Input
                       id="username"
                       value={formData.username}
                       onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
                       required
+                      className="text-sm sm:text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                       required
+                      className="text-sm sm:text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="location">Location</Label>
+                    <Label htmlFor="location" className="text-sm sm:text-base">Location</Label>
                     <Input
                       id="location"
                       value={formData.location}
                       onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                       placeholder="City, Country"
+                      className="text-sm sm:text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="website">Website</Label>
+                    <Label htmlFor="website" className="text-sm sm:text-base">Website</Label>
                     <Input
                       id="website"
                       value={formData.website}
                       onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
                       placeholder="https://example.com"
+                      className="text-sm sm:text-base"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="bio">Bio</Label>
+                  <Label htmlFor="bio" className="text-sm sm:text-base">Bio</Label>
                   <Textarea
                     id="bio"
                     value={formData.bio}
                     onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                     placeholder="Tell us about yourself..."
                     rows={3}
+                    className="text-sm sm:text-base"
                   />
                 </div>
-                <div className="flex gap-2">
-                  <Button type="submit" disabled={isLoading}>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                     {isLoading ? (
                       <>
                         <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -359,48 +389,48 @@ export function SettingsForm({ user }: SettingsFormProps) {
                       </>
                     )}
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)} className="w-full sm:w-auto">
                     Cancel
                   </Button>
                 </div>
               </form>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium">Username</Label>
-                  <p className="text-gray-600">{user.username}</p>
+                  <Label className="text-xs sm:text-sm font-medium">Username</Label>
+                  <p className="text-sm sm:text-base text-gray-600">{user.username}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Email</Label>
-                  <p className="text-gray-600">{user.email}</p>
+                  <Label className="text-xs sm:text-sm font-medium">Email</Label>
+                  <p className="text-sm sm:text-base text-gray-600">{user.email}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Role</Label>
-                  <Badge variant="outline">{user.role}</Badge>
+                  <Label className="text-xs sm:text-sm font-medium">Role</Label>
+                  <Badge variant="outline" className="text-xs sm:text-sm">{user.role}</Badge>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Account Status</Label>
-                  <Badge variant="default" className="flex items-center gap-1">
+                  <Label className="text-xs sm:text-sm font-medium">Account Status</Label>
+                  <Badge variant="default" className="flex items-center gap-1 text-xs sm:text-sm">
                     <CheckCircle className="w-3 h-3" />
                     Active
                   </Badge>
                 </div>
                 {user.bio && (
-                  <div className="md:col-span-2">
-                    <Label className="text-sm font-medium">Bio</Label>
-                    <p className="text-gray-600">{user.bio}</p>
+                  <div className="sm:col-span-2">
+                    <Label className="text-xs sm:text-sm font-medium">Bio</Label>
+                    <p className="text-sm sm:text-base text-gray-600">{user.bio}</p>
                   </div>
                 )}
                 {user.location && (
                   <div>
-                    <Label className="text-sm font-medium">Location</Label>
-                    <p className="text-gray-600">{user.location}</p>
+                    <Label className="text-xs sm:text-sm font-medium">Location</Label>
+                    <p className="text-sm sm:text-base text-gray-600">{user.location}</p>
                   </div>
                 )}
                 {user.website && (
                   <div>
-                    <Label className="text-sm font-medium">Website</Label>
-                    <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <Label className="text-xs sm:text-sm font-medium">Website</Label>
+                    <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-sm sm:text-base text-blue-600 hover:underline break-all">
                       {user.website}
                     </a>
                   </div>
@@ -412,22 +442,22 @@ export function SettingsForm({ user }: SettingsFormProps) {
       </TabsContent>
 
       {/* Notifications Tab */}
-      <TabsContent value="notifications" className="space-y-6">
+      <TabsContent value="notifications" className="space-y-4 sm:space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
               Notification Preferences
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+          <CardContent className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-blue-600" />
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Email Notifications</h4>
-                    <p className="text-sm text-gray-600">Receive notifications via email</p>
+                    <h4 className="text-sm sm:text-base font-medium">Email Notifications</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Receive notifications via email</p>
                   </div>
                 </div>
                 <Switch
@@ -436,12 +466,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 />
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Smartphone className="w-5 h-5 text-green-600" />
+                  <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Push Notifications</h4>
-                    <p className="text-sm text-gray-600">Receive notifications in browser</p>
+                    <h4 className="text-sm sm:text-base font-medium">Push Notifications</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Receive notifications in browser</p>
                   </div>
                 </div>
                 <Switch
@@ -450,12 +480,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 />
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-orange-600" />
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Content Moderation</h4>
-                    <p className="text-sm text-gray-600">Notifications about content moderation</p>
+                    <h4 className="text-sm sm:text-base font-medium">Content Moderation</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Notifications about content moderation</p>
                   </div>
                 </div>
                 <Switch
@@ -464,12 +494,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 />
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Users className="w-5 h-5 text-purple-600" />
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Community Updates</h4>
-                    <p className="text-sm text-gray-600">Updates from communities you follow</p>
+                    <h4 className="text-sm sm:text-base font-medium">Community Updates</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Updates from communities you follow</p>
                   </div>
                 </div>
                 <Switch
@@ -478,12 +508,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 />
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Zap className="w-5 h-5 text-yellow-600" />
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Marketing Communications</h4>
-                    <p className="text-sm text-gray-600">Receive promotional emails and updates</p>
+                    <h4 className="text-sm sm:text-base font-medium">Marketing Communications</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Receive promotional emails and updates</p>
                   </div>
                 </div>
                 <Switch
@@ -497,6 +527,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
               <Button 
                 onClick={() => handleSettingsSave('notifications')}
                 disabled={isSavingSettings}
+                className="w-full sm:w-auto"
               >
                 {isSavingSettings ? (
                   <>
@@ -506,7 +537,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 ) : (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    Save Notification Settings
+                    <span className="hidden sm:inline">Save Notification Settings</span>
+                    <span className="sm:hidden">Save Settings</span>
                   </>
                 )}
               </Button>
@@ -516,26 +548,26 @@ export function SettingsForm({ user }: SettingsFormProps) {
       </TabsContent>
 
       {/* Privacy Tab */}
-      <TabsContent value="privacy" className="space-y-6">
+      <TabsContent value="privacy" className="space-y-4 sm:space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
               Privacy Settings
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+          <CardContent className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Globe className="w-5 h-5 text-blue-600" />
+                  <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Profile Visibility</h4>
-                    <p className="text-sm text-gray-600">Who can see your profile</p>
+                    <h4 className="text-sm sm:text-base font-medium">Profile Visibility</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Who can see your profile</p>
                   </div>
                 </div>
                 <Select value={privacy.profileVisibility} onValueChange={(value) => handlePrivacyChange('profileVisibility', value)}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-full sm:w-32 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -546,12 +578,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 </Select>
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Activity className="w-5 h-5 text-green-600" />
+                  <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Activity Status</h4>
-                    <p className="text-sm text-gray-600">Show when you're online</p>
+                    <h4 className="text-sm sm:text-base font-medium">Activity Status</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Show when you're online</p>
                   </div>
                 </div>
                 <Switch
@@ -560,16 +592,16 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 />
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-purple-600" />
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Content Visibility</h4>
-                    <p className="text-sm text-gray-600">Who can see your posts</p>
+                    <h4 className="text-sm sm:text-base font-medium">Content Visibility</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Who can see your posts</p>
                   </div>
                 </div>
                 <Select value={privacy.contentVisibility} onValueChange={(value) => handlePrivacyChange('contentVisibility', value)}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-full sm:w-32 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -580,12 +612,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 </Select>
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Database className="w-5 h-5 text-orange-600" />
+                  <Database className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Data Collection</h4>
-                    <p className="text-sm text-gray-600">Allow analytics and tracking</p>
+                    <h4 className="text-sm sm:text-base font-medium">Data Collection</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Allow analytics and tracking</p>
                   </div>
                 </div>
                 <Switch
@@ -599,6 +631,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
               <Button 
                 onClick={() => handleSettingsSave('privacy')}
                 disabled={isSavingSettings}
+                className="w-full sm:w-auto"
               >
                 {isSavingSettings ? (
                   <>
@@ -608,7 +641,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 ) : (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    Save Privacy Settings
+                    <span className="hidden sm:inline">Save Privacy Settings</span>
+                    <span className="sm:hidden">Save Settings</span>
                   </>
                 )}
               </Button>
@@ -618,26 +652,26 @@ export function SettingsForm({ user }: SettingsFormProps) {
       </TabsContent>
 
       {/* Appearance Tab */}
-      <TabsContent value="appearance" className="space-y-6">
+      <TabsContent value="appearance" className="space-y-4 sm:space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
               Appearance Settings
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+          <CardContent className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Sun className="w-5 h-5 text-yellow-600" />
+                  <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Theme</h4>
-                    <p className="text-sm text-gray-600">Choose your preferred theme</p>
+                    <h4 className="text-sm sm:text-base font-medium">Theme</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Choose your preferred theme</p>
                   </div>
                 </div>
                 <Select value={appearance.theme} onValueChange={(value) => handleAppearanceChange('theme', value)}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-full sm:w-32 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -648,16 +682,16 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 </Select>
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-blue-600" />
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Font Size</h4>
-                    <p className="text-sm text-gray-600">Adjust text size</p>
+                    <h4 className="text-sm sm:text-base font-medium">Font Size</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Adjust text size</p>
                   </div>
                 </div>
                 <Select value={appearance.fontSize} onValueChange={(value) => handleAppearanceChange('fontSize', value)}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-full sm:w-32 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -668,12 +702,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 </Select>
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Monitor className="w-5 h-5 text-green-600" />
+                  <Monitor className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Compact Mode</h4>
-                    <p className="text-sm text-gray-600">Use compact layout</p>
+                    <h4 className="text-sm sm:text-base font-medium">Compact Mode</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Use compact layout</p>
                   </div>
                 </div>
                 <Switch
@@ -682,12 +716,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 />
               </div>
               
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                 <div className="flex items-center gap-3">
-                  <Zap className="w-5 h-5 text-purple-600" />
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium">Reduced Motion</h4>
-                    <p className="text-sm text-gray-600">Reduce animations and transitions</p>
+                    <h4 className="text-sm sm:text-base font-medium">Reduced Motion</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Reduce animations and transitions</p>
                   </div>
                 </div>
                 <Switch
@@ -701,6 +735,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
               <Button 
                 onClick={() => handleSettingsSave('appearance')}
                 disabled={isSavingSettings}
+                className="w-full sm:w-auto"
               >
                 {isSavingSettings ? (
                   <>
@@ -710,7 +745,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 ) : (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    Save Appearance Settings
+                    <span className="hidden sm:inline">Save Appearance Settings</span>
+                    <span className="sm:hidden">Save Settings</span>
                   </>
                 )}
               </Button>
@@ -720,28 +756,28 @@ export function SettingsForm({ user }: SettingsFormProps) {
       </TabsContent>
 
       {/* Security Tab */}
-      <TabsContent value="security" className="space-y-6">
+      <TabsContent value="security" className="space-y-4 sm:space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
               Security Settings
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between">
+          <CardContent className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="p-3 sm:p-4 border rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                   <div className="flex items-center gap-3">
-                    <Key className="w-5 h-5 text-blue-600" />
+                    <Key className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                     <div>
-                      <h4 className="font-medium">Change Password</h4>
-                      <p className="text-sm text-gray-600">Update your account password</p>
+                      <h4 className="text-sm sm:text-base font-medium">Change Password</h4>
+                      <p className="text-xs sm:text-sm text-gray-600">Update your account password</p>
                     </div>
                   </div>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline">Change Password</Button>
+                      <Button variant="outline" className="w-full sm:w-auto">Change Password</Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
@@ -772,29 +808,29 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 </div>
               </div>
               
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between">
+              <div className="p-3 sm:p-4 border rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                   <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-green-600" />
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                     <div>
-                      <h4 className="font-medium">Two-Factor Authentication</h4>
-                      <p className="text-sm text-gray-600">Add an extra layer of security</p>
+                      <h4 className="text-sm sm:text-base font-medium">Two-Factor Authentication</h4>
+                      <p className="text-xs sm:text-sm text-gray-600">Add an extra layer of security</p>
                     </div>
                   </div>
-                  <Button variant="outline">Enable 2FA</Button>
+                  <Button variant="outline" className="w-full sm:w-auto">Enable 2FA</Button>
                 </div>
               </div>
               
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between">
+              <div className="p-3 sm:p-4 border rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                   <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-orange-600" />
+                    <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 flex-shrink-0" />
                     <div>
-                      <h4 className="font-medium">Active Sessions</h4>
-                      <p className="text-sm text-gray-600">Manage your active sessions</p>
+                      <h4 className="text-sm sm:text-base font-medium">Active Sessions</h4>
+                      <p className="text-xs sm:text-sm text-gray-600">Manage your active sessions</p>
                     </div>
                   </div>
-                  <Button variant="outline">View Sessions</Button>
+                  <Button variant="outline" className="w-full sm:w-auto">View Sessions</Button>
                 </div>
               </div>
             </div>
@@ -803,44 +839,44 @@ export function SettingsForm({ user }: SettingsFormProps) {
       </TabsContent>
 
       {/* Data & Export Tab */}
-      <TabsContent value="data" className="space-y-6">
+      <TabsContent value="data" className="space-y-4 sm:space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Database className="w-4 h-4 sm:w-5 sm:h-5" />
               Data & Privacy
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between">
+          <CardContent className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="p-3 sm:p-4 border rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                   <div className="flex items-center gap-3">
-                    <Download className="w-5 h-5 text-blue-600" />
+                    <Download className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                     <div>
-                      <h4 className="font-medium">Export Data</h4>
-                      <p className="text-sm text-gray-600">Download a copy of your data</p>
+                      <h4 className="text-sm sm:text-base font-medium">Export Data</h4>
+                      <p className="text-xs sm:text-sm text-gray-600">Download a copy of your data</p>
                     </div>
                   </div>
-                  <Button variant="outline" onClick={exportUserData}>
+                  <Button variant="outline" onClick={exportUserData} className="w-full sm:w-auto">
                     <Download className="w-4 h-4 mr-2" />
                     Export Data
                   </Button>
                 </div>
               </div>
               
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between">
+              <div className="p-3 sm:p-4 border rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                   <div className="flex items-center gap-3">
-                    <Trash2 className="w-5 h-5 text-red-600" />
+                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" />
                     <div>
-                      <h4 className="font-medium">Delete Account</h4>
-                      <p className="text-sm text-gray-600">Permanently delete your account and data</p>
+                      <h4 className="text-sm sm:text-base font-medium">Delete Account</h4>
+                      <p className="text-xs sm:text-sm text-gray-600">Permanently delete your account and data</p>
                     </div>
                   </div>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive">Delete Account</Button>
+                      <Button variant="destructive" className="w-full sm:w-auto">Delete Account</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>

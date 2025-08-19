@@ -210,12 +210,21 @@ function CreateBlogButton() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="w-full p-2 pl-5 flex items-center rounded-md 
+      <DialogTrigger asChild>
+        <div className="w-full p-2 pl-5 flex items-center rounded-md 
   cursor-pointer bg-black text-white 
-  hover:bg-black transition-all duration-200 
-  disabled:text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled={!user}>
-        <Plus />
-        {user ? "Create Blog Post" : "Sign in to create blog post"}
+  hover:bg-black transition-all duration-200" 
+  aria-disabled={!user}
+  tabIndex={user ? 0 : -1}
+  style={{
+    opacity: user ? 1 : 0.5,
+    pointerEvents: user ? "auto" : "none",
+    fontSize: user ? undefined : "0.875rem",
+    cursor: user ? "pointer" : "not-allowed"
+  }}>
+          <BookOpen className="mr-2 h-4 w-4" />
+          <span>{user ? "Create Blog Post" : "Sign in to create blog post"}</span>
+        </div>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">

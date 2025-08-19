@@ -68,20 +68,20 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   
   if (!isProfilePublic) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full mx-auto p-6">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full mx-auto">
           <Card>
             <CardHeader className="text-center">
-              <div className="mx-auto w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                <Lock className="w-8 h-8 text-gray-400" />
+              <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+                <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
               </div>
-              <CardTitle className="text-xl">Profile Private</CardTitle>
-              <p className="text-gray-600 mt-2">
+              <CardTitle className="text-lg sm:text-xl">Profile Private</CardTitle>
+              <p className="text-sm sm:text-base text-gray-600 mt-2">
                 This user has set their profile to private and it cannot be viewed.
               </p>
             </CardHeader>
             <CardContent className="text-center">
-              <Button asChild className="mt-4">
+              <Button asChild className="mt-4 w-full sm:w-auto">
                 <Link href="/">
                   Return Home
                 </Link>
@@ -94,89 +94,91 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-6 lg:py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
-          <Button variant="outline" size="sm" asChild className="mb-4">
+        <div className="mb-6 sm:mb-8">
+          <Button variant="outline" size="sm" asChild className="mb-3 sm:mb-4 text-sm">
             <Link href="/">
               ← Back to Home
             </Link>
           </Button>
           
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-6">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                 {/* Avatar */}
-                <div className="relative">
-                  <Avatar className="w-24 h-24">
+                <div className="relative mx-auto sm:mx-0">
+                  <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
                     {user.imageURL && getImageUrl(user.imageURL) ? (
                       <AvatarImage 
                         src={getImageUrl(user.imageURL)!} 
                         alt={user.username}
                       />
                     ) : null}
-                    <AvatarFallback className="text-2xl">
+                    <AvatarFallback className="text-xl sm:text-2xl">
                       {user.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   {user.isActive && (
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
                     </div>
                   )}
                 </div>
 
                 {/* User Info */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-3xl font-bold">{user.username}</h1>
-                    <Badge variant="outline" className="text-sm">
-                      {user.role}
-                    </Badge>
-                    {user.isActive ? (
-                      <Badge variant="default" className="text-sm">
-                        Active
+                <div className="flex-1 text-center sm:text-left">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                    <h1 className="text-2xl sm:text-3xl font-bold">{user.username}</h1>
+                    <div className="flex items-center justify-center sm:justify-start gap-2">
+                      <Badge variant="outline" className="text-xs sm:text-sm">
+                        {user.role}
                       </Badge>
-                    ) : (
-                      <Badge variant="secondary" className="text-sm">
-                        Inactive
-                      </Badge>
-                    )}
+                      {user.isActive ? (
+                        <Badge variant="default" className="text-xs sm:text-sm">
+                          Active
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-xs sm:text-sm">
+                          Inactive
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-6 text-sm text-gray-600 mb-4">
-                    <div className="flex items-center gap-1">
-                      <FileText className="w-4 h-4" />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+                    <div className="flex items-center justify-center sm:justify-start gap-1">
+                      <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>{user.postCount} posts</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <MessageSquare className="w-4 h-4" />
+                    <div className="flex items-center justify-center sm:justify-start gap-1">
+                      <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>{user.commentCount} comments</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
+                    <div className="flex items-center justify-center sm:justify-start gap-1">
+                      <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>Joined {formatDistanceToNow(new Date(user.joinedAt), { addSuffix: true })}</span>
                     </div>
                   </div>
 
                   {/* Bio */}
                   {user.bio && (
-                    <p className="text-gray-700 mb-4">{user.bio}</p>
+                    <p className="text-sm sm:text-base text-gray-700 mb-3 sm:mb-4">{user.bio}</p>
                   )}
 
                   {/* Additional Info */}
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
                     {user.location && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
+                      <div className="flex items-center justify-center sm:justify-start gap-1">
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span>{user.location}</span>
                       </div>
                     )}
                     {user.website && (
-                      <div className="flex items-center gap-1">
-                        <Globe className="w-4 h-4" />
+                      <div className="flex items-center justify-center sm:justify-start gap-1">
+                        <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
                         <a 
                           href={user.website} 
                           target="_blank" 
@@ -195,32 +197,32 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
         </div>
 
         {/* Activity Section */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5" />
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="pb-3 sm:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Activity className="w-4 h-4 sm:w-5 sm:h-5" />
               Recent Activity
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8 text-gray-500">
-              <Activity className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p>Activity information is not available for public profiles.</p>
+            <div className="text-center py-6 sm:py-8 text-gray-500">
+              <Activity className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
+              <p className="text-sm sm:text-base">Activity information is not available for public profiles.</p>
             </div>
           </CardContent>
         </Card>
 
         {/* Privacy Notice */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5" />
+          <CardHeader className="pb-3 sm:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
               Privacy Information
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Eye className="w-4 h-4" />
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>This is a public profile view. Some information may be hidden based on user privacy settings.</span>
             </div>
           </CardContent>

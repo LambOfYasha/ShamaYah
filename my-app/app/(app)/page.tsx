@@ -15,10 +15,13 @@ import {
   Users,
   MessageSquare,
   Youtube,
-  MessageCircle
+  MessageCircle,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import Image from "next/image";
 import GuestCreateCommunityButton from "@/components/community/GuestCreateCommunityButton";
+import { useCompactMode } from "@/hooks/use-compact-mode";
 
 interface VerseOfTheDay {
   verse: string;
@@ -35,6 +38,7 @@ interface SiteStats {
 
 export default function HomePage() {
   const { isSignedIn, isLoaded } = useUser();
+  const { isCompactMode } = useCompactMode();
   const [searchQuery, setSearchQuery] = useState('');
   const [verseOfTheDay, setVerseOfTheDay] = useState<VerseOfTheDay | null>(null);
   const [siteStats, setSiteStats] = useState<SiteStats>({
@@ -43,6 +47,8 @@ export default function HomePage() {
     totalBlogs: 0,
     totalMembers: 0
   });
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [activeFooterTab, setActiveFooterTab] = useState('community');
 
   // Fetch verse of the day
   useEffect(() => {
@@ -91,83 +97,138 @@ export default function HomePage() {
     }
   };
 
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % 4);
+  };
 
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + 4) % 4);
+  };
+
+  const statsData = [
+    {
+      value: siteStats.totalQuestions.toLocaleString(),
+      label: "Biblical Questions",
+      color: "text-blue-600"
+    },
+    {
+      value: siteStats.totalTeachers,
+      label: "Teachers",
+      color: "text-green-600"
+    },
+    {
+      value: siteStats.totalBlogs,
+      label: "Blogs",
+      color: "text-purple-600"
+    },
+    {
+      value: siteStats.totalMembers.toLocaleString(),
+      label: "Members",
+      color: "text-orange-600"
+    }
+  ];
+
+  const footerData = {
+    community: {
+      title: "Community",
+      links: [
+        { href: "/about", text: "About Us" },
+        { href: "/guidelines", text: "Community Guidelines" },
+        { href: "/privacy", text: "Privacy Policy" },
+        { href: "/terms", text: "Terms of Service" }
+      ]
+    },
+    resources: {
+      title: "Resources",
+      links: [
+        { href: "/help", text: "Help Center" },
+        { href: "/contact", text: "Contact Us" },
+        { href: "/feedback", text: "Feedback" },
+        { href: "/faq", text: "FAQ" }
+      ]
+    },
+    connect: {
+      title: "Connect",
+      links: [
+        { href: "/sign-in", text: "Sign In" },
+        { href: "/sign-up", text: "Sign Up" },
+        { href: "/communities", text: "Browse Communities" },
+        { href: "/questions", text: "Ask Questions" }
+      ]
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-screen flex items-center justify-center">
+      <section className={`relative overflow-hidden ${isCompactMode ? 'min-h-[15vh]' : 'min-h-[20vh]'} sm:min-h-screen flex items-center justify-center`}>
         {/* Background Logo */}
         <div className="absolute inset-0 flex items-center justify-center">
           <Image
             src="/assets/logo_light.png"
             alt="Shama Yah Logo Background"
             fill
-            className="object-contain"
+            className={`object-contain max-w-full ${isCompactMode ? 'max-h-[15vh]' : 'max-h-[20vh]'} sm:max-h-[70vh] md:max-h-[80vh]`}
             priority
           />
         </div>
-        
-        {/* Content Overlay */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-          </div>
-        </div>
+    
       </section>
 
       {/*Welcome Section*/}
-      <section className="py-20 bg-white">  
+      <section className="bg-white">  
              {/* Content Below Logo */}
-             <div className="space-y-8">
-              <h1 className="text-center text-4xl md:text-6xl font-bold text-gray-900">
+             <div className={`${isCompactMode ? 'space-y-4' : 'space-y-6'} sm:space-y-8`}>
+              <h1 className={`text-center ${isCompactMode ? 'text-2xl sm:text-3xl md:text-5xl' : 'text-3xl sm:text-4xl md:text-6xl'} font-bold text-gray-900`}>
                 Welcome to
                 <span className="text-blue-600 block">Shama Yah</span>
               </h1>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-gray-600 max-w-3xl mx-auto px-4`}>
                 A community for biblical discussion, theological exploration, and spiritual growth.
               </p>
               
               {/* Search Bar */}
-              <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
-                <div className="flex gap-2">
+              <form onSubmit={handleSearch} className="max-w-2xl mx-auto px-4">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
                     <Input
                       type="text"
                       placeholder="Search questions, topics, or communities..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 h-12 text-lg"
+                      className={`pl-10 ${isCompactMode ? 'h-9 sm:h-10' : 'h-10 sm:h-12'} ${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}
                     />
                   </div>
-                  <Button type="submit" size="lg" className="h-12 px-6">
+                  <Button type="submit" size="lg" className={`${isCompactMode ? 'h-9 sm:h-10' : 'h-10 sm:h-12'} px-4 sm:px-6 ${isCompactMode ? 'text-sm sm:text-base' : 'text-sm sm:text-base'}`}>
                     Search
                   </Button>
                 </div>
               </form>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className={`flex flex-col sm:flex-row ${isCompactMode ? 'gap-2 sm:gap-3' : 'gap-3 sm:gap-4'} justify-center px-4`}>
                 {isLoaded && (
                   <>
                     {isSignedIn ? (
-                      <Button asChild size="lg" className="text-lg px-8 py-3">
+                      <Button asChild size="lg" className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} px-6 sm:px-8 ${isCompactMode ? 'py-2' : 'py-2 sm:py-3'} w-full sm:w-auto`}>
                         <Link href="/dashboard">
-                          <LayoutDashboard className="mr-2 h-5 w-5" />
-                          Go to Dashboard
-                          <ArrowRight className="ml-2 h-5 w-5" />
+                          <LayoutDashboard className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                          <span className="hidden sm:inline">Go to Dashboard</span>
+                          <span className="sm:hidden">Dashboard</span>
+                          <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                         </Link>
                       </Button>
                     ) : (
-                      <Button asChild size="lg" className="text-lg px-8 py-3">
+                      <Button asChild size="lg" className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} px-6 sm:px-8 ${isCompactMode ? 'py-2' : 'py-2 sm:py-3'} w-full sm:w-auto`}>
                         <Link href="/sign-in">
                           Get Started
-                          <ArrowRight className="ml-2 h-5 w-5" />
+                          <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                         </Link>
                       </Button>
                     )}
                   </>
                 )}
-                <Button asChild variant="outline" size="lg" className="text-lg px-8 py-3">
+                <Button asChild variant="outline" size="lg" className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} px-6 sm:px-8 ${isCompactMode ? 'py-2' : 'py-2 sm:py-3'} w-full sm:w-auto`}>
                   <Link href="/about">
                     Learn More
                   </Link>
@@ -177,13 +238,13 @@ export default function HomePage() {
       </section>
 
       {/* Ask a Question as Guest Section */}
-      <section className="py-20 bg-white">
+      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-white`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <div className={`text-center ${isCompactMode ? 'mb-6 sm:mb-10' : 'mb-8 sm:mb-12'}`}>
+            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold text-gray-900 ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
               Have a Question?
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-gray-600`}>
               Ask your biblical or theological question as a guest. Our community will help you find answers.
             </p>
           </div>
@@ -195,23 +256,23 @@ export default function HomePage() {
       </section>
 
       {/* Verse of the Day Section */}
-      <section className="py-20 bg-gray-50">
+      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-gray-50`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Verse of the Day
+          <div className={`text-center ${isCompactMode ? 'mb-6 sm:mb-10' : 'mb-8 sm:mb-12'}`}>
+            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold text-gray-900 ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
+              Verse of the Moment
             </h2>
           </div>
           
           {verseOfTheDay && (
             <Card className="max-w-3xl mx-auto">
               <CardHeader>
-                <CardTitle className="text-center text-blue-600">
+                <CardTitle className={`text-center text-blue-600 ${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>
                   {verseOfTheDay.reference}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <blockquote className="text-xl text-gray-700 text-center italic leading-relaxed">
+                <blockquote className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-gray-700 text-center italic leading-relaxed`}>
                   "{verseOfTheDay.text}"
                 </blockquote>
               </CardContent>
@@ -221,51 +282,107 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-white">
+      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-white`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <div className={`text-center ${isCompactMode ? 'mb-8 sm:mb-12' : 'mb-12 sm:mb-16'}`}>
+            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold text-gray-900 ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
               Our Growing Community
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-gray-600`}>
               Join thousands of believers who are already part of our community
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Mobile Slideshow */}
+          <div className="block sm:hidden">
+            <div className="relative">
+              <div className="overflow-hidden">
+                <div 
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {statsData.map((stat, index) => (
+                    <div key={index} className="w-full flex-shrink-0 px-2">
+                      <Card className="text-center hover:shadow-lg transition-shadow">
+                        <CardContent className={`${isCompactMode ? 'pt-4' : 'pt-6'}`}>
+                          <div className={`${isCompactMode ? 'text-3xl' : 'text-4xl'} font-bold ${stat.color} ${isCompactMode ? 'mb-1' : 'mb-2'}`}>
+                            {stat.value}+
+                          </div>
+                          <div className={`${isCompactMode ? 'text-sm' : 'text-base'} text-gray-600`}>{stat.label}</div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Navigation Buttons */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg border"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="h-5 w-5 text-gray-600" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg border"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="h-5 w-5 text-gray-600" />
+              </button>
+              
+              {/* Dots Indicator */}
+              <div className="flex justify-center mt-4 space-x-2">
+                {statsData.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      index === currentSlide ? 'bg-blue-600' : 'bg-gray-300'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Grid */}
+          <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
             <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="text-4xl font-bold text-blue-600 mb-2">
+              <CardContent className={`${isCompactMode ? 'pt-3 sm:pt-4' : 'pt-4 sm:pt-6'}`}>
+                <div className={`${isCompactMode ? 'text-xl sm:text-3xl' : 'text-2xl sm:text-4xl'} font-bold text-blue-600 ${isCompactMode ? 'mb-1' : 'mb-1 sm:mb-2'}`}>
                   {siteStats.totalQuestions.toLocaleString()}+
                 </div>
-                <div className="text-gray-600">Biblical Questions</div>
+                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-600`}>Biblical Questions</div>
               </CardContent>
             </Card>
             
             <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="text-4xl font-bold text-green-600 mb-2">
+              <CardContent className={`${isCompactMode ? 'pt-3 sm:pt-4' : 'pt-4 sm:pt-6'}`}>
+                <div className={`${isCompactMode ? 'text-xl sm:text-3xl' : 'text-2xl sm:text-4xl'} font-bold text-green-600 ${isCompactMode ? 'mb-1' : 'mb-1 sm:mb-2'}`}>
                   {siteStats.totalTeachers}+
                 </div>
-                <div className="text-gray-600">Teachers</div>
+                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-600`}>Teachers</div>
               </CardContent>
             </Card>
             
             <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="text-4xl font-bold text-purple-600 mb-2">
+              <CardContent className={`${isCompactMode ? 'pt-3 sm:pt-4' : 'pt-4 sm:pt-6'}`}>
+                <div className={`${isCompactMode ? 'text-xl sm:text-3xl' : 'text-2xl sm:text-4xl'} font-bold text-purple-600 ${isCompactMode ? 'mb-1' : 'mb-1 sm:mb-2'}`}>
                   {siteStats.totalBlogs}+
                 </div>
-                <div className="text-gray-600">Blogs</div>
+                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-600`}>Blogs</div>
               </CardContent>
             </Card>
             
             <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="text-4xl font-bold text-orange-600 mb-2">
+              <CardContent className={`${isCompactMode ? 'pt-3 sm:pt-4' : 'pt-4 sm:pt-6'}`}>
+                <div className={`${isCompactMode ? 'text-xl sm:text-3xl' : 'text-2xl sm:text-4xl'} font-bold text-orange-600 ${isCompactMode ? 'mb-1' : 'mb-1 sm:mb-2'}`}>
                   {siteStats.totalMembers.toLocaleString()}+
                 </div>
-                <div className="text-gray-600">Members</div>
+                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-600`}>Members</div>
               </CardContent>
             </Card>
           </div>
@@ -273,12 +390,74 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className={`bg-gray-900 text-white ${isCompactMode ? 'py-6 sm:py-10' : 'py-8 sm:py-12'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Mobile Tabbed Footer */}
+          <div className="block sm:hidden">
+            {/* Tab Navigation */}
+            <div className="flex border-b border-gray-800 mb-6">
+              {Object.entries(footerData).map(([key, section]) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveFooterTab(key)}
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                    activeFooterTab === key
+                      ? 'text-white border-b-2 border-blue-500'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  {section.title}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab Content */}
+            <div className="mb-6">
+              {Object.entries(footerData).map(([key, section]) => (
+                <div
+                  key={key}
+                  className={`space-y-3 ${activeFooterTab === key ? 'block' : 'hidden'}`}
+                >
+                  <h4 className={`${isCompactMode ? 'text-base' : 'text-lg'} font-semibold mb-4`}>{section.title}</h4>
+                  <ul className="space-y-2">
+                    {section.links.map((link, index) => (
+                      <li key={index}>
+                        <Link 
+                          href={link.href} 
+                          className="text-gray-400 hover:text-white transition-colors block py-1"
+                        >
+                          {link.text}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            {/* Social Links and Copyright */}
+            <div className="border-t border-gray-800 pt-6">
+              <div className="flex flex-col items-center space-y-4">
+                <p className="text-sm text-gray-400 text-center">
+                  &copy; 2025 Shama Yah. All rights reserved.
+                </p>
+                <div className="flex items-center gap-4">
+                  <Link href="https://discord.gg/shamayah" className="hover:text-white transition-colors">
+                    <MessageCircle className="h-6 w-6" />
+                  </Link>
+                  <Link href="https://youtube.com/@shamayah" className="hover:text-white transition-colors">
+                    <Youtube className="h-6 w-6" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Footer */}
+          <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             <div>
-              <h4 className="text-lg font-semibold mb-4">Community</h4>
-              <ul className="space-y-2 text-gray-400">
+              <h4 className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} font-semibold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>Community</h4>
+              <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-400`}>
                 <li><Link href="/about" className="hover:text-white">About Us</Link></li>
                 <li><Link href="/guidelines" className="hover:text-white">Community Guidelines</Link></li>
                 <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
@@ -286,17 +465,17 @@ export default function HomePage() {
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2 text-gray-400">
+              <h4 className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} font-semibold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>Resources</h4>
+              <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-400`}>
                 <li><Link href="/help" className="hover:text-white">Help Center</Link></li>
                 <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
                 <li><Link href="/feedback" className="hover:text-white">Feedback</Link></li>
                 <li><Link href="/faq" className="hover:text-white">FAQ</Link></li>
               </ul>
             </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Connect</h4>
-              <ul className="space-y-2 text-gray-400">
+            <div className="sm:col-span-2 md:col-span-1">
+              <h4 className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} font-semibold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>Connect</h4>
+              <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-400`}>
                 <li><Link href="/sign-in" className="hover:text-white">Sign In</Link></li>
                 <li><Link href="/sign-up" className="hover:text-white">Sign Up</Link></li>
                 <li><Link href="/communities" className="hover:text-white">Browse Communities</Link></li>
@@ -304,14 +483,16 @@ export default function HomePage() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center text-gray-400">
+          
+          {/* Desktop Copyright and Social */}
+          <div className="hidden sm:block border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center text-sm sm:text-base text-gray-400">
             <p>&copy; 2025 Shama Yah. All rights reserved.</p>
-            <div className="flex items-center gap-4 mt-4 md:mt-0">
+            <div className="flex items-center gap-4 mt-4 sm:mt-0">
               <Link href="https://discord.gg/shamayah" className="hover:text-white transition-colors">
-                <MessageCircle className="h-6 w-6" />
+                <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
               </Link>
               <Link href="https://youtube.com/@shamayah" className="hover:text-white transition-colors">
-                <Youtube className="h-6 w-6" />
+                <Youtube className="h-5 w-5 sm:h-6 sm:w-6" />
               </Link>
             </div>
           </div>

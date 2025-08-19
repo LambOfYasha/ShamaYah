@@ -12,7 +12,7 @@ import React, { useState, useRef, useTransition } from 'react'
 import { useUser } from '@clerk/nextjs' 
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
-import { ImageIcon, Plus, X } from "lucide-react"
+import { ImageIcon, Plus, X, MessageCircle } from "lucide-react"
 import Image from "next/image"
 import { Label } from "../ui/label"
 import { Button } from "../ui/button"
@@ -161,11 +161,13 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="w-full p-2 pl-5 flex items-center rounded-md 
-      cursor-pointer bg-black text-white 
-      hover:bg-black transition-all duration-200">
-        <Plus />
-        Ask a Question
+      <DialogTrigger asChild>
+        <div className="w-full p-2 pl-5 flex items-center rounded-md 
+        cursor-pointer bg-black text-white 
+        hover:bg-black transition-all duration-200">
+          <MessageCircle className="mr-2 h-4 w-4" />
+          <span>Ask a Question</span>
+        </div>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>

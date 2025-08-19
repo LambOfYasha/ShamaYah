@@ -164,7 +164,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <Suspense fallback={<div className="p-4">Loading search...</div>}>
+        <Suspense fallback={<div className="p-3 sm:p-4 text-sm">Loading search...</div>}>
           <SearchForm />
         </Suspense>
       </SidebarHeader>
@@ -172,14 +172,14 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild className="text-sm sm:text-base">
                 <CreateCommunityButton />
               </SidebarMenuButton>
             </SidebarMenuItem>
             {/* Only show CreateBlogButton for admins and teachers */}
             {canCreateBlogs && (
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
                   <CreateBlogButton />
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -192,66 +192,66 @@ export default function AppSidebar() {
           <SidebarGroup>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
                   <Link href="/dashboard">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Dashboard
+                    <LayoutDashboard className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
                   <Link href="/dashboard/profile">
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
+                    <User className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Profile</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
                   <Link href="/dashboard/favorites">
-                    <Heart className="mr-2 h-4 w-4" />
-                    Favorites
+                    <Heart className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Favorites</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
                   <Link href="/dashboard/questions">
-                    <Users className="mr-2 h-4 w-4" />
-                    Questions
+                    <Users className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Questions</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
                   <Link href="/dashboard/blogs">
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Blog
+                    <BookOpen className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Blog</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
                   <Link href="/dashboard/settings">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                    <Settings className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Settings</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
                   <Link href="/members">
-                    <Users className="mr-2 h-4 w-4" />
-                    Members
+                    <Users className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Members</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
                   <Link href="/staff">
-                    <UserCheck className="mr-2 h-4 w-4" />
-                    Staff
+                    <UserCheck className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Staff</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -268,10 +268,10 @@ export default function AppSidebar() {
               >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
-                    Community Questions{" "}
-                      <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-                      <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                    <SidebarMenuButton className="text-sm sm:text-base">
+                    <span>Community Questions</span>{" "}
+                      <Plus className="ml-auto h-3 w-3 sm:h-4 sm:w-4 group-data-[state=open]/collapsible:hidden" />
+                      <Minus className="ml-auto h-3 w-3 sm:h-4 sm:w-4 group-data-[state=closed]/collapsible:hidden" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                 {!loading && communities.length > 0 && (
@@ -282,6 +282,7 @@ export default function AppSidebar() {
                             <SidebarMenuSubButton
                               asChild
                             isActive={false}
+                            className="text-xs sm:text-sm"
                             >
                             <Link href={`/community-questions/${community.slug?.current || community.slug}`}>
                               {community.title || "Untitled"}
@@ -306,10 +307,10 @@ export default function AppSidebar() {
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton>
-                    Teacher's Blog{" "}
-                    <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-                    <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                  <SidebarMenuButton className="text-sm sm:text-base">
+                    <span>Teacher's Blog</span>{" "}
+                    <Plus className="ml-auto h-3 w-3 sm:h-4 sm:w-4 group-data-[state=open]/collapsible:hidden" />
+                    <Minus className="ml-auto h-3 w-3 sm:h-4 sm:w-4 group-data-[state=closed]/collapsible:hidden" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
                 {!blogsLoading && blogs.length > 0 && (
@@ -320,6 +321,7 @@ export default function AppSidebar() {
                           <SidebarMenuSubButton
                             asChild
                             isActive={false}
+                            className="text-xs sm:text-sm"
                           >
                             <Link href={`/blogs/${blog.slug?.current || blog.slug}`}>
                               {blog.title || "Untitled Blog"}
