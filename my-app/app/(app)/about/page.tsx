@@ -10,7 +10,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-background shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <Button asChild variant="ghost" className="mb-3 sm:mb-4 text-sm sm:text-base">
             <Link href="/">
@@ -52,7 +52,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -158,7 +158,7 @@ export default function AboutPage() {
       </section>
 
       {/* What We Offer Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 md:py-20 bg-muted">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -233,7 +233,7 @@ export default function AboutPage() {
                 Get Started Today
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 border-white text-white hover:bg-white hover:text-blue-600 w-full sm:w-auto">
+            <Button asChild size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 border-white text-white hover:bg-background hover:text-blue-600 w-full sm:w-auto">
               <Link href="/questions">
                 Browse Questions
               </Link>

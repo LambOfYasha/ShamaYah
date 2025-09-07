@@ -68,7 +68,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   
   if (!isProfilePublic) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-muted flex items-center justify-center p-4">
         <div className="max-w-md w-full mx-auto">
           <Card>
             <CardHeader className="text-center">
@@ -94,7 +94,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 sm:py-6 lg:py-8">
+    <div className="min-h-screen bg-muted py-4 sm:py-6 lg:py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="mb-6 sm:mb-8">

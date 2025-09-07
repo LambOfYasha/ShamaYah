@@ -190,7 +190,7 @@ export default async function BlogPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <div className="max-w-4xl mx-auto p-4 sm:p-6">
         {/* Back Button */}
         <div className="mb-4 sm:mb-6">
@@ -204,7 +204,7 @@ export default async function BlogPage({
         </div>
 
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="bg-background rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4">
             <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
@@ -308,7 +308,7 @@ export default async function BlogPage({
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="bg-background rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="prose max-w-none">
             {blog.content ? (
               <RichContentRenderer 
@@ -330,7 +330,7 @@ export default async function BlogPage({
 
         {/* Author Section */}
         {blog.author && (
-          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="bg-background rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               {blog.author.imageURL && (
                 <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden mx-auto sm:mx-0">
@@ -377,7 +377,7 @@ export default async function BlogPage({
         )}
 
         {/* Comments Section */}
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <div className="bg-background rounded-lg shadow-sm p-4 sm:p-6">
           <EmbeddedCommentSectionWrapper
             postId={blog._id}
             postType="blog"

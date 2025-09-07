@@ -303,6 +303,9 @@ export function SettingsForm({ user }: SettingsFormProps) {
       ...currentAppearance,
       [key]: value
     };
+    
+    console.log('Appearance change:', key, 'from', currentAppearance[key], 'to', value);
+    
     setAppearance(newAppearance);
     updateSettings({ appearance: newAppearance });
     setHasUnsavedChanges(true);

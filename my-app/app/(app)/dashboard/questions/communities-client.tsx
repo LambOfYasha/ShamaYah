@@ -14,9 +14,9 @@ export default function CommunitiesClient({ children }: CommunitiesClientProps) 
   return (
     <div className="space-y-6">
       {/* Search */}
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-background p-4 rounded-lg shadow">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input 
             placeholder="Search communities..." 
             className="pl-10"

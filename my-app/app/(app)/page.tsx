@@ -176,7 +176,7 @@ export default function HomePage() {
       </section>
 
       {/*Welcome Section*/}
-      <section className="bg-white">  
+      <section className="bg-background">  
              {/* Content Below Logo */}
              <div className={`${isCompactMode ? 'space-y-4' : 'space-y-6'} sm:space-y-8`}>
               <h1 className={`text-center ${isCompactMode ? 'text-2xl sm:text-3xl md:text-5xl' : 'text-3xl sm:text-4xl md:text-6xl'} font-bold text-gray-900`}>
@@ -238,7 +238,7 @@ export default function HomePage() {
       </section>
 
       {/* Ask a Question as Guest Section */}
-      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-white`}>
+      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-background`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center ${isCompactMode ? 'mb-6 sm:mb-10' : 'mb-8 sm:mb-12'}`}>
             <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold text-gray-900 ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
@@ -256,7 +256,7 @@ export default function HomePage() {
       </section>
 
       {/* Verse of the Day Section */}
-      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-gray-50`}>
+      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-muted`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center ${isCompactMode ? 'mb-6 sm:mb-10' : 'mb-8 sm:mb-12'}`}>
             <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold text-gray-900 ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
@@ -282,7 +282,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-white`}>
+      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-background`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center ${isCompactMode ? 'mb-8 sm:mb-12' : 'mb-12 sm:mb-16'}`}>
             <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold text-gray-900 ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
@@ -319,14 +319,14 @@ export default function HomePage() {
               {/* Navigation Buttons */}
               <button
                 onClick={prevSlide}
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg border"
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-2 shadow-lg border"
                 aria-label="Previous slide"
               >
                 <ChevronLeft className="h-5 w-5 text-gray-600" />
               </button>
               <button
                 onClick={nextSlide}
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg border"
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-2 shadow-lg border"
                 aria-label="Next slide"
               >
                 <ChevronRight className="h-5 w-5 text-gray-600" />

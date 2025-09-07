@@ -106,6 +106,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
+      console.log('Fallback theme applied:', savedTheme, 'Classes:', document.documentElement.className);
       return;
     }
 
@@ -153,6 +154,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       
       // Save to localStorage for immediate application on next load
       localStorage.setItem('theme', appliedTheme);
+      
+      // Debug logging
+      console.log('Theme applied:', appliedTheme, 'Classes:', root.className);
     };
 
     applyTheme();

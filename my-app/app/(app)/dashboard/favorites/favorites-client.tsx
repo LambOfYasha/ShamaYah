@@ -69,9 +69,9 @@ export default function FavoritesClient({ initialFavorites }: FavoritesClientPro
       <Card>
         <CardContent className="p-12">
           <div className="text-center">
-            <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <Heart className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-lg font-semibold mb-2">No favorites yet</h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               Start exploring content and save your favorite posts here
             </p>
             <Button asChild>
@@ -95,7 +95,7 @@ export default function FavoritesClient({ initialFavorites }: FavoritesClientPro
                 <div className="flex items-center space-x-2 mb-2">
                   <h3 className="text-lg font-semibold">
                     {favorite.comment ? (
-                      <span className="text-gray-600">Comment on: {favorite.post?.title || 'Unknown Post'}</span>
+                      <span className="text-muted-foreground">Comment on: {favorite.post?.title || 'Unknown Post'}</span>
                     ) : (
                       favorite.post?.title || 'Unknown Post'
                     )}
@@ -109,8 +109,8 @@ export default function FavoritesClient({ initialFavorites }: FavoritesClientPro
                 {favorite.comment ? (
                   // Display comment content
                   <div className="mb-3">
-                    <p className="text-gray-700 mb-2">{favorite.comment.content}</p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <p className="text-foreground mb-2">{favorite.comment.content}</p>
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                       <div className="flex items-center space-x-2">
                         <Avatar className="w-5 h-5">
                           <AvatarImage src={favorite.comment.author?.imageURL} />
@@ -133,7 +133,7 @@ export default function FavoritesClient({ initialFavorites }: FavoritesClientPro
                   </div>
                 ) : (
                   // Display post information
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                  <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
                     <div className="flex items-center space-x-2">
                       <Avatar className="w-5 h-5">
                         <AvatarImage src={favorite.post?.author?.imageURL || favorite.post?.moderator?.imageURL} />
@@ -155,7 +155,7 @@ export default function FavoritesClient({ initialFavorites }: FavoritesClientPro
                   </div>
                 )}
                 
-                <div className="flex items-center space-x-1 text-xs text-gray-400">
+                <div className="flex items-center space-x-1 text-xs text-muted-foreground">
                   <Clock className="w-3 h-3" />
                   <span>Favorited on {new Date(favorite.savedAt).toLocaleDateString()}</span>
                 </div>

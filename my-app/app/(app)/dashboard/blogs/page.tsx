@@ -40,7 +40,7 @@ export default async function BlogsPage() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold">Blog</h1>
-            <p className="text-gray-600">Discover insightful articles and teachings</p>
+            <p className="text-muted-foreground">Discover insightful articles and teachings</p>
           </div>
          <div className="flex items-center gap-2">
           {(user.role === "admin" || user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher") && (
@@ -50,10 +50,10 @@ export default async function BlogsPage() {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <div className="bg-background p-4 rounded-lg shadow mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input 
                 placeholder="Search blog posts..." 
                 className="pl-10"
@@ -71,7 +71,7 @@ export default async function BlogsPage() {
         {/* Tags Filter */}
         {tags.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Filter by tags:</h3>
+            <h3 className="text-sm font-medium text-foreground mb-2">Filter by tags:</h3>
             <div className="flex flex-wrap gap-2">
               <Link href="/dashboard/blogs">
                 <Badge variant="default" className="cursor-pointer">
@@ -82,7 +82,7 @@ export default async function BlogsPage() {
                 <Link key={tag._id} href={`/tags/${tag.slug}`}>
                   <Badge 
                     variant="outline"
-                    className="cursor-pointer hover:bg-gray-100"
+                    className="cursor-pointer hover:bg-muted"
                   >
                     {tag.name}
                   </Badge>
@@ -101,7 +101,7 @@ export default async function BlogsPage() {
                 <Card key={blog._id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2 text-sm text-gray-500">
+                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <span className="flex items-center">
                           <Calendar className="w-4 h-4 mr-1" />
                           {formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true })}
@@ -109,7 +109,7 @@ export default async function BlogsPage() {
                       </div>
                     </div>
                     <CardTitle className="text-xl mb-2">{blog.title}</CardTitle>
-                    <p className="text-gray-600 line-clamp-3">
+                    <p className="text-muted-foreground line-clamp-3">
                       {blog.description}
                     </p>
                     {blog.tags && blog.tags.length > 0 && (
@@ -117,7 +117,7 @@ export default async function BlogsPage() {
                     )}
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                       <div className="flex items-center">
                         <User className="w-4 h-4 mr-2" />
                         {blog.author.username}
@@ -161,7 +161,7 @@ export default async function BlogsPage() {
                         <div className="flex items-center space-x-2 mb-2">
                           <CardTitle className="text-lg">{blog.title}</CardTitle>
                         </div>
-                        <p className="text-gray-600 line-clamp-2">
+                        <p className="text-muted-foreground line-clamp-2">
                           {blog.description}
                         </p>
                         {blog.tags && blog.tags.length > 0 && (
@@ -171,7 +171,7 @@ export default async function BlogsPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                       <div className="flex items-center space-x-4">
                         <span className="flex items-center">
                           <User className="w-4 h-4 mr-1" />
@@ -210,9 +210,9 @@ export default async function BlogsPage() {
         {blogs.length === 0 && (
           <Card>
             <CardContent className="p-12 text-center">
-              <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No blog posts found</h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-muted-foreground mb-4">
                 Check back later for new articles and teachings
               </p>
             </CardContent>
