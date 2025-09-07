@@ -16,7 +16,7 @@ function Header() {
     const {toggleSidebar, open, isMobile} = useSidebar()
 
   return (
-<header className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 relative z-50 bg-white">
+<header className="flex items-center justify-between p-3 sm:p-4 border-b relative z-50 bg-background">
     {/* Left side */}
     <div className="flex items-center gap-3">
         {/* Mobile sidebar trigger */}
@@ -30,7 +30,7 @@ function Header() {
                 variant="ghost"
                 size="icon"
                 onClick={toggleSidebar}
-                className="h-9 w-9 p-0 hover:bg-gray-100 transition-colors relative z-60 ml-1"
+                className="h-9 w-9 p-0 hover:bg-muted transition-colors relative z-60 ml-1"
                 aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
             >
                 {open ? (

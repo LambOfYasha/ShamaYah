@@ -109,7 +109,7 @@ export default function SpecializationAssigner({ teacher, specialties, onUpdate 
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="w-4 h-4" />
               <span>Current: {teacher.specializations?.length || 0} specializations</span>
             </div>
@@ -145,7 +145,7 @@ export default function SpecializationAssigner({ teacher, specialties, onUpdate 
             </ScrollArea>
             
             {activeSpecialties.length === 0 && (
-              <div className="text-center py-4 text-gray-500">
+              <div className="text-center py-4 text-muted-foreground">
                 <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No active specialties available</p>
                 <p className="text-sm">Create specialties in the Specialties tab</p>

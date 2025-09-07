@@ -163,8 +163,8 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <div className="w-full p-2 pl-5 flex items-center rounded-md 
-        cursor-pointer bg-black text-white 
-        hover:bg-black transition-all duration-200">
+        cursor-pointer bg-primary text-primary-foreground 
+        hover:bg-primary/90 transition-all duration-200">
           <MessageCircle className="mr-2 h-4 w-4" />
           <span>Ask a Question</span>
         </div>
@@ -213,7 +213,7 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
           pattern="[a-z0-9-]*"
           title="Lowercase letters, numbers, and hyphens only"
           />
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             This will be used in the URL: shama.com/community-questions/{slug || "community-slug"}
           </p>
         </div>
@@ -270,13 +270,13 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
             ) : (
               <div className="flex items-center justify-center w-full">
                 <Label htmlFor="community-image" className="flex flex-col items-center justify-center w-full
-                h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                h-24 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80">
                   <div className="flex flex-col items-center justify-center">
-                    <ImageIcon className="w-6 h-6 mb-2 text-gray-400" />
-                    <p className="text-xs text-gray-500">
+                    <ImageIcon className="w-6 h-6 mb-2 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">
                       Click to upload image
                     </p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Max 5MB • JPEG, PNG, WebP, GIF
                     </p>
                   </div>

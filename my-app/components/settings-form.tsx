@@ -375,8 +375,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
               <UserAvatar user={user} size="lg" />
               <div className="flex-1">
                 <h3 className="text-base sm:text-lg font-semibold">{user.username}</h3>
-                <p className="text-sm sm:text-base text-gray-600">{user.email}</p>
-                <p className="text-xs sm:text-sm text-gray-500">Member since {user.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : 'Recently'}</p>
+                <p className="text-sm sm:text-base text-muted-foreground">{user.email}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Member since {user.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : 'Recently'}</p>
               </div>
               <Button 
                 variant="outline" 
@@ -477,11 +477,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-xs sm:text-sm font-medium">Username</Label>
-                  <p className="text-sm sm:text-base text-gray-600">{user.username}</p>
+                  <p className="text-sm sm:text-base text-muted-foreground">{user.username}</p>
                 </div>
                 <div>
                   <Label className="text-xs sm:text-sm font-medium">Email</Label>
-                  <p className="text-sm sm:text-base text-gray-600">{user.email}</p>
+                  <p className="text-sm sm:text-base text-muted-foreground">{user.email}</p>
                 </div>
                 <div>
                   <Label className="text-xs sm:text-sm font-medium">Role</Label>
@@ -497,13 +497,13 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 {user.bio && (
                   <div className="sm:col-span-2">
                     <Label className="text-xs sm:text-sm font-medium">Bio</Label>
-                    <p className="text-sm sm:text-base text-gray-600">{user.bio}</p>
+                    <p className="text-sm sm:text-base text-muted-foreground">{user.bio}</p>
                   </div>
                 )}
                 {user.location && (
                   <div>
                     <Label className="text-xs sm:text-sm font-medium">Location</Label>
-                    <p className="text-sm sm:text-base text-gray-600">{user.location}</p>
+                    <p className="text-sm sm:text-base text-muted-foreground">{user.location}</p>
                   </div>
                 )}
                 {user.website && (
@@ -536,7 +536,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Email Notifications</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Receive notifications via email</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Receive notifications via email</p>
                   </div>
                 </div>
                 <Switch
@@ -550,7 +550,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Push Notifications</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Receive notifications in browser</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Receive notifications in browser</p>
                   </div>
                 </div>
                 <Switch
@@ -564,7 +564,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Content Moderation</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Notifications about content moderation</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Notifications about content moderation</p>
                   </div>
                 </div>
                 <Switch
@@ -578,7 +578,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Community Updates</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Updates from communities you follow</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Updates from communities you follow</p>
                   </div>
                 </div>
                 <Switch
@@ -592,7 +592,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Marketing Communications</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Receive promotional emails and updates</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Receive promotional emails and updates</p>
                   </div>
                 </div>
                 <Switch
@@ -642,7 +642,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Profile Visibility</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Who can see your profile</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Who can see your profile</p>
                   </div>
                 </div>
                 <Select value={privacy?.profileVisibility ?? 'public'} onValueChange={(value) => handlePrivacyChange('profileVisibility', value)}>
@@ -662,7 +662,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Activity Status</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Show when you're online</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Show when you're online</p>
                   </div>
                 </div>
                 <Switch
@@ -676,7 +676,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Content Visibility</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Who can see your posts</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Who can see your posts</p>
                   </div>
                 </div>
                 <Select value={privacy?.contentVisibility ?? 'public'} onValueChange={(value) => handlePrivacyChange('contentVisibility', value)}>
@@ -696,7 +696,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Database className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Data Collection</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Allow analytics and tracking</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Allow analytics and tracking</p>
                   </div>
                 </div>
                 <Switch
@@ -746,7 +746,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Theme</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Choose your preferred theme</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Choose your preferred theme</p>
                   </div>
                 </div>
                 <Select value={appearance?.theme ?? 'light'} onValueChange={(value) => handleAppearanceChange('theme', value)}>
@@ -766,7 +766,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Font Size</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Adjust text size</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Adjust text size</p>
                   </div>
                 </div>
                 <Select value={appearance?.fontSize ?? 'medium'} onValueChange={(value) => handleAppearanceChange('fontSize', value)}>
@@ -786,7 +786,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Monitor className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Compact Mode</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Use compact layout</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Use compact layout</p>
                   </div>
                 </div>
                 <Switch
@@ -800,7 +800,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                   <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-sm sm:text-base font-medium">Reduced Motion</h4>
-                    <p className="text-xs sm:text-sm text-gray-600">Reduce animations and transitions</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Reduce animations and transitions</p>
                   </div>
                 </div>
                 <Switch
@@ -851,7 +851,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <Key className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                     <div>
                       <h4 className="text-sm sm:text-base font-medium">Change Password</h4>
-                      <p className="text-xs sm:text-sm text-gray-600">Update your account password</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Update your account password</p>
                     </div>
                   </div>
                   <Dialog>
@@ -893,7 +893,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                     <div>
                       <h4 className="text-sm sm:text-base font-medium">Two-Factor Authentication</h4>
-                      <p className="text-xs sm:text-sm text-gray-600">Add an extra layer of security</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Add an extra layer of security</p>
                     </div>
                   </div>
                   <Button variant="outline" className="w-full sm:w-auto">Enable 2FA</Button>
@@ -906,7 +906,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 flex-shrink-0" />
                     <div>
                       <h4 className="text-sm sm:text-base font-medium">Active Sessions</h4>
-                      <p className="text-xs sm:text-sm text-gray-600">Manage your active sessions</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Manage your active sessions</p>
                     </div>
                   </div>
                   <Button variant="outline" className="w-full sm:w-auto">View Sessions</Button>
@@ -934,7 +934,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <Download className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                     <div>
                       <h4 className="text-sm sm:text-base font-medium">Export Data</h4>
-                      <p className="text-xs sm:text-sm text-gray-600">Download a copy of your data</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Download a copy of your data</p>
                     </div>
                   </div>
                   <Button variant="outline" onClick={exportUserData} className="w-full sm:w-auto">
@@ -950,7 +950,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                     <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" />
                     <div>
                       <h4 className="text-sm sm:text-base font-medium">Delete Account</h4>
-                      <p className="text-xs sm:text-sm text-gray-600">Permanently delete your account and data</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Permanently delete your account and data</p>
                     </div>
                   </div>
                   <AlertDialog>

@@ -212,8 +212,8 @@ function CreateBlogButton() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <div className="w-full p-2 pl-5 flex items-center rounded-md 
-  cursor-pointer bg-black text-white 
-  hover:bg-black transition-all duration-200" 
+        cursor-pointer bg-primary text-primary-foreground 
+        hover:bg-primary/90 transition-all duration-200"
   aria-disabled={!user}
   tabIndex={user ? 0 : -1}
   style={{
@@ -246,7 +246,7 @@ function CreateBlogButton() {
               <Input 
                 id="title" 
                 placeholder="Enter your blog post title"
-                className="w-full focus:ring-2 focus:ring-blue-500"
+                className="w-full focus:ring-2 focus:ring-ring"
                 value={title}
                 onChange={handleTitleChange}
                 required
@@ -262,7 +262,7 @@ function CreateBlogButton() {
               <Input 
                 id="slug" 
                 placeholder="Enter a unique slug for your blog post"
-                className="w-full focus:ring-2 focus:ring-blue-500"
+                className="w-full focus:ring-2 focus:ring-ring"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 required
@@ -271,7 +271,7 @@ function CreateBlogButton() {
                 pattern="[a-z0-9-]*"
                 title="Lowercase letters, numbers, and hyphens only"
               />
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 This will be used in the URL: shama.com/blogs/{slug || "blog-slug"}
               </p>
             </div>
@@ -285,11 +285,11 @@ function CreateBlogButton() {
                 value={description}
                 onChange={handleDescriptionChange}
                 placeholder="Enter a brief description of your blog post"
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-ring focus:border-ring resize-none"
                 rows={3}
                 maxLength={500}
               />
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 {description.length}/500 characters
               </p>
             </div>
@@ -343,7 +343,7 @@ function CreateBlogButton() {
                   <button 
                     type="button"
                     onClick={removeImage}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                    className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -351,10 +351,10 @@ function CreateBlogButton() {
               ) : (
                 <div className="flex items-center justify-center w-full">
                   <Label htmlFor="blog-image" className="flex flex-col items-center justify-center w-full
-                  h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                  h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80">
                     <div className="flex flex-col items-center justify-center">
-                      <ImageIcon className="w-6 h-6 mb-2 text-gray-400" />
-                      <p className="text-xs text-gray-500">
+                      <ImageIcon className="w-6 h-6 mb-2 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">
                         Click to upload image
                       </p>
                     </div>
@@ -372,10 +372,10 @@ function CreateBlogButton() {
               )}
             </div>
 
-            <div className="flex-shrink-0 pt-4 border-t bg-white">
+            <div className="flex-shrink-0 pt-4 border-t bg-background">
               <Button 
                 type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
                 disabled={isPending || !user || !canSubmit}
               >
                 {isPending ? "Creating..." : "Create Blog Post"}

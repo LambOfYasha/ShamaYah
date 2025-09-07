@@ -100,9 +100,19 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
   // Apply settings to document
   useEffect(() => {
-    if (!settings) return;
+    // Apply default theme if settings are not loaded yet
+    if (!settings) {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.add(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      return;
+    }
 
     const { appearance } = settings;
+    
+    // Ensure we have a valid theme
+    const theme = appearance.theme || 'light';
     
     // Apply compact mode
     if (appearance.compactMode) {
@@ -123,7 +133,38 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.add(`text-${appearance.fontSize}`);
 
     // Apply theme
-    document.documentElement.setAttribute('data-theme', appearance.theme);
+    const applyTheme = () => {
+      const root = document.documentElement;
+      
+      // Remove existing theme classes
+      root.classList.remove('light', 'dark');
+      
+      let appliedTheme = theme;
+      
+      if (theme === 'system') {
+        // Use system preference
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        appliedTheme = systemPrefersDark ? 'dark' : 'light';
+      }
+      
+      // Apply theme class and data attribute
+      root.classList.add(appliedTheme);
+      root.setAttribute('data-theme', appliedTheme);
+      
+      // Save to localStorage for immediate application on next load
+      localStorage.setItem('theme', appliedTheme);
+    };
+
+    applyTheme();
+
+    // Listen for system theme changes when using system preference
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = () => applyTheme();
+      
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
   }, [settings]);
 
   const value: SettingsContextType = {

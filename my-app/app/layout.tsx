@@ -13,6 +13,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Apply theme immediately to prevent flash
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme') || 'light';
+                  document.documentElement.classList.add(theme);
+                  document.documentElement.setAttribute('data-theme', theme);
+                } catch (e) {
+                  // Fallback if localStorage is not available
+                  document.documentElement.classList.add('light');
+                  document.documentElement.setAttribute('data-theme', 'light');
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="antialiased">
         {children}
       </body>

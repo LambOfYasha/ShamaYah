@@ -66,7 +66,7 @@ export default async function DashboardPage() {
           <div className="text-center py-8 sm:py-12">
             <AlertCircle className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-red-500" />
             <h2 className="text-lg sm:text-xl font-semibold mb-2">Unable to Load Dashboard</h2>
-            <p className="text-sm sm:text-base text-gray-600 mb-4">{dashboardData.error}</p>
+            <p className="text-sm sm:text-base text-muted-foreground mb-4">{dashboardData.error}</p>
             <Button onClick={() => window.location.reload()} className="w-full sm:w-auto">
               Try Again
             </Button>
@@ -88,7 +88,7 @@ export default async function DashboardPage() {
               <UserAvatar user={dashboardData.user} size="md" />
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Welcome back, {dashboardData.user.username}!</h1>
-                <p className="text-sm sm:text-base text-gray-600">Here's your activity overview and insights</p>
+                <p className="text-sm sm:text-base text-muted-foreground">Here's your activity overview and insights</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
@@ -258,7 +258,7 @@ export default async function DashboardPage() {
                   <div className="space-y-2 sm:space-y-3">
                     {notifications.recent.length > 0 ? (
                       notifications.recent.map((notification: any) => (
-                        <div key={notification._id} className="flex items-center space-x-2 sm:space-x-3 p-2 rounded-lg hover:bg-gray-50">
+                        <div key={notification._id} className="flex items-center space-x-2 sm:space-x-3 p-2 rounded-lg hover:bg-muted">
                           <div className={`w-2 h-2 rounded-full ${
                             notification.severity === 'error' ? 'bg-red-500' :
                             notification.severity === 'warning' ? 'bg-yellow-500' :
@@ -266,16 +266,16 @@ export default async function DashboardPage() {
                           }`}></div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs sm:text-sm font-medium truncate">{notification.title}</p>
-                            <p className="text-xs text-gray-500 truncate">{notification.message}</p>
+                            <p className="text-xs text-muted-foreground truncate">{notification.message}</p>
                           </div>
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-muted-foreground">
                             {new Date(notification.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-4 text-gray-500">
-                        <Bell className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-gray-300" />
+                      <div className="text-center py-4 text-muted-foreground">
+                        <Bell className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-muted-foreground" />
                         <p className="text-xs sm:text-sm">No recent notifications</p>
                       </div>
                     )}
@@ -327,22 +327,22 @@ export default async function DashboardPage() {
                       <div className="w-10 sm:w-12 text-xs sm:text-sm font-medium">{day.day}</div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                          <div className="flex-1 bg-muted rounded-full h-2">
                             <div 
                               className="bg-blue-500 h-2 rounded-full" 
                               style={{ width: `${Math.min((day.posts / 3) * 100, 100)}%` }}
                             ></div>
                           </div>
-                          <span className="text-xs sm:text-sm text-gray-600">{day.posts} posts</span>
+                          <span className="text-xs sm:text-sm text-muted-foreground">{day.posts} posts</span>
                         </div>
                         <div className="flex items-center space-x-2 mt-1">
-                          <div className="flex-1 bg-gray-200 rounded-full h-1">
+                          <div className="flex-1 bg-muted rounded-full h-1">
                             <div 
                               className="bg-green-500 h-1 rounded-full" 
                               style={{ width: `${Math.min((day.views / 100) * 100, 100)}%` }}
                             ></div>
                           </div>
-                          <span className="text-xs text-gray-500">{day.views} views</span>
+                          <span className="text-xs text-muted-foreground">{day.views} views</span>
                         </div>
                       </div>
                     </div>
@@ -370,13 +370,13 @@ export default async function DashboardPage() {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm sm:text-base font-medium">{activity.title}</p>
-                        <p className="text-xs sm:text-sm text-gray-500">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           {activity.type === 'post' && `${activity.metadata.views} views`}
                           {activity.type === 'community' && `${activity.metadata.members} members • ${activity.metadata.posts} posts`}
                           {activity.type === 'comment' && `${activity.metadata.severity} notification`}
                         </p>
                       </div>
-                      <div className="text-xs sm:text-sm text-gray-400">{activity.time}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">{activity.time}</div>
                     </div>
                   ))}
                 </div>
@@ -397,10 +397,10 @@ export default async function DashboardPage() {
                       <div key={post._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                         <div className="flex-1">
                           <h4 className="text-sm sm:text-base font-medium">{post.title}</h4>
-                          <p className="text-xs sm:text-sm text-gray-500">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {post.viewCount || 0} views • {post.commentCount || 0} comments
                           </p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-muted-foreground">
                             {new Date(post.publishedAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -426,8 +426,8 @@ export default async function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 sm:py-8 text-gray-500">
-                      <FileText className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
+                    <div className="text-center py-6 sm:py-8 text-muted-foreground">
+                      <FileText className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
                       <p className="text-sm sm:text-base">No posts yet</p>
                       <Button className="mt-3 sm:mt-4 w-full sm:w-auto" asChild>
                         <Link href="/create-post">
@@ -453,10 +453,10 @@ export default async function DashboardPage() {
                       <div key={community._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
                         <div className="flex-1">
                           <h4 className="text-sm sm:text-base font-medium">{community.title}</h4>
-                          <p className="text-xs sm:text-sm text-gray-500">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {community.members?.length || 0} members • {community.posts?.length || 0} posts
                           </p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-muted-foreground">
                             Joined {new Date(community._createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -470,8 +470,8 @@ export default async function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 sm:py-8 text-gray-500">
-                      <Users className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
+                    <div className="text-center py-6 sm:py-8 text-muted-foreground">
+                      <Users className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
                       <p className="text-sm sm:text-base">Not a member of any questions yet</p>
                       <Button className="mt-3 sm:mt-4 w-full sm:w-auto" asChild>
                         <Link href="/communities">
@@ -532,11 +532,11 @@ export default async function DashboardPage() {
                         <div className="flex items-center space-x-3 sm:space-x-4">
                           <div className="text-right">
                             <div className="text-xs sm:text-sm font-medium">{trend.views.toLocaleString()}</div>
-                            <div className="text-xs text-gray-500">views</div>
+                            <div className="text-xs text-muted-foreground">views</div>
                           </div>
                           <div className="text-right">
                             <div className="text-xs sm:text-sm font-medium">{trend.comments}</div>
-                            <div className="text-xs text-gray-500">comments</div>
+                            <div className="text-xs text-muted-foreground">comments</div>
                           </div>
                         </div>
                       </div>
@@ -561,7 +561,7 @@ export default async function DashboardPage() {
                         </div>
                         <div className="flex-1">
                           <h4 className="text-sm sm:text-base font-medium">{post.title}</h4>
-                          <p className="text-xs sm:text-sm text-gray-500">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {post.viewCount || 0} views • {post.commentCount || 0} comments
                           </p>
                         </div>
@@ -575,8 +575,8 @@ export default async function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 sm:py-8 text-gray-500">
-                      <BarChart3 className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
+                    <div className="text-center py-6 sm:py-8 text-muted-foreground">
+                      <BarChart3 className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
                       <p className="text-sm sm:text-base">No content yet</p>
                     </div>
                   )}

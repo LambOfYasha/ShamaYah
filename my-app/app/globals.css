@@ -76,9 +76,33 @@
 }
 
 @layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Theme transition animations */
+* {
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Disable transitions for reduced motion users */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* Ensure proper theme inheritance */
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 /* Custom sidebar rail improvements */
@@ -122,60 +146,61 @@ header button[aria-label*="sidebar"] {
   position: relative;
 }
 
-/* Make sidebar background white - comprehensive override */
+/* Make sidebar background theme-aware */
 [data-slot="sidebar-gap"] {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
 [data-slot="sidebar-inner"] {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
 /* Override any transparent backgrounds in sidebar */
 [data-slot="sidebar"] {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
-/* Ensure sidebar content has white background */
+/* Ensure sidebar content has theme-aware background */
 [data-slot="sidebar-content"] {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
 [data-slot="sidebar-header"] {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
 [data-slot="sidebar-footer"] {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
 /* Override all bg-sidebar classes */
 .bg-sidebar {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
 /* Override sidebar wrapper background */
 .group\/sidebar-wrapper {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
 /* Override any sidebar-related background classes */
 [class*="bg-sidebar"] {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
-/* Ensure sidebar menu items have proper contrast on white background */
+/* Ensure sidebar menu items have proper contrast on theme background */
 [data-slot="sidebar-menu-button"] {
-  color: hsl(var(--foreground)) !important;
+  color: hsl(var(--sidebar-foreground)) !important;
 }
 
 [data-slot="sidebar-menu-button"]:hover {
-  background-color: hsl(var(--muted)) !important;
+  background-color: hsl(var(--sidebar-accent)) !important;
+  color: hsl(var(--sidebar-accent-foreground)) !important;
 }
 
 /* Override any floating sidebar backgrounds */
 .group-data-\[variant\=floating\] {
-  background-color: white !important;
+  background-color: hsl(var(--sidebar)) !important;
 }
 
 /* Ensure sidebar properly collapses to icon mode */
@@ -226,8 +251,8 @@ header button[aria-label*="sidebar"] {
 [data-collapsible="icon"] [data-slot="sidebar-content"] [data-slot="sidebar-menu"] [data-slot="sidebar-menu-item"]:first-child [data-slot="sidebar-menu-button"],
 [data-collapsible="icon"] [data-slot="sidebar-content"] [data-slot="sidebar-menu"] [data-slot="sidebar-menu-item"]:nth-child(2) [data-slot="sidebar-menu-button"] {
   background-color: transparent !important;
-  color: hsl(var(--foreground)) !important;
-  border: 1px solid hsl(var(--border)) !important;
+  color: hsl(var(--sidebar-foreground)) !important;
+  border: 1px solid hsl(var(--sidebar-border)) !important;
   border-radius: 0.375rem !important;
   padding: 0.5rem !important;
   justify-content: center !important;
