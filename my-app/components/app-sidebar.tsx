@@ -158,8 +158,9 @@ export default function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
-          {/* TODO: Add logo */}
+              <Link href="/"
+              className="block h-60 w-160 rounded bg-[url(/assets/sidebarlogo.png)] bg-center bg-no-repeat bg-cover"
+              aria-label="Sidebar Logo">
           </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
