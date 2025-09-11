@@ -20,12 +20,21 @@ export default function AboutPage() {
             </Link>
           </Button>
           <div className="text-center">
+            {/* Light theme logo */}
             <Image
               src="/assets/logo_light.png"
               alt="Shama Yah Logo"
               width={150}
               height={60}
-              className="h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4"
+              className="h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4 dark:hidden"
+            />
+            {/* Dark theme logo */}
+            <Image
+              src="/assets/logo_dark.png"
+              alt="Shama Yah Logo Dark"
+              width={150}
+              height={60}
+              className="hidden dark:inline-block h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4"
             />
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
               About Shama Yah

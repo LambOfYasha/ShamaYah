@@ -164,11 +164,20 @@ export default function HomePage() {
       <section className={`relative overflow-hidden ${isCompactMode ? 'min-h-[15vh]' : 'min-h-[20vh]'} sm:min-h-screen flex items-center justify-center`}>
         {/* Background Logo */}
         <div className="absolute inset-0 flex items-center justify-center">
+          {/* Light theme banner */}
           <Image
             src="/assets/logo_light.png"
             alt="Shama Yah Logo Background"
             fill
-            className={`object-contain max-w-full ${isCompactMode ? 'max-h-[15vh]' : 'max-h-[20vh]'} sm:max-h-[70vh] md:max-h-[80vh]`}
+            className={`object-contain max-w-full ${isCompactMode ? 'max-h-[15vh]' : 'max-h-[20vh]'} sm:max-h-[70vh] md:max-h-[80vh] dark:hidden`}
+            priority
+          />
+          {/* Dark theme banner */}
+          <Image
+            src="/assets/logo_dark.png"
+            alt="Shama Yah Logo Background Dark"
+            fill
+            className={`hidden dark:block object-contain max-w-full ${isCompactMode ? 'max-h-[15vh]' : 'max-h-[20vh]'} sm:max-h-[70vh] md:max-h-[80vh]`}
             priority
           />
         </div>
