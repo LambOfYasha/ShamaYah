@@ -13,27 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Apply theme immediately to prevent flash
-              (function() {
-                try {
-                  const theme = localStorage.getItem('theme') || 'light';
-                  document.documentElement.classList.add(theme);
-                  document.documentElement.setAttribute('data-theme', theme);
-                } catch (e) {
-                  // Fallback if localStorage is not available
-                  document.documentElement.classList.add('light');
-                  document.documentElement.setAttribute('data-theme', 'light');
-                }
-              })();
-            `,
-          }}
-        />
-      </head>
+    <html lang="en" suppressHydrationWarning>
+      <head />
       <body className="antialiased">
         {children}
       </body>
