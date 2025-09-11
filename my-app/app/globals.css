@@ -82,6 +82,14 @@
   body {
     @apply bg-background text-foreground;
   }
+  h1, h2, h3, h4, h5, h6 {
+    color: hsl(var(--foreground));
+    font-family: var(--font-heading);
+  }
+  p {
+    color: hsl(var(--muted-foreground));
+    font-family: var(--font-body);
+  }
 }
 
 /* Theme transition animations */

@@ -188,11 +188,11 @@ export default function HomePage() {
       <section className="bg-background">  
              {/* Content Below Logo */}
              <div className={`${isCompactMode ? 'space-y-4' : 'space-y-6'} sm:space-y-8`}>
-              <h1 className={`text-center ${isCompactMode ? 'text-2xl sm:text-3xl md:text-5xl' : 'text-3xl sm:text-4xl md:text-6xl'} font-bold text-gray-900`}>
+              <h1 className={`text-center ${isCompactMode ? 'text-2xl sm:text-3xl md:text-5xl' : 'text-3xl sm:text-4xl md:text-6xl'} font-bold`}>
                 Welcome to
-                <span className="text-blue-600 block">Shama Yah</span>
+                <span className="block">Shama Yah</span>
               </h1>
-              <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-gray-600 max-w-3xl mx-auto px-4`}>
+              <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-muted-foreground max-w-3xl mx-auto px-4`}>
                 A community for biblical discussion, theological exploration, and spiritual growth.
               </p>
               
@@ -200,7 +200,7 @@ export default function HomePage() {
               <form onSubmit={handleSearch} className="max-w-2xl mx-auto px-4">
                 <div className="flex flex-col sm:flex-row gap-2">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 sm:h-5 sm:w-5" />
                     <Input
                       type="text"
                       placeholder="Search questions, topics, or communities..."
@@ -250,10 +250,10 @@ export default function HomePage() {
       <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-background`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center ${isCompactMode ? 'mb-6 sm:mb-10' : 'mb-8 sm:mb-12'}`}>
-            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold text-gray-900 ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
+            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
               Have a Question?
             </h2>
-            <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-gray-600`}>
+            <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-muted-foreground`}>
               Ask your biblical or theological question as a guest. Our community will help you find answers.
             </p>
           </div>
@@ -268,7 +268,7 @@ export default function HomePage() {
       <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-muted`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center ${isCompactMode ? 'mb-6 sm:mb-10' : 'mb-8 sm:mb-12'}`}>
-            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold text-gray-900 ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
+            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
               Verse of the Moment
             </h2>
           </div>
@@ -276,12 +276,12 @@ export default function HomePage() {
           {verseOfTheDay && (
             <Card className="max-w-3xl mx-auto">
               <CardHeader>
-                <CardTitle className={`text-center text-blue-600 ${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>
+                <CardTitle className={`text-center ${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>
                   {verseOfTheDay.reference}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <blockquote className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-gray-700 text-center italic leading-relaxed`}>
+                <blockquote className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-foreground text-center italic leading-relaxed`}>
                   "{verseOfTheDay.text}"
                 </blockquote>
               </CardContent>
@@ -294,10 +294,10 @@ export default function HomePage() {
       <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-background`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center ${isCompactMode ? 'mb-8 sm:mb-12' : 'mb-12 sm:mb-16'}`}>
-            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold text-gray-900 ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
+            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
               Our Growing Community
             </h2>
-            <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-gray-600`}>
+            <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-muted-foreground`}>
               Join thousands of believers who are already part of our community
             </p>
           </div>
@@ -317,7 +317,7 @@ export default function HomePage() {
                           <div className={`${isCompactMode ? 'text-3xl' : 'text-4xl'} font-bold ${stat.color} ${isCompactMode ? 'mb-1' : 'mb-2'}`}>
                             {stat.value}+
                           </div>
-                          <div className={`${isCompactMode ? 'text-sm' : 'text-base'} text-gray-600`}>{stat.label}</div>
+                          <div className={`${isCompactMode ? 'text-sm' : 'text-base'} text-muted-foreground`}>{stat.label}</div>
                         </CardContent>
                       </Card>
                     </div>
@@ -331,14 +331,14 @@ export default function HomePage() {
                 className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-2 shadow-lg border"
                 aria-label="Previous slide"
               >
-                <ChevronLeft className="h-5 w-5 text-gray-600" />
+                <ChevronLeft className="h-5 w-5 text-muted-foreground" />
               </button>
               <button
                 onClick={nextSlide}
                 className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-2 shadow-lg border"
                 aria-label="Next slide"
               >
-                <ChevronRight className="h-5 w-5 text-gray-600" />
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
               
               {/* Dots Indicator */}
@@ -364,7 +364,7 @@ export default function HomePage() {
                 <div className={`${isCompactMode ? 'text-xl sm:text-3xl' : 'text-2xl sm:text-4xl'} font-bold text-blue-600 ${isCompactMode ? 'mb-1' : 'mb-1 sm:mb-2'}`}>
                   {siteStats.totalQuestions.toLocaleString()}+
                 </div>
-                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-600`}>Biblical Questions</div>
+                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-muted-foreground`}>Biblical Questions</div>
               </CardContent>
             </Card>
             
@@ -373,7 +373,7 @@ export default function HomePage() {
                 <div className={`${isCompactMode ? 'text-xl sm:text-3xl' : 'text-2xl sm:text-4xl'} font-bold text-green-600 ${isCompactMode ? 'mb-1' : 'mb-1 sm:mb-2'}`}>
                   {siteStats.totalTeachers}+
                 </div>
-                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-600`}>Teachers</div>
+                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-muted-foreground`}>Teachers</div>
               </CardContent>
             </Card>
             
@@ -382,7 +382,7 @@ export default function HomePage() {
                 <div className={`${isCompactMode ? 'text-xl sm:text-3xl' : 'text-2xl sm:text-4xl'} font-bold text-purple-600 ${isCompactMode ? 'mb-1' : 'mb-1 sm:mb-2'}`}>
                   {siteStats.totalBlogs}+
                 </div>
-                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-600`}>Blogs</div>
+                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-muted-foreground`}>Blogs</div>
               </CardContent>
             </Card>
             
@@ -391,7 +391,7 @@ export default function HomePage() {
                 <div className={`${isCompactMode ? 'text-xl sm:text-3xl' : 'text-2xl sm:text-4xl'} font-bold text-orange-600 ${isCompactMode ? 'mb-1' : 'mb-1 sm:mb-2'}`}>
                   {siteStats.totalMembers.toLocaleString()}+
                 </div>
-                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-600`}>Members</div>
+                <div className={`${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-muted-foreground`}>Members</div>
               </CardContent>
             </Card>
           </div>
@@ -399,8 +399,8 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className={`bg-gray-900 text-white ${isCompactMode ? 'py-6 sm:py-10' : 'py-8 sm:py-12'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className={`bg-background text-foreground ${isCompactMode ? 'py-6 sm:py-10' : 'py-8 sm:py-12'}`}>
+        <Card className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Mobile Tabbed Footer */}
           <div className="block sm:hidden">
             {/* Tab Navigation */}
@@ -412,7 +412,7 @@ export default function HomePage() {
                   className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     activeFooterTab === key
                       ? 'text-white border-b-2 border-blue-500'
-                      : 'text-gray-400 hover:text-white'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {section.title}
@@ -433,7 +433,7 @@ export default function HomePage() {
                       <li key={index}>
                         <Link 
                           href={link.href} 
-                          className="text-gray-400 hover:text-white transition-colors block py-1"
+                          className="text-muted-foreground hover:text-foreground transition-colors block py-1"
                         >
                           {link.text}
                         </Link>
@@ -447,7 +447,7 @@ export default function HomePage() {
             {/* Social Links and Copyright */}
             <div className="border-t border-gray-800 pt-6">
               <div className="flex flex-col items-center space-y-4">
-                <p className="text-sm text-gray-400 text-center">
+                <p className="text-sm text-muted-foreground text-center">
                   &copy; 2025 Shama Yah. All rights reserved.
                 </p>
                 <div className="flex items-center gap-4">
@@ -466,7 +466,7 @@ export default function HomePage() {
           <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             <div>
               <h4 className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} font-semibold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>Community</h4>
-              <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-400`}>
+              <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-muted-foreground`}>
                 <li><Link href="/about" className="hover:text-white">About Us</Link></li>
                 <li><Link href="/guidelines" className="hover:text-white">Community Guidelines</Link></li>
                 <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
@@ -475,7 +475,7 @@ export default function HomePage() {
             </div>
             <div>
               <h4 className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} font-semibold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>Resources</h4>
-              <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-400`}>
+              <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-muted-foreground`}>
                 <li><Link href="/help" className="hover:text-white">Help Center</Link></li>
                 <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
                 <li><Link href="/feedback" className="hover:text-white">Feedback</Link></li>
@@ -484,7 +484,7 @@ export default function HomePage() {
             </div>
             <div className="sm:col-span-2 md:col-span-1">
               <h4 className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} font-semibold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>Connect</h4>
-              <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-gray-400`}>
+              <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-muted-foreground`}>
                 <li><Link href="/sign-in" className="hover:text-white">Sign In</Link></li>
                 <li><Link href="/sign-up" className="hover:text-white">Sign Up</Link></li>
                 <li><Link href="/communities" className="hover:text-white">Browse Communities</Link></li>
@@ -494,7 +494,7 @@ export default function HomePage() {
           </div>
           
           {/* Desktop Copyright and Social */}
-          <div className="hidden sm:block border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center text-sm sm:text-base text-gray-400">
+          <div className="hidden sm:block border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center text-sm sm:text-base text-muted-foreground">
             <p>&copy; 2025 Shama Yah. All rights reserved.</p>
             <div className="flex items-center gap-4 mt-4 sm:mt-0">
               <Link href="https://discord.gg/shamayah" className="hover:text-white transition-colors">
@@ -505,7 +505,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-        </div>
+        </Card>
       </footer>
     </div>
   );

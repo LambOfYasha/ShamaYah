@@ -24,6 +24,11 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    
+    /* Div/Surface tokens */
+    --div-bg: var(--card);
+    --div-foreground: var(--card-foreground);
+    --div-border: var(--border);
 
     /* Font families */
     --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -91,4 +96,17 @@
     --sidebar-accent: 273 13% 30%; /* #463B53 */
     --sidebar-accent-foreground: 56 100% 78%; /* #FFFD90 (text color) */
     --sidebar-ring: 56 100% 78%; /* #FFFD90 */
+    
+    /* Div/Surface tokens (dark) */
+    --div-bg: var(--card);
+    --div-foreground: var(--card-foreground);
+    --div-border: var(--border);
+  }
+  
+  /* Optional helper class for themed divs/surfaces */
+  .themed-div {
+    background-color: hsl(var(--div-bg));
+    color: hsl(var(--div-foreground));
+    border: 1px solid hsl(var(--div-border));
+    border-radius: var(--radius);
   }
