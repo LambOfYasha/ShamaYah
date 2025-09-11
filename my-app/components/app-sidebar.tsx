@@ -22,6 +22,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import CreateCommunityButton from "./header/CreateCommunityButton"
@@ -64,6 +65,7 @@ const memberNavigation = [
 export default function AppSidebar() {
   const { isSignedIn } = useAuth();
   const { user } = useUser();
+  const { state } = useSidebar();
   const [communities, setCommunities] = React.useState([]);
   const [blogs, setBlogs] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
@@ -157,17 +159,21 @@ export default function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/"
-              className="block h-60 w-160 rounded bg-[url(/assets/sidebarlogo.png)] bg-center bg-no-repeat bg-cover"
-              aria-label="Sidebar Logo">
-          </Link>
-            </SidebarMenuButton>
+            {state === "expanded" && (
+              <SidebarMenuButton size="lg" asChild>
+                <Link href="/"
+                className="block h-60 w-160 rounded bg-[url(/assets/sidebarlogo.png)] bg-center bg-no-repeat bg-cover"
+                aria-label="Sidebar Logo">
+            </Link>
+              </SidebarMenuButton>
+            )}
           </SidebarMenuItem>
         </SidebarMenu>
-        <Suspense fallback={<div className="p-3 sm:p-4 text-sm">Loading search...</div>}>
-          <SearchForm />
-        </Suspense>
+        {state === "expanded" && (
+          <Suspense fallback={<div className="p-3 sm:p-4 text-sm">Loading search...</div>}>
+            <SearchForm />
+          </Suspense>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
