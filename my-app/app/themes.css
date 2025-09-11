@@ -15,7 +15,7 @@
     --accent-foreground: 222.2 84% 4.9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
+    --border: 214. 3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
@@ -24,6 +24,30 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    /* Font families */
+    --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font-heading: var(--font-sans);
+    --font-body: var(--font-sans);
+
+    /* Font weights */
+    --fw-normal: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+
+    /* Font sizes */
+    --fs-xs: 0.75rem;   /* 12px */
+    --fs-sm: 0.875rem;  /* 14px */
+    --fs-base: 1rem;    /* 16px */
+    --fs-lg: 1.125rem;  /* 18px */
+    --fs-xl: 1.25rem;   /* 20px */
+    --fs-2xl: 1.5rem;   /* 24px */
+    --fs-3xl: 1.875rem; /* 30px */
+    --fs-4xl: 2.25rem;  /* 36px */
+    --fs-5xl: 3rem;     /* 48px */
 
     /* Sidebar specific colors */
     --sidebar: 0 0% 100%;
@@ -35,38 +59,36 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --background: 225 66% 17%; /* #0F214A */
+    --foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --card: 273 13% 30%; /* #463B53 */
+    --card-foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --popover: 273 13% 30%; /* #463B53 */
+    --popover-foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --primary: 273 13% 30%; /* #463B53 (Button Bg) */
+    --primary-foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --secondary: 273 13% 30%; /* #463B53 */
+    --secondary-foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --muted: 225 66% 17%; /* #0F214A */
+    --muted-foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --accent: 273 13% 30%; /* #463B53 */
+    --accent-foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --destructive: 273 13% 30%; /* #463B53 */
+    --destructive-foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --border: 56 100% 78%; /* #FFFD90 */
+    --input: 273 13% 30%; /* #463B53 (Input bg) */
+    --ring: 56 100% 78%; /* #FFFD90 */
+    --chart-1: 273 13% 30%; /* #463B53 */
+    --chart-2: 273 13% 30%; /* #463B53 */
+    --chart-3: 273 13% 30%; /* #463B53 */
+    --chart-4: 273 13% 30%; /* #463B53 */
+    --chart-5: 273 13% 30%; /* #463B53 */
 
     /* Sidebar specific colors for dark mode */
-    --sidebar: 222.2 84% 4.9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-accent: 217.2 32.6% 17.5%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-ring: 224.3 76.3% 94.1%;
+    --sidebar: 225 66% 17%; /* #0F214A */
+    --sidebar-foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --sidebar-border: 56 100% 78%; /* #FFFD90 */
+    --sidebar-accent: 273 13% 30%; /* #463B53 */
+    --sidebar-accent-foreground: 56 100% 78%; /* #FFFD90 (text color) */
+    --sidebar-ring: 56 100% 78%; /* #FFFD90 */
   }
-
-
