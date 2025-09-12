@@ -246,6 +246,32 @@ export default function HomePage() {
             </div>
       </section>
 
+      {/* Introduction Video Section */}
+      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-muted`}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`text-center ${isCompactMode ? 'mb-6 sm:mb-10' : 'mb-8 sm:mb-12'}`}>
+            <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold ${isCompactMode ? 'mb-2 sm:mb-3' : 'mb-3 sm:mb-4'}`}>
+              Welcome to Our Community
+            </h2>
+            <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-muted-foreground`}>
+              Watch this introduction to learn more about Shama Yah and how we can help you grow in your faith.
+            </p>
+          </div>
+          
+          <div className="relative w-full max-w-4xl mx-auto">
+            <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg">
+              <iframe
+                src="https://www.youtube.com/embed/vV_uDd8yNpk"
+                title="Shama Yah Introduction Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Ask a Question as Guest Section */}
       <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-background`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,24 +1,24 @@
   :root {
     /* Light Theme Custom Colors */
     --background: 0 0% 100%;              /* #FFFFFF */
-    --foreground: 270 76% 46%;            /* #55189B */
-    --card: 204 44% 80%;                  /* #ADCFE2 */
-    --card-foreground: 270 76% 46%;       /* #55189B */
-    --popover: 204 44% 80%;               /* #ADCFE2 */
-    --popover-foreground: 270 76% 46%;    /* #55189B */
-    --primary: 204 44% 80%;               /* #ADCFE2 */
-    --primary-foreground: 270 76% 46%;    /* #55189B */
+    --foreground: 225 66% 17%; /* #0F214A */
+    --card: 204 44% 80%;             /* #ADCFE2 */    
+    --card-foreground: 225 66% 17%; /* #0F214A */
+    --popover: 204 44% 80%;             /* #ADCFE2 */
+    --popover-foreground: 225 66% 17%; /* #0F214A */
+    --primary: 204 44% 80%;             /* #ADCFE2 */
+    --primary-foreground: 225 66% 17%; /* #0F214A */
     --secondary: 204 44% 80%;             /* #ADCFE2 */
-    --secondary-foreground: 270 76% 46%;  /* #55189B */
+    --secondary-foreground: 225 66% 17%; /* #0F214A */
     --muted:  0 0% 100%;                  /* #FFFFFF */
-    --muted-foreground: 270 76% 46%;      /* #55189B */
+    --muted-foreground: 225 66% 17%; /* #0F214A */
     --accent: 204 44% 80%;                /* #ADCFE2 */
-    --accent-foreground: 270 76% 46%;     /* #55189B */
+    --accent-foreground: 225 66% 17%; /* #0F214A */
     --destructive: 0 84% 60%;             /* fallback red */
     --destructive-foreground: 0 0% 100%;  /* fallback white */
-    --border: 270 76% 46%;                /* #55189B */
+    --border: 204 44% 80%;                /* #55189B */
     --input: 204 44% 80%;                 /* #ADCFE2 */
-    --ring: 270 76% 46%;                  /* #55189B */
+    --ring: 204 44% 80%;                  /* #55189B */
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -57,10 +57,10 @@
 
     /* Sidebar specific colors */
     --sidebar: 0 0% 100%;                 /* #FFFFFF */
-    --sidebar-foreground: 270 76% 46%;    /* #55189B */
+    --sidebar-foreground: 225 66% 17%; /* #0F214A */
     --sidebar-border: 270 76% 46%;        /* #55189B */
     --sidebar-accent: 204 44% 80%;        /* #ADCFE2 */
-    --sidebar-accent-foreground: 270 76% 46%; /* #55189B */
+    --sidebar-accent-foreground: 225 66% 17%; /* #0F214A */
     --sidebar-ring: 270 76% 46%;          /* #55189B */
   }
   
