@@ -36,6 +36,11 @@ const memberNavigation = [
     icon: LayoutDashboard,
   },
   {
+    title: "Lessons",
+    url: "/lessons",
+    icon: BookOpen,
+  },
+  {
     title: "Profile",
     url: "/dashboard/profile",
     icon: User,

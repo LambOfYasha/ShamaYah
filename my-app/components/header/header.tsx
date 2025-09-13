@@ -2,7 +2,7 @@
 
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "../ui/button"
-import { ChevronLeftIcon, MenuIcon, Shield, Users, UserCheck } from "lucide-react"
+import { ChevronLeftIcon, MenuIcon, Shield, Users, UserCheck, BookOpen } from "lucide-react"
 import { useSidebar } from "../ui/sidebar"
 import { RoleGuard } from "../auth/RoleGuard"
 import Link from "next/link"
@@ -44,6 +44,14 @@ function Header() {
 
     {/* Right side */}
     <div className="flex items-center gap-2 sm:gap-4">
+        {/* Lessons Link - visible on all devices */}
+        <Button variant="outline" size="sm" asChild>
+            <Link href="/lessons" className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                <span className="hidden sm:inline">Lessons</span>
+            </Link>
+        </Button>
+        
         <SignedIn>
             {/* Members Link - hidden on mobile */}
             <Button variant="outline" size="sm" asChild className="hidden sm:flex">
