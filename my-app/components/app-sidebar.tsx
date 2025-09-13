@@ -1,7 +1,7 @@
 "use client"
 // Client component for the sidebar
 import * as React from "react"
-import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings, BookOpen, UserCheck } from "lucide-react"
+import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings, BookOpen, UserCheck, Home } from "lucide-react"
 import { useAuth, useUser } from "@clerk/nextjs"
 
 import { SearchForm } from "@/components/search-form"
@@ -164,12 +164,18 @@ export default function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            {state === "expanded" && (
+            {state === "expanded" ? (
               <SidebarMenuButton size="lg" asChild>
                 <Link href="/"
                 className="block h-60 w-160 rounded bg-[url(/assets/sidebarlogo.png)] bg-center bg-no-repeat bg-cover"
                 aria-label="Sidebar Logo">
             </Link>
+              </SidebarMenuButton>
+            ) : (
+              <SidebarMenuButton size="lg" asChild>
+                <Link href="/" aria-label="Home">
+                  <Home className="h-6 w-6" />
+                </Link>
               </SidebarMenuButton>
             )}
           </SidebarMenuItem>
