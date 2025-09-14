@@ -8,9 +8,9 @@ import Image from "next/image";
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-background shadow-sm">
+      <div className="shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <Button asChild variant="ghost" className="mb-3 sm:mb-4 text-sm sm:text-base">
             <Link href="/">
@@ -36,10 +36,10 @@ export default function ContactPage() {
               height={60}
               className="hidden dark:inline-block h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4"
             />
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               Contact Us
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 mt-2">
+            <p className="text-base sm:text-lg mt-2">
               Get in touch with our community and ministry leaders
             </p>
           </div>
@@ -50,10 +50,10 @@ export default function ContactPage() {
       <section className="py-12 sm:py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6">
               Get In Touch
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl leading-relaxed">
               We'd love to hear from you! Whether you have questions, need support, or want to connect with our community, 
               we're here to help. Reach out to us through any of the channels below.
             </p>
@@ -65,27 +65,27 @@ export default function ContactPage() {
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Phone className="h-6 w-6 text-blue-600" />
+                  <div className="p-2 rounded-lg">
+                    <Phone className="h-6 w-6" />
                   </div>
                   <CardTitle className="text-lg sm:text-xl">Phone & Text</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="mb-4">
                   Call or text us for immediate assistance and support.
                 </p>
                 <div className="space-y-2">
                   <a 
                     href="tel:617-465-2880" 
-                    className="flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                    className="flex items-center font-medium transition-colors"
                   >
                     <Phone className="h-4 w-4 mr-2" />
                     617-465-2880
                   </a>
                   <a 
                     href="sms:617-465-2880" 
-                    className="flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                    className="flex items-center font-medium transition-colors"
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Text Message
@@ -98,21 +98,21 @@ export default function ContactPage() {
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <MessageSquare className="h-6 w-6 text-indigo-600" />
+                  <div className="p-2 rounded-lg">
+                    <MessageSquare className="h-6 w-6" />
                   </div>
                   <CardTitle className="text-lg sm:text-xl">Discord Community</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="mb-4">
                   Join our Discord server for real-time community discussions and support.
                 </p>
                 <a 
                   href="https://discord.gg/tqErypWMEG" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+                  className="inline-flex items-center font-medium transition-colors"
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
                   Join Discord Server
@@ -125,10 +125,10 @@ export default function ContactPage() {
           {/* YouTube Channels Section */}
           <div className="mb-12">
             <div className="text-center mb-8 sm:mb-12">
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
                 Our Ministry Channels
               </h3>
-              <p className="text-base sm:text-lg text-gray-600">
+              <p className="text-base sm:text-lg">
                 Follow our teachers and ministry leaders on YouTube for biblical teachings and spiritual guidance.
               </p>
             </div>
@@ -138,21 +138,21 @@ export default function ContactPage() {
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Youtube className="h-5 w-5 text-red-600" />
+                    <div className="p-2 rounded-lg">
+                      <Youtube className="h-5 w-5" />
                     </div>
                     <CardTitle className="text-base sm:text-lg">Brother Owen</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm mb-3">
                     Toothful Ministry
                   </p>
                   <a 
                     href="https://youtube.com/@Toothful-Ministry" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
+                    className="inline-flex items-center font-medium transition-colors text-sm"
                   >
                     Visit Channel
                     <ExternalLink className="h-3 w-3 ml-1" />
@@ -164,21 +164,21 @@ export default function ContactPage() {
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Youtube className="h-5 w-5 text-red-600" />
+                    <div className="p-2 rounded-lg">
+                      <Youtube className="h-5 w-5" />
                     </div>
                     <CardTitle className="text-base sm:text-lg">Brother Pat</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm mb-3">
                     Let's Learn The Word
                   </p>
                   <a 
                     href="https://youtube.com/@letslearntheword" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
+                    className="inline-flex items-center font-medium transition-colors text-sm"
                   >
                     Visit Channel
                     <ExternalLink className="h-3 w-3 ml-1" />
@@ -190,21 +190,21 @@ export default function ContactPage() {
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Youtube className="h-5 w-5 text-red-600" />
+                    <div className="p-2 rounded-lg">
+                      <Youtube className="h-5 w-5" />
                     </div>
                     <CardTitle className="text-base sm:text-lg">Brother Raul</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm mb-3">
                     Raul in the Mountain
                   </p>
                   <a 
                     href="https://youtube.com/@raulinthemountain" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
+                    className="inline-flex items-center font-medium transition-colors text-sm"
                   >
                     Visit Channel
                     <ExternalLink className="h-3 w-3 ml-1" />
@@ -216,21 +216,21 @@ export default function ContactPage() {
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Youtube className="h-5 w-5 text-red-600" />
+                    <div className="p-2 rounded-lg">
+                      <Youtube className="h-5 w-5" />
                     </div>
                     <CardTitle className="text-base sm:text-lg">Brother John</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm mb-3">
                     SIH Ministry
                   </p>
                   <a 
                     href="https://youtube.com/@sih-fw8yn" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
+                    className="inline-flex items-center font-medium transition-colors text-sm"
                   >
                     Visit Channel
                     <ExternalLink className="h-3 w-3 ml-1" />
@@ -242,21 +242,21 @@ export default function ContactPage() {
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Youtube className="h-5 w-5 text-red-600" />
+                    <div className="p-2 rounded-lg">
+                      <Youtube className="h-5 w-5" />
                     </div>
                     <CardTitle className="text-base sm:text-lg">Brother Yakov</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm mb-3">
                     Cross and Mantle
                   </p>
                   <a 
                     href="https://www.youtube.com/@crossandmantle" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
+                    className="inline-flex items-center font-medium transition-colors text-sm"
                   >
                     Visit Channel
                     <ExternalLink className="h-3 w-3 ml-1" />
@@ -268,21 +268,21 @@ export default function ContactPage() {
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Youtube className="h-5 w-5 text-red-600" />
+                    <div className="p-2 rounded-lg">
+                      <Youtube className="h-5 w-5" />
                     </div>
                     <CardTitle className="text-base sm:text-lg">Brother Yonathan</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm mb-3">
                     United Conclusion Ministries
                   </p>
                   <a 
                     href="https://www.youtube.com/@UnitedConclusionMinistries" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
+                    className="inline-flex items-center font-medium transition-colors text-sm"
                   >
                     Visit Channel
                     <ExternalLink className="h-3 w-3 ml-1" />
@@ -294,21 +294,21 @@ export default function ContactPage() {
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Youtube className="h-5 w-5 text-red-600" />
+                    <div className="p-2 rounded-lg">
+                      <Youtube className="h-5 w-5" />
                     </div>
                     <CardTitle className="text-base sm:text-lg">Brother Brian</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm mb-3">
                     Brian Anthony Clayton
                   </p>
                   <a 
                     href="https://www.youtube.com/@briananthonyclayton" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
+                    className="inline-flex items-center font-medium transition-colors text-sm"
                   >
                     Visit Channel
                     <ExternalLink className="h-3 w-3 ml-1" />
@@ -319,11 +319,11 @@ export default function ContactPage() {
           </div>
 
           {/* Additional Support Section */}
-          <div className="bg-blue-600 rounded-lg p-6 sm:p-8 text-center">
-            <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">
+          <div className="rounded-lg p-6 sm:p-8 text-center">
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
               Need Additional Support?
             </h3>
-            <p className="text-blue-100 mb-6 sm:mb-8">
+            <p className="mb-6 sm:mb-8">
               If you can't find what you're looking for or need immediate assistance, 
               don't hesitate to reach out to us directly.
             </p>
@@ -333,7 +333,7 @@ export default function ContactPage() {
                   Visit Help Center
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 border-white text-white hover:bg-background hover:text-blue-600 w-full sm:w-auto">
+              <Button asChild size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto">
                 <Link href="/questions">
                   Ask a Question
                 </Link>
@@ -343,51 +343,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-            <div>
-              <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Community</h4>
-              <ul className="space-y-2 text-sm sm:text-base text-gray-400">
-                <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-                <li><Link href="/guidelines" className="hover:text-white">Community Guidelines</Link></li>
-                <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm sm:text-base text-gray-400">
-                <li><Link href="/help" className="hover:text-white">Help Center</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
-                <li><Link href="/feedback" className="hover:text-white">Feedback</Link></li>
-                <li><Link href="/faq" className="hover:text-white">FAQ</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Connect</h4>
-              <ul className="space-y-2 text-sm sm:text-base text-gray-400">
-                <li><Link href="/sign-in" className="hover:text-white">Sign In</Link></li>
-                <li><Link href="/sign-up" className="hover:text-white">Sign Up</Link></li>
-                <li><Link href="/communities" className="hover:text-white">Browse Communities</Link></li>
-                <li><Link href="/questions" className="hover:text-white">Ask Questions</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center text-sm sm:text-base text-gray-400">
-            <p>&copy; 2025 Shama Yah. All rights reserved.</p>
-            <div className="flex items-center gap-4 mt-4 sm:mt-0">
-              <Link href="https://discord.gg/tqErypWMEG" className="hover:text-white transition-colors">
-                <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
-              </Link>
-              <Link href="https://youtube.com/@Toothful-Ministry" className="hover:text-white transition-colors">
-                <Youtube className="h-5 w-5 sm:h-6 sm:w-6" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
