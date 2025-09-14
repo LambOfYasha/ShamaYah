@@ -18,6 +18,7 @@ export default defineType({
           { title: 'System', value: 'system' },
           { title: 'Bulk', value: 'bulk' },
           { title: 'Ticket', value: 'ticket' },
+          { title: 'Feedback', value: 'feedback' },
         ],
       },
     }),
@@ -140,6 +141,26 @@ export default defineType({
         {
           name: 'userEmail',
           title: 'User Email',
+          type: 'string',
+        },
+        {
+          name: 'feedbackId',
+          title: 'Feedback ID',
+          type: 'string',
+        },
+        {
+          name: 'feedbackTitle',
+          title: 'Feedback Title',
+          type: 'string',
+        },
+        {
+          name: 'feedbackCategory',
+          title: 'Feedback Category',
+          type: 'string',
+        },
+        {
+          name: 'feedbackPriority',
+          title: 'Feedback Priority',
           type: 'string',
         },
       ],

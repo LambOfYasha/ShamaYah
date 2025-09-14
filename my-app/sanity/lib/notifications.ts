@@ -3,7 +3,7 @@ import { adminClient } from './adminClient'
 
 export interface Notification {
   _id: string;
-  type: 'moderation' | 'appeal' | 'guideline' | 'system' | 'bulk';
+  type: 'moderation' | 'appeal' | 'guideline' | 'system' | 'bulk' | 'feedback';
   title: string;
   message: string;
   severity: 'info' | 'warning' | 'error' | 'success';
@@ -16,6 +16,10 @@ export interface Notification {
     guidelineId?: string;
     batchId?: string;
     testMessage?: string;
+    feedbackId?: string;
+    feedbackTitle?: string;
+    feedbackCategory?: string;
+    feedbackPriority?: string;
   };
   isRead: boolean;
   createdAt: string;

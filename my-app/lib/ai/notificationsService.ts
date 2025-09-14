@@ -11,7 +11,7 @@ import {
 
 export interface Notification {
   _id: string;
-  type: 'moderation' | 'appeal' | 'guideline' | 'system' | 'bulk' | 'ticket';
+  type: 'moderation' | 'appeal' | 'guideline' | 'system' | 'bulk' | 'ticket' | 'feedback';
   title: string;
   message: string;
   severity: 'info' | 'warning' | 'error' | 'success';
@@ -29,6 +29,10 @@ export interface Notification {
     ticketCategory?: string;
     ticketPriority?: string;
     adminResponse?: string;
+    feedbackId?: string;
+    feedbackTitle?: string;
+    feedbackCategory?: string;
+    feedbackPriority?: string;
   };
   isRead: boolean;
   createdAt: string;
