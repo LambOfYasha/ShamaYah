@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, Youtube } from "lucide-react";
+import { MessageSquare, Youtube } from "lucide-react";
 import { useCompactMode } from "@/hooks/use-compact-mode";
 
 interface FooterLink {
@@ -108,7 +108,7 @@ export default function Footer({ className = "" }: FooterProps) {
               </p>
               <div className="flex items-center gap-4">
                 <Link href="https://discord.gg/shamayah" className="hover:text-white transition-colors">
-                  <MessageCircle className="h-6 w-6" />
+                  <MessageSquare className="h-6 w-6" />
                 </Link>
                 <Link href="https://youtube.com/@shamayah" className="hover:text-white transition-colors">
                   <Youtube className="h-6 w-6" />
@@ -154,7 +154,7 @@ export default function Footer({ className = "" }: FooterProps) {
           <p>&copy; 2025 Shama Yah. All rights reserved.</p>
           <div className="flex items-center gap-4 mt-4 sm:mt-0">
             <Link href="https://discord.gg/tqErypWMEG" className="hover:text-white transition-colors">
-              <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+              <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
             </Link>
             <Link href="https://youtube.com/@Toothful-Ministry" className="hover:text-white transition-colors">
               <Youtube className="h-5 w-5 sm:h-6 sm:w-6" />

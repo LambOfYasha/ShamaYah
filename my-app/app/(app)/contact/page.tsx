@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, Phone, MessageCircle, Youtube, ExternalLink } from "lucide-react";
+import { ArrowLeft, Phone, MessageSquare, Youtube, ExternalLink } from "lucide-react";
 import Image from "next/image";
 
 export default function ContactPage() {
@@ -87,7 +87,7 @@ export default function ContactPage() {
                     href="sms:617-465-2880" 
                     className="flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"
                   >
-                    <MessageCircle className="h-4 w-4 mr-2" />
+                    <MessageSquare className="h-4 w-4 mr-2" />
                     Text Message
                   </a>
                 </div>
@@ -99,7 +99,7 @@ export default function ContactPage() {
               <CardHeader>
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-indigo-100 rounded-lg">
-                    <MessageCircle className="h-6 w-6 text-indigo-600" />
+                    <MessageSquare className="h-6 w-6 text-indigo-600" />
                   </div>
                   <CardTitle className="text-lg sm:text-xl">Discord Community</CardTitle>
                 </div>
@@ -114,7 +114,7 @@ export default function ContactPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
                 >
-                  <MessageCircle className="h-4 w-4 mr-2" />
+                  <MessageSquare className="h-4 w-4 mr-2" />
                   Join Discord Server
                   <ExternalLink className="h-3 w-3 ml-1" />
                 </a>
@@ -379,7 +379,7 @@ export default function ContactPage() {
             <p>&copy; 2025 Shama Yah. All rights reserved.</p>
             <div className="flex items-center gap-4 mt-4 sm:mt-0">
               <Link href="https://discord.gg/tqErypWMEG" className="hover:text-white transition-colors">
-                <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+                <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
               </Link>
               <Link href="https://youtube.com/@Toothful-Ministry" className="hover:text-white transition-colors">
                 <Youtube className="h-5 w-5 sm:h-6 sm:w-6" />
