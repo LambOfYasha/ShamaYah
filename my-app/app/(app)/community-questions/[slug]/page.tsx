@@ -24,19 +24,43 @@ import { getImageUrl } from "@/lib/utils";
 import { ReportButton } from "@/components/ui/report-button";
 import CommunityResponses from "@/components/community/CommunityResponses";
 import { canEditContent, canDeleteContent } from "@/lib/auth/roles";
-
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
 
-interface CommunityQuestionWithModerator extends CommunityQuestion {
-  moderator: Teacher;
+interface CommunityQuestionWithModerator {
+  _id: string;
+  _type: "communityQuestion";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  description: string;
+  slug: {
+    _type: string;
+    current: string;
+  };
+  image?: {
+    asset?: {
+      _ref: string;
+    };
+    alt?: string;
+  };
+  moderator: {
+    _id: string;
+    username: string;
+    imageURL?: string;
+  };
+  createdAt?: string;
+  categories?: string[];
+  content?: any[];
 }
 
 async function getCommunityQuestion(slug: string): Promise<CommunityQuestionWithModerator | null> {
   const query = defineQuery(`
     *[_type == "communityQuestion" && slug.current == $slug && (isDeleted == false || isDeleted == null)][0] {
       ...,
-      "moderator": moderator->
+      "moderator": moderator->,
+      "slug": slug
     }
   `);
 
@@ -126,10 +150,10 @@ export default async function CommunityQuestionPage({
       <div className="max-w-4xl mx-auto p-6">
         {/* Back Button */}
         <div className="mb-6">
-          <Link href="/dashboard/questions">
+          <Link href="/community-questions">
             <Button variant="ghost" className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
-              Back to Communities
+              Back to Community Questions
             </Button>
           </Link>
         </div>

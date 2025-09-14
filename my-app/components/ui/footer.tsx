@@ -45,7 +45,7 @@ const footerData: Record<string, FooterSection> = {
       { href: "/sign-in", text: "Sign In" },
       { href: "/sign-up", text: "Sign Up" },
       { href: "/blogs", text: "Browse Blogs" },
-      { href: "/questions", text: "Ask Questions" }
+      { href: "/community-questions", text: "Ask Questions" }
     ]
   }
 };
@@ -144,7 +144,7 @@ export default function Footer({ className = "" }: FooterProps) {
               <li><Link href="/sign-in" className="hover:text-white">Sign In</Link></li>
               <li><Link href="/sign-up" className="hover:text-white">Sign Up</Link></li>
               <li><Link href="/blogs" className="hover:text-white">Browse Blogs</Link></li>
-              <li><Link href="/questions" className="hover:text-white">Ask Questions</Link></li>
+              <li><Link href="/community-questions" className="hover:text-white">Ask Questions</Link></li>
             </ul>
           </div>
         </div>
