@@ -11,7 +11,7 @@ import {
 
 export interface Notification {
   _id: string;
-  type: 'moderation' | 'appeal' | 'guideline' | 'system' | 'bulk';
+  type: 'moderation' | 'appeal' | 'guideline' | 'system' | 'bulk' | 'ticket';
   title: string;
   message: string;
   severity: 'info' | 'warning' | 'error' | 'success';
@@ -24,6 +24,11 @@ export interface Notification {
     appealId?: string;
     guidelineId?: string;
     batchId?: string;
+    ticketId?: string;
+    ticketTitle?: string;
+    ticketCategory?: string;
+    ticketPriority?: string;
+    adminResponse?: string;
   };
   isRead: boolean;
   createdAt: string;
@@ -97,6 +102,42 @@ export class NotificationsService {
         type: 'system_maintenance',
         title: 'System Maintenance',
         message: 'The moderation system will be undergoing maintenance.',
+        severity: 'warning'
+      },
+      {
+        type: 'ticket_created',
+        title: 'Support Ticket Created',
+        message: 'Your support ticket has been created and is being reviewed by our team.',
+        severity: 'info'
+      },
+      {
+        type: 'ticket_updated',
+        title: 'Support Ticket Updated',
+        message: 'Your support ticket has been updated with a response from our team.',
+        severity: 'info'
+      },
+      {
+        type: 'ticket_resolved',
+        title: 'Support Ticket Resolved',
+        message: 'Your support ticket has been resolved. Please let us know if you need further assistance.',
+        severity: 'success'
+      },
+      {
+        type: 'ticket_closed',
+        title: 'Support Ticket Closed',
+        message: 'Your support ticket has been closed.',
+        severity: 'info'
+      },
+      {
+        type: 'new_ticket_admin',
+        title: 'New Support Ticket',
+        message: 'A new support ticket has been submitted and requires attention.',
+        severity: 'info'
+      },
+      {
+        type: 'urgent_ticket_admin',
+        title: 'Urgent Support Ticket',
+        message: 'An urgent support ticket has been submitted and requires immediate attention.',
         severity: 'warning'
       }
     ];
@@ -268,6 +309,88 @@ export class NotificationsService {
     // This would be implemented with a Sanity query to delete old notifications
     // For now, we'll return 0 as this is handled by Sanity's built-in cleanup
     return 0;
+  }
+
+  /**
+   * Send ticket notification to user
+   */
+  static async sendTicketNotification(
+    ticketId: string,
+    ticketTitle: string,
+    ticketCategory: string,
+    ticketPriority: string,
+    userId: string,
+    userRole: string,
+    status: 'created' | 'updated' | 'resolved' | 'closed',
+    adminResponse?: string
+  ): Promise<void> {
+    const notificationType = `ticket_${status}`;
+    
+    await this.createNotification(notificationType, userId, userRole as any, {
+      ticketId,
+      ticketTitle,
+      ticketCategory,
+      ticketPriority,
+      adminResponse
+    });
+  }
+
+  /**
+   * Send ticket notification to admins
+   */
+  static async sendTicketAdminNotification(
+    ticketId: string,
+    ticketTitle: string,
+    ticketCategory: string,
+    ticketPriority: string,
+    userId: string,
+    userName: string,
+    userEmail: string,
+    isUrgent: boolean = false
+  ): Promise<void> {
+    const notificationType = isUrgent ? 'urgent_ticket_admin' : 'new_ticket_admin';
+    
+    // Get all admin users
+    const adminUsers = await this.getAdminUsers();
+    
+    for (const admin of adminUsers) {
+      await this.createNotification(notificationType, admin.id, 'admin', {
+        ticketId,
+        ticketTitle,
+        ticketCategory,
+        ticketPriority,
+        userId,
+        userName,
+        userEmail
+      });
+    }
+  }
+
+  /**
+   * Get all admin users
+   */
+  private static async getAdminUsers(): Promise<{ id: string; role: string }[]> {
+    try {
+      // Import adminClient dynamically to avoid circular dependencies
+      const { adminClient } = await import('@/sanity/lib/adminClient');
+      
+      const adminUsers = await adminClient.fetch(`
+        *[_type == "user" && role in ["admin", "moderator"] && isDeleted != true && isActive == true] {
+          _id,
+          id,
+          role
+        }
+      `);
+
+      return adminUsers.map((user: any) => ({
+        id: user._id,
+        role: user.role
+      }));
+    } catch (error) {
+      console.error('Error fetching admin users:', error);
+      // Return empty array if we can't fetch admin users
+      return [];
+    }
   }
 
   /**

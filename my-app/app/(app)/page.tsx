@@ -513,7 +513,7 @@ export default function HomePage() {
               <ul className={`space-y-2 ${isCompactMode ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-muted-foreground`}>
                 <li><Link href="/sign-in" className="hover:text-white">Sign In</Link></li>
                 <li><Link href="/sign-up" className="hover:text-white">Sign Up</Link></li>
-                <li><Link href="/communities" className="hover:text-white">Browse Communities</Link></li>
+                <li><Link href="/blogs" className="hover:text-white">Browse Blogs</Link></li>
                 <li><Link href="/questions" className="hover:text-white">Ask Questions</Link></li>
               </ul>
             </div>
@@ -523,10 +523,10 @@ export default function HomePage() {
           <div className="hidden sm:block border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center text-sm sm:text-base text-muted-foreground">
             <p>&copy; 2025 Shama Yah. All rights reserved.</p>
             <div className="flex items-center gap-4 mt-4 sm:mt-0">
-              <Link href="https://discord.gg/shamayah" className="hover:text-white transition-colors">
+              <Link href="https://discord.gg/tqErypWMEG" className="hover:text-white transition-colors">
                 <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
               </Link>
-              <Link href="https://youtube.com/@shamayah" className="hover:text-white transition-colors">
+              <Link href="https://youtube.com/@Toothful-Ministry" className="hover:text-white transition-colors">
                 <Youtube className="h-5 w-5 sm:h-6 sm:w-6" />
               </Link>
             </div>

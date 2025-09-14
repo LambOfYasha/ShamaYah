@@ -17,6 +17,7 @@ export default defineType({
           { title: 'Guideline', value: 'guideline' },
           { title: 'System', value: 'system' },
           { title: 'Bulk', value: 'bulk' },
+          { title: 'Ticket', value: 'ticket' },
         ],
       },
     }),
@@ -104,6 +105,41 @@ export default defineType({
         {
           name: 'testMessage',
           title: 'Test Message',
+          type: 'string',
+        },
+        {
+          name: 'ticketId',
+          title: 'Ticket ID',
+          type: 'string',
+        },
+        {
+          name: 'ticketTitle',
+          title: 'Ticket Title',
+          type: 'string',
+        },
+        {
+          name: 'ticketCategory',
+          title: 'Ticket Category',
+          type: 'string',
+        },
+        {
+          name: 'ticketPriority',
+          title: 'Ticket Priority',
+          type: 'string',
+        },
+        {
+          name: 'adminResponse',
+          title: 'Admin Response',
+          type: 'text',
+        },
+        {
+          name: 'userName',
+          title: 'User Name',
+          type: 'string',
+        },
+        {
+          name: 'userEmail',
+          title: 'User Email',
           type: 'string',
         },
       ],

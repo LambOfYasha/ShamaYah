@@ -1,7 +1,7 @@
 "use client"
 // Client component for the sidebar
 import * as React from "react"
-import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings, BookOpen, UserCheck, Home } from "lucide-react"
+import { Minus, Plus, LayoutDashboard, User, Heart, Users, Settings, BookOpen, UserCheck, Home, HelpCircle } from "lucide-react"
 import { useAuth, useUser } from "@clerk/nextjs"
 
 import { SearchForm } from "@/components/search-form"
@@ -270,6 +270,14 @@ export default function AppSidebar() {
                   <Link href="/staff">
                     <UserCheck className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     <span>Staff</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="text-sm sm:text-base">
+                  <Link href="/help">
+                    <HelpCircle className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Help Center</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
