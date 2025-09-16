@@ -22,7 +22,7 @@ export function MobileSidebar() {
       </SheetTrigger>
       <SheetContent side="left" className="pl-1 pr-0 w-72">
         <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-        <div className="px-2 py-6 h-full">
+        <div className="px-2 py-6 h-full overflow-y-auto">
           <AppSidebar />
         </div>
       </SheetContent>
