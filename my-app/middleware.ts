@@ -1,6 +1,45 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-const middleware = clerkMiddleware();
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/admin(.*)',
+  '/api/admin(.*)',
+  '/api/blogs(.*)',
+  '/api/communities(.*)',
+  '/api/reports(.*)',
+  '/api/search(.*)',
+  '/api/user(.*)',
+  '/api/webhooks(.*)',
+]);
+
+  // Public API routes for guest functionality
+  const isPublicApiRoute = createRouteMatcher([
+    '/api/user/guest(.*)',
+    '/api/comments/guest(.*)',
+    '/api/communities/guest(.*)',
+    '/api/moderation(.*)',
+  ]);
+
+const middleware = clerkMiddleware({
+  beforeAuth: (req) => {
+    // Allow public routes to pass through
+    if (!isProtectedRoute(req)) {
+      return;
+    }
+  },
+  afterAuth: (auth, req) => {
+    // Handle protected routes
+    if (isProtectedRoute(req) && !auth.userId) {
+      // Allow guest API routes for unauthenticated users
+      if (isPublicApiRoute(req)) {
+        return;
+      }
+      const signInUrl = new URL('/sign-in', req.url);
+      signInUrl.searchParams.set('redirect_url', req.url);
+      return Response.redirect(signInUrl);
+    }
+  },
+});
 
 export default middleware;
 

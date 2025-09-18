@@ -1,6 +1,6 @@
 import { ImageData } from "@/action/createCommunityQuestion"
 import { defineQuery } from "groq"
-import { sanityFetch } from "../live"
+import { client } from "../client"
 import { adminClient } from "../adminClient"
 import { CommunityQuestion } from "@/sanity.types"
 
@@ -22,12 +22,12 @@ export async function createCommunity(
             }
         `)
 
-        const existingCommunity = await sanityFetch({
-            query: checkExistingQuery,
-            params: { name },
-        })
+        const existingCommunity = await client.fetch(
+            checkExistingQuery,
+            { name }
+        )
         
-            if (existingCommunity.data) {
+            if (existingCommunity) {
                 console.log(`Community with name ${name} already exists`)
                 return { error: "Community with this name already exists" }
             }
@@ -43,12 +43,12 @@ export async function createCommunity(
                     }
                 `)
 
-                const existingSlug = await sanityFetch({
-                    query: checkSlugQuery,
-                    params: {slug: customSlug}
-                })
+                const existingSlug = await client.fetch(
+                    checkSlugQuery,
+                    {slug: customSlug}
+                )
 
-                if (existingSlug.data) {
+                if (existingSlug) {
                     console.log(`Community with slug "${customSlug}" already exists`)
                     return { error: "A community with this URL already exists" }
                 }

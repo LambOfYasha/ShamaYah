@@ -3,10 +3,19 @@ import { userType } from './userType'
 import { teacherType } from './teacherType'
 import { postType } from './postType'
 import { commentType } from './commentType'
+import { embeddedCommentType } from './embeddedCommentType'
 import { favoriteType } from './favoriteType'
 import { blogType } from './blogType'
 import { communityType } from './communityType'
+import { tagType } from './tagType'
+import { reportType } from './reportType'
+import notificationType from './notificationType'
+import { adminSettingsType } from './adminSettingsType'
+import { specialtyType } from './specialtyType'
+import guestQuestionType from './guestQuestionType'
+import { helpTicketType } from './helpTicketType'
+import { feedbackType } from './feedbackType'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [userType, teacherType, postType, commentType, favoriteType, blogType, communityType],
+  types: [userType, teacherType, postType, commentType, embeddedCommentType, favoriteType, blogType, communityType, tagType, reportType, notificationType, adminSettingsType, specialtyType, guestQuestionType, helpTicketType, feedbackType],
 }

@@ -1,4 +1,4 @@
-import {defineField, defineType} from "sanity";
+import {defineField, defineType, ValidationRule} from "sanity";
 import { HeartIcon, HeartOffIcon } from "lucide-react";
 
 export const favoriteType = defineType({
@@ -13,22 +13,28 @@ export const favoriteType = defineType({
       type: 'reference',
       to: [{type: 'user'}, {type: 'teacher'}],
       description: 'The user who saved this post',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'post',
       title: 'Post',
       type: 'reference',
-      to: [{type: 'post'}, {type: 'blog'}],
-      description: 'The post that was saved',
-      validation: (Rule) => Rule.required(),
+      to: [{type: 'post'}, {type: 'blog'}, {type: 'communityQuestion'}],
+      description: 'The post, blog, or community response that was saved',
+      validation: (Rule: ValidationRule) => Rule.required(),
+    }),
+    defineField({
+      name: 'commentPath',
+      title: 'Comment Path',
+      type: 'string',
+      description: 'The path to the specific comment (e.g., "0" for first comment, "0.1" for first reply of first comment). Leave empty for post-level favorites.',
     }),
     defineField({
       name: 'savedAt',
       title: 'Saved At',
       type: 'datetime',
       description: 'When the user saved this post',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule: ValidationRule) => Rule.required(),
     }),
     defineField({
       name: 'isActive',
@@ -46,7 +52,7 @@ export const favoriteType = defineType({
       username: 'user.username',
       teacherUsername: 'teacher.username',
     },
-    prepare(selection) {
+    prepare(selection: {favorite?: boolean, postTitle?: string, blogTitle?: string, username?: string, teacherUsername?: string}) {
       const {favorite, postTitle, blogTitle, username, teacherUsername} = selection;
       return {
         title: postTitle || blogTitle,

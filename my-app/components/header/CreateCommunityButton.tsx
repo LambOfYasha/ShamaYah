@@ -12,16 +12,19 @@ import React, { useState, useRef, useTransition } from 'react'
 import { useUser } from '@clerk/nextjs' 
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
-import { ImageIcon, Plus, X } from "lucide-react"
+import { ImageIcon, Plus, X, MessageCircle } from "lucide-react"
 import Image from "next/image"
 import { Label } from "../ui/label"
 import { Button } from "../ui/button"
 import { createCommunityQuestion } from "@/action/createCommunityQuestion"
 import { useRouter } from "next/navigation"
+import { useModeration } from "@/hooks/useModeration"
+import { ModerationFeedback } from "@/components/ui/moderation-feedback"
+import GuestCreateCommunityButton from "../community/GuestCreateCommunityButton"
 
 function CreateCommunityButton() {
 
-  const { user } = useUser()
+  const { user, isSignedIn } = useUser()
   const [open, setOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [name, setName] = useState("")
@@ -33,14 +36,41 @@ function CreateCommunityButton() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
-const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const value = e.target.value
-  setName(value)
-  
-  if (!slug || slug === generateSlug(name)) {
-    setSlug(generateSlug(value))
+  // Initialize moderation for community question content
+  const {
+    content: moderatedContent,
+    updateContent: updateModeratedContent,
+    moderationState,
+    checkModeration,
+    clearModeration,
+    getModerationFeedback,
+    canSubmit
+  } = useModeration({
+    contentType: 'post',
+    debounceMs: 1500,
+    autoCheck: true
+  });
+
+  // Update moderated content when name changes
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setName(value)
+    
+    if (!slug || slug === generateSlug(name)) {
+      setSlug(generateSlug(value))
+    }
+    
+    // Check both name and description together
+    updateModeratedContent(`${value}\n\n${description}`);
   }
-}
+
+  // Update moderated content when description changes
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newDescription = e.target.value;
+    setDescription(newDescription);
+    // Check both name and description together
+    updateModeratedContent(`${name}\n\n${newDescription}`);
+  };
 
 const generateSlug = (text: string) => {
   return text.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "").slice(0, 21)
@@ -68,17 +98,14 @@ reader.readAsDataURL(file)
 }
 }
 
-
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault()
-}
-
 const resetForm = () => {
   setName("")
   setSlug("")
   setDescription("")
   setImagePreview(null)
   setImageFile(null)
+  setErrorMessage("")
+  clearModeration()
   if (fileInputRef.current) {
     fileInputRef.current.value = ""
   }
@@ -86,77 +113,68 @@ const resetForm = () => {
 
 const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault()
-  if(!name.trim()) {
-    setErrorMessage("Name is required")
+  
+  if (!user) {
+    setErrorMessage("You must be signed in to create a community question.")
     return
   }
 
-  if(!slug.trim()) {
-    setErrorMessage("Slug is required")
+  if (!canSubmit) {
+    setErrorMessage("Please wait for content moderation to complete.")
     return
   }
-
-  setErrorMessage("")
 
   startTransition(async () => {
     try {
-      let imageBase64: string | null = null
-      let fileName: string | null = null
-      let fileType: string | null = null
-
-      if(imageFile) {
-        const reader = new FileReader()
-          imageBase64 = await new Promise<string>((resolve) => {
-            reader.onload = () => {
-              resolve(reader.result as string)
-            }
-            reader.readAsDataURL(imageFile)
-          })
-
-          fileName = imageFile.name
-          fileType = imageFile.type
-        }
-
-        const result = await createCommunityQuestion(
-  name.trim(),
-  imageBase64,
-  fileName,
-  fileType,
-  slug.trim(),
-  description.trim() || undefined,
-        )  
-
-        console.log("created community:", result)
+      // Pass imageFile as undefined if not present, and as a string (URL) if needed
+      // But createCommunityQuestion expects string | null | undefined for image
+      // If imageFile is a File, you need to upload it first and get a URL or asset ref
+      // For now, pass undefined if no image, or handle upload here if needed
+      let image: string | null | undefined = undefined
+      if (imageFile instanceof File) {
+        // You need to upload the file and get a URL or asset ref string
+        // For now, just set image to undefined (or handle upload logic here)
+        // image = await uploadImageAndGetUrl(imageFile)
+        setErrorMessage("Image upload not implemented.")
+        return
+      }
+      const result = await createCommunityQuestion(name, slug, description, image)
       
-      if ("error" in result && result.error) {
-        setErrorMessage(result.error)
-      } else if ("createdCommunity" in result && result.createdCommunity) {
+      if ("createdCommunity" in result) {
         setOpen(false)
         resetForm()
-        router.push(`/community-questions/${result.createdCommunity.slug?.current}`)
-      }} catch (err) {
-          console.error("failed to create community", err)
-          setErrorMessage("failed to create community")
-        }
-      })
+        router.push(`/community-questions/${slug}`)
+      } else {
+        setErrorMessage(result.error || "Failed to create community question.")
+      }
+    } catch (error) {
+      console.error("Error creating community question:", error)
+      setErrorMessage("An unexpected error occurred. Please try again.")
+    }
+  })
 }
 
-  return (
+  // If user is not signed in, show the guest community creation button
+  if (!isSignedIn) {
+    return <GuestCreateCommunityButton />
+  }
 
-<Dialog open={open} onOpenChange={setOpen}>
-  <DialogTrigger className="w-full p-2 pl-5 flex items-center rounded-md 
-  cursor-pointer bg-black text-white 
-  hover:bg-black transition-all duration-200 
-  disabled:text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled={!user}>
-    <Plus />
-  {user ? "Ask a Question" : "Sign in to ask a Question"}
-  </DialogTrigger>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Ask a question</DialogTitle>
-      <DialogDescription>
-        Share your ideas and get feedback from others in regards to Christian doctrine.
-      </DialogDescription>
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <div className="w-full p-2 pl-5 flex items-center rounded-md 
+        cursor-pointer bg-primary text-primary-foreground 
+        hover:bg-primary/90 transition-all duration-200">
+          <MessageCircle className="mr-2 h-4 w-4" />
+          <span>Ask a Question</span>
+        </div>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Ask a Question</DialogTitle>
+          <DialogDescription>
+            Ask a question to get help from the community.
+          </DialogDescription>
 
       <form onSubmit={handleCreateCommunity} className="space-y-4 mt-2">
         {errorMessage && (
@@ -165,11 +183,11 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
 
         <div className="space-y-2">
           <label htmlFor="question" className="text-sm font-medium">
-            Question
+            Title
           </label>
           <Input 
           id="question" 
-          placeholder="What is your question?"
+          placeholder="What is your question title?"
           className="w-full focus:ring-2 focus:ring-blue-500"
           value={name}
           onChange={handleNameChange}
@@ -195,24 +213,37 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
           pattern="[a-z0-9-]*"
           title="Lowercase letters, numbers, and hyphens only"
           />
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             This will be used in the URL: shama.com/community-questions/{slug || "community-slug"}
           </p>
         </div>
         <div className="space-y-2">
           <label htmlFor="description" className="text-sm font-medium">
-            Description
+            Question
           </label>
           <Textarea
           id="description"
-          placeholder="Enter a description for your question"
+          placeholder="Ask your question here"
           className="w-full focus:ring-2 focus:ring-blue-500"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={handleDescriptionChange}
           required
           minLength={10}
           maxLength={1000}
+          rows={4}
           />
+          
+          {/* Moderation Feedback */}
+          {(name.trim() || description.trim()) && (
+            <div className="mt-3">
+              <ModerationFeedback
+                isChecking={moderationState.isChecking}
+                result={moderationState.result}
+                error={moderationState.error}
+                showDetails={true}
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -221,7 +252,6 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
             </Label>
 
             {imagePreview ? (
-
               <div className="relative w-24 h-24 mx-auto">
               <Image 
               src={imagePreview}
@@ -232,35 +262,44 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
               <button 
               type="button"
               onClick={removeImage}
-              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center"
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
               </button>
               </div>
-            ): (
+            ) : (
               <div className="flex items-center justify-center w-full">
                 <Label htmlFor="community-image" className="flex flex-col items-center justify-center w-full
-                h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                h-24 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80">
                   <div className="flex flex-col items-center justify-center">
-                    <ImageIcon className="w-6 h-6 mb-2 text-gray-400" />
-                    <p className="text-xs text-gray-500">
+                    <ImageIcon className="w-6 h-6 mb-2 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">
                       Click to upload image
                     </p>
-                    </div>
-                    <input 
-                    id="community-image"
-                    name="community-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    ref={fileInputRef}
-                    className="hidden" />
-                  </Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Max 5MB • JPEG, PNG, WebP, GIF
+                    </p>
                   </div>
+                  <input 
+                  id="community-image"
+                  name="community-image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  ref={fileInputRef}
+                  className="hidden" />
+                </Label>
+                </div>
             )}
             </div>
 
-            <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isPending || !user}>Submit Question</Button>
+            <Button 
+              type="submit" 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+              disabled={isPending || !user || !canSubmit}
+            >
+              {isPending ? "Creating..." : "Create Question"}
+            </Button>
       </form>
     </DialogHeader>
   </DialogContent>

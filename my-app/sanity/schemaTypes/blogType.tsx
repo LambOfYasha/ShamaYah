@@ -1,4 +1,4 @@
-import {defineField, defineType} from "sanity";
+import {defineField, defineType, ValidationRule} from "sanity";
 import { BookIcon } from "lucide-react";
 
 
@@ -13,7 +13,7 @@ export const blogType = defineType({
             title: 'Title', 
             type: 'string',
             description: 'The title of the blog',
-            validation: (Rule) => Rule.required().min(3).max(100),
+            validation: (Rule: ValidationRule) => Rule.required().min(3).max(100),
         }),
         defineField({
             name: 'slug',
@@ -27,7 +27,7 @@ export const blogType = defineType({
             title: 'Description',
             type: 'text',
             description: 'The description of the blog',
-            validation: (Rule) => Rule.required(),
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'image',
@@ -46,18 +46,17 @@ export const blogType = defineType({
         defineField({
             name: 'content',
             title: 'Content',
-            type: 'array',
-            description: 'The content of the blog',
-            of: [{type: 'block'}],
-            validation: (Rule) => Rule.required(),
+            type: 'text',
+            description: 'The content of the blog (HTML)',
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'author',
             title: 'Author',
             type: 'reference',
-            to: [{type: 'teacher'}],
-            description: 'The author of the blog',
-            validation: (Rule) => Rule.required(),
+            to: [{type: 'teacher'}, {type: 'user'}],
+            description: 'The author of the blog (can be a teacher or user)',
+            validation: (Rule: ValidationRule) => Rule.required(),
         }),
         defineField({
             name: 'createdAt',
@@ -65,7 +64,29 @@ export const blogType = defineType({
             type: 'datetime',
             description: 'The date and time the blog was created',
             initialValue: new Date().toISOString(),
-            validation: (Rule) => Rule.required(),
+            validation: (Rule: ValidationRule) => Rule.required(),
+        }),
+        defineField({
+            name: 'comments',
+            title: 'Comments',
+            type: 'array',
+            of: [{type: 'embeddedComment'}],
+            description: 'Comments on this blog post',
+        }),
+        defineField({
+            name: 'tags',
+            title: 'Tags',
+            type: 'array',
+            of: [{type: 'reference', to: [{type: 'tag'}]}],
+            description: 'Tags associated with this blog post',
+        }),
+        defineField({
+            name: 'viewCount',
+            title: 'View Count',
+            type: 'number',
+            description: 'Number of views this blog post has received',
+            initialValue: 0,
+            validation: (Rule: ValidationRule) => Rule.min(0),
         }),
     ],
     preview: {
@@ -73,6 +94,14 @@ export const blogType = defineType({
             title: 'title',
             subtitle: 'author.username',
             media: 'image',
+            tags: 'tags[0...3].name',
         },
+        prepare({title, subtitle, media, tags}: {title?: string, subtitle?: string, media?: any, tags?: string[]}) {
+            return {
+                title,
+                subtitle: tags && tags.length > 0 ? `${subtitle} • ${tags.join(', ')}` : subtitle,
+                media,
+            }
+        }
     }
 })

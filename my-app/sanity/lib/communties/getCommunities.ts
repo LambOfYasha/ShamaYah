@@ -1,37 +1,47 @@
-import { sanityFetch } from "../live";
-import { defineQuery } from "groq";
-import type { CommunityQuestion, User } from "../../../sanity.types";
+import { defineQuery } from "groq"
+import { client } from "../client";
 
-// Type for the expanded community data from GROQ query
-interface CommunityWithModerator {
+export interface CommunityWithModerator {
+  _id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  image?: {
+    asset: {
+      _ref: string;
+    };
+    alt?: string;
+  };
+  moderator: {
     _id: string;
-    _type: "communityQuestion";
-    _createdAt: string;
-    _updatedAt: string;
-    _rev: string;
-    title?: string;
-    description?: string;
-    slug: string; // This comes from slug.current in the query
-    image?: CommunityQuestion['image'];
-    moderator: User; // This is the expanded user data
-    createdAt?: string;
+    username: string;
+    imageURL?: string;
+  };
+  createdAt: string;
 }
 
-// Generic wrapper for sanityFetch with proper typing
-async function typedSanityFetch<T>(query: string): Promise<T> {
-    const result = await sanityFetch({ query });
-    return result.data as T;
+const getCommunitiesQuery = defineQuery(`
+  *[_type == "communityQuestion" && (isDeleted == false || isDeleted == null)] | order(createdAt desc) {
+    _id,
+    title,
+    slug,
+    description,
+    image,
+    "moderator": moderator->{
+      _id,
+      username,
+      imageURL
+    },
+    createdAt
+  }
+`)
+
+// Generic wrapper for client.fetch with proper typing
+async function typedClientFetch<T>(query: string): Promise<T> {
+  return client.fetch<T>(query);
 }
 
 export async function getCommunities(): Promise<CommunityWithModerator[]> {
-    
-const getCommunitiesQuery = defineQuery(`*[_type == "communityQuestion"] {
-        ...,
-        title,
-        "slug": slug.current,
-        "moderator": moderator->,
-    }  | order(createdAt desc)`);
-
-    return typedSanityFetch<CommunityWithModerator[]>(getCommunitiesQuery);
+  return typedClientFetch<CommunityWithModerator[]>(getCommunitiesQuery);
 }
 

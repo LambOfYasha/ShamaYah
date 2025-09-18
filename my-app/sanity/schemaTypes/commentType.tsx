@@ -1,74 +1,105 @@
-import {defineField, defineType} from "sanity";
+import {defineField, defineType, ValidationRule} from "sanity";
 import { MessageSquare } from "lucide-react";
 
 export const commentType = defineType({
-    name: 'comment',
-    title: 'Comment',
-    type: 'document',
-    icon: MessageSquare,
-    fields: [
-        defineField({
-            name: 'content',
-            title: 'Content',
-            type: 'text',
-            description: 'The content of the comment',
-            validation: (Rule) => Rule.required().min(100),
-        }),
-        defineField({
-            name: 'author',
-            title: 'Author',
-            type: 'reference',
-            description: 'The author of the comment',
-            to: [{type: 'user'}, {type: 'teacher'}],
-            validation: (Rule) => Rule.required(),
-        }),
-        defineField({
-            name: 'post',
-            title: 'Post',
-            type: 'reference',
-            description: 'The post the comment belongs to',
-            to: [{type: 'post'}, {type: 'blog'}],
-            validation: (Rule) => Rule.required(),
-        }),
-        defineField({
-            name: 'parentComment',
-            title: 'Parent Comment',
-            type: 'reference',
-            description: 'The parent comment of the comment',
-            to: [{type: 'comment'}],
-        }),
-        defineField({
-            name: 'isReported',
-            title: 'Is Reported',
-            type: 'boolean',
-            description: 'Whether the comment has been reported',
-            initialValue: false,
-        }),
-        defineField({
-            name: 'isDeleted',
-            title: 'Is Deleted',
-            type: 'boolean',
-            description: 'Whether the comment has been deleted',
-            initialValue: false,
-        }),
-        defineField({
-            name: 'createdAt',
-            title: 'Created At',
-            type: 'datetime',
-            description: 'The date and time the comment was created',
-            initialValue: new Date().toISOString(),
-        }),
-    ],
-    preview: {
-        select: {
-            title: 'content',
-            subtitle: 'author.username',
-        },
-        prepare({title, subtitle}) {
-            return {
-                title,
-                subtitle,
-            }
-        }
+  name: 'comment',
+  title: 'Comment',
+  type: 'document',
+  icon: MessageSquare,
+  fields: [
+    defineField({
+      name: 'content',
+      title: 'Content',
+      type: 'text',
+      description: 'The comment content',
+      validation: (Rule: ValidationRule) => Rule.required().min(1).max(1000),
+    }),
+    defineField({
+      name: 'author',
+      title: 'Author',
+      type: 'reference',
+      to: [{type: 'user'}, {type: 'teacher'}],
+      description: 'The author of the comment',
+      validation: (Rule: ValidationRule) => Rule.required(),
+    }),
+    defineField({
+      name: 'post',
+      title: 'Post',
+      type: 'reference',
+      to: [{type: 'communityQuestion'}, {type: 'blog'}],
+      description: 'The post this comment belongs to',
+      validation: (Rule: ValidationRule) => Rule.required(),
+    }),
+    defineField({
+      name: 'postType',
+      title: 'Post Type',
+      type: 'string',
+      description: 'The type of post this comment belongs to',
+      options: {
+        list: [
+          {title: 'Community Question', value: 'community'},
+          {title: 'Blog Post', value: 'blog'},
+        ],
+        layout: 'radio'
+      },
+      validation: (Rule: ValidationRule) => Rule.required(),
+    }),
+    defineField({
+      name: 'parentComment',
+      title: 'Parent Comment',
+      type: 'reference',
+      to: [{type: 'comment'}],
+      description: 'The parent comment if this is a reply',
+    }),
+    defineField({
+      name: 'replies',
+      title: 'Replies',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'comment'}]}],
+      description: 'Child comments/replies to this comment',
+    }),
+    defineField({
+      name: 'likes',
+      title: 'Likes',
+      type: 'number',
+      description: 'Number of likes on this comment',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'likedBy',
+      title: 'Liked By',
+      type: 'array',
+      of: [{type: 'string'}],
+      description: 'Array of user IDs who liked this comment',
+    }),
+    defineField({
+      name: 'createdAt',
+      title: 'Created At',
+      type: 'datetime',
+      description: 'When the comment was created',
+      initialValue: new Date().toISOString(),
+      validation: (Rule: ValidationRule) => Rule.required(),
+    }),
+    defineField({
+      name: 'updatedAt',
+      title: 'Updated At',
+      type: 'datetime',
+      description: 'When the comment was last updated',
+    }),
+  ],
+  preview: {
+    select: {
+      title: 'content',
+      author: 'author.username',
+      post: 'post.title',
+      createdAt: 'createdAt',
+    },
+    prepare({title, author, post, createdAt}: {title?: string, author?: string, post?: string, createdAt?: string}) {
+      return {
+        title: title?.slice(0, 50) + (title && title.length > 50 ? '...' : ''),
+        subtitle: `${author || 'Unknown'} on ${post || 'Unknown post'} • ${createdAt ? new Date(createdAt).toLocaleDateString() : 'Unknown date'}`,
+        media: MessageSquare,
+      }
     }
-})
+  },
+});

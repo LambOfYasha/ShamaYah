@@ -5,7 +5,7 @@ import { createClient } from "next-sanity"
         projectId,
         dataset,
         apiVersion,
-        useCdn: true,
-        token: process.env.SANITY_API_ADMIN_TOKEN,
+        useCdn: false, // Set to false for admin operations
+        token: process.env.SANITY_ADMIN_API_TOKEN,
     })
 
