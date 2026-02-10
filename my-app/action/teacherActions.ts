@@ -389,6 +389,73 @@ export async function getTeacherSpecializations() {
   }
 }
 
+export interface CreateTeacherData {
+  username: string;
+  email: string;
+  role: 'teacher' | 'junior_teacher' | 'senior_teacher' | 'lead_teacher';
+  bio?: string;
+  youtubeChannelId?: string;
+  specializations?: string[];
+  qualifications?: string[];
+  experience?: number;
+  imageURL?: string;
+}
+
+export async function createTeacher(data: CreateTeacherData | Record<string, any>) {
+  try {
+    const { userId: currentUserId } = await auth();
+    if (!currentUserId) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const currentUser = await getUser();
+    if ('error' in currentUser || !['admin', 'lead_teacher', 'dev'].includes(currentUser.role)) {
+      return { success: false, error: 'Insufficient permissions' };
+    }
+
+    if (!data.username || !data.email || !data.role) {
+      return { success: false, error: 'Username, email, and role are required' };
+    }
+
+    // Check if a user with this email already exists
+    const existing = await adminClient.fetch(
+      `*[_type == "user" && email == $email && isDeleted != true][0]{ _id }`,
+      { email: data.email }
+    );
+
+    if (existing) {
+      return { success: false, error: 'A user with this email already exists' };
+    }
+
+    const doc = {
+      _type: 'user' as const,
+      username: data.username,
+      email: data.email,
+      role: data.role,
+      joinedAt: new Date().toISOString(),
+      isActive: true,
+      isReported: false,
+      isDeleted: false,
+      postCount: 0,
+      commentCount: 0,
+      reportCount: 0,
+      ...(data.bio && { bio: data.bio }),
+      ...(data.youtubeChannelId && { youtubeChannelId: data.youtubeChannelId }),
+      ...(data.specializations?.length && { specializations: data.specializations }),
+      ...(data.qualifications?.length && { qualifications: data.qualifications }),
+      ...(data.experience !== undefined && { experience: data.experience }),
+      ...(data.imageURL && { imageURL: data.imageURL }),
+    };
+
+    const created = await adminClient.create(doc);
+
+    return { success: true, message: 'Teacher created successfully', teacherId: created._id };
+  } catch (error) {
+    console.error('Error creating teacher:', error);
+    return { success: false, error: 'Failed to create teacher' };
+  }
+}
+
 export interface TeacherProfileUpdate {
   bio?: string;
   youtubeChannelId?: string;

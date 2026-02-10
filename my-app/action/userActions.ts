@@ -310,6 +310,67 @@ export async function getUserStats() {
   }
 }
 
+export interface CreateUserData {
+  username: string;
+  email: string;
+  role: string;
+  bio?: string;
+  imageURL?: string;
+  youtubeChannelId?: string;
+}
+
+export async function createUser(data: CreateUserData | Record<string, any>) {
+  try {
+    const { userId: currentUserId } = await auth();
+    if (!currentUserId) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const currentUser = await getUser();
+    if ('error' in currentUser || currentUser.role !== 'admin') {
+      return { success: false, error: 'Insufficient permissions' };
+    }
+
+    if (!data.username || !data.email || !data.role) {
+      return { success: false, error: 'Username, email, and role are required' };
+    }
+
+    // Check if a user with this email already exists
+    const existing = await adminClient.fetch(
+      `*[_type == "user" && email == $email && isDeleted != true][0]{ _id }`,
+      { email: data.email }
+    );
+
+    if (existing) {
+      return { success: false, error: 'A user with this email already exists' };
+    }
+
+    const doc = {
+      _type: 'user' as const,
+      username: data.username,
+      email: data.email,
+      role: data.role,
+      joinedAt: new Date().toISOString(),
+      isActive: true,
+      isReported: false,
+      isDeleted: false,
+      postCount: 0,
+      commentCount: 0,
+      reportCount: 0,
+      ...(data.bio && { bio: data.bio }),
+      ...(data.imageURL && { imageURL: data.imageURL }),
+      ...(data.youtubeChannelId && { youtubeChannelId: data.youtubeChannelId }),
+    };
+
+    const created = await adminClient.create(doc);
+
+    return { success: true, message: 'User created successfully', userId: created._id };
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return { success: false, error: 'Failed to create user' };
+  }
+}
+
 export interface UserProfileUpdate {
   bio?: string;
   youtubeChannelId?: string;

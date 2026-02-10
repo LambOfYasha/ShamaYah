@@ -94,9 +94,11 @@ export interface BaseFilters {
 export interface ProfileField {
   key: string;
   label: string;
-  type: 'text' | 'textarea' | 'number' | 'tags';
+  type: 'text' | 'textarea' | 'number' | 'tags' | 'select';
   placeholder?: string;
   description?: string;
+  required?: boolean;
+  options?: { value: string; label: string }[];
   /** Only show this field when this function returns true for the item */
   visibleWhen?: (item: any) => boolean;
 }
@@ -117,6 +119,8 @@ export interface ManagementConfig {
   deleteItem: (id: string) => Promise<any>;
   bulkUpdate: (ids: string[], updates: any) => Promise<any>;
   updateProfile?: (id: string, data: Record<string, any>) => Promise<any>;
+  createItem?: (data: Record<string, any>) => Promise<any>;
+  createFields?: ProfileField[];
 }
 
 interface SharedManagementProps {
@@ -149,6 +153,9 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileFormData, setProfileFormData] = useState<Record<string, any>>({});
   const [savingProfile, setSavingProfile] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [createFormData, setCreateFormData] = useState<Record<string, any>>({});
+  const [creatingItem, setCreatingItem] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -306,6 +313,51 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
         description: 'Failed to perform bulk action',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleCreateFieldChange = (key: string, value: any) => {
+    setCreateFormData(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleOpenCreateDialog = () => {
+    const initialData: Record<string, any> = {};
+    config.createFields?.forEach(field => {
+      if (field.type === 'tags') initialData[field.key] = [];
+      else if (field.type === 'number') initialData[field.key] = '';
+      else initialData[field.key] = '';
+    });
+    setCreateFormData(initialData);
+    setShowCreateDialog(true);
+  };
+
+  const handleCreateItem = async () => {
+    if (!config.createItem) return;
+
+    // Validate required fields
+    const missingFields = config.createFields
+      ?.filter(f => f.required && !createFormData[f.key])
+      ?.map(f => f.label);
+    if (missingFields && missingFields.length > 0) {
+      toast({ title: 'Validation Error', description: `Please fill in: ${missingFields.join(', ')}`, variant: 'destructive' });
+      return;
+    }
+
+    setCreatingItem(true);
+    try {
+      const result = await config.createItem(createFormData);
+      if (result.success) {
+        toast({ title: 'Success', description: result.message || `${config.title.slice(0, -1)} created successfully` });
+        setShowCreateDialog(false);
+        setCreateFormData({});
+        loadData();
+      } else {
+        toast({ title: 'Error', description: result.error || 'Failed to create', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to create', variant: 'destructive' });
+    } finally {
+      setCreatingItem(false);
     }
   };
 
@@ -479,6 +531,12 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
+              {config.createItem && config.createFields && (
+                <Button size="sm" onClick={handleOpenCreateDialog}>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add {config.title.slice(0, -1)}
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -881,6 +939,119 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Create Item Dialog */}
+      {config.createItem && config.createFields && (
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add New {config.title.slice(0, -1)}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {config.createFields.map(field => (
+                <div key={field.key} className="space-y-1">
+                  <Label htmlFor={`create-${field.key}`} className="text-sm font-medium">
+                    {field.label}
+                    {field.required && <span className="text-destructive ml-1">*</span>}
+                  </Label>
+                  {field.description && (
+                    <p className="text-xs text-muted-foreground">{field.description}</p>
+                  )}
+                  {field.type === 'text' && (
+                    <Input
+                      id={`create-${field.key}`}
+                      placeholder={field.placeholder}
+                      value={createFormData[field.key] || ''}
+                      onChange={(e) => handleCreateFieldChange(field.key, e.target.value)}
+                    />
+                  )}
+                  {field.type === 'textarea' && (
+                    <Textarea
+                      id={`create-${field.key}`}
+                      placeholder={field.placeholder}
+                      value={createFormData[field.key] || ''}
+                      onChange={(e) => handleCreateFieldChange(field.key, e.target.value)}
+                      rows={3}
+                    />
+                  )}
+                  {field.type === 'number' && (
+                    <Input
+                      id={`create-${field.key}`}
+                      type="number"
+                      placeholder={field.placeholder}
+                      value={createFormData[field.key] ?? ''}
+                      onChange={(e) => handleCreateFieldChange(field.key, e.target.value ? Number(e.target.value) : undefined)}
+                    />
+                  )}
+                  {field.type === 'select' && field.options && (
+                    <Select
+                      value={createFormData[field.key] || ''}
+                      onValueChange={(value) => handleCreateFieldChange(field.key, value)}
+                    >
+                      <SelectTrigger id={`create-${field.key}`}>
+                        <SelectValue placeholder={field.placeholder || `Select ${field.label.toLowerCase()}`} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {field.options.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  {field.type === 'tags' && (
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-1">
+                        {(createFormData[field.key] || []).map((tag: string, i: number) => (
+                          <Badge key={i} variant="secondary" className="gap-1">
+                            {tag}
+                            <button
+                              type="button"
+                              className="ml-1 text-xs hover:text-destructive"
+                              onClick={() => {
+                                const updated = [...(createFormData[field.key] || [])];
+                                updated.splice(i, 1);
+                                handleCreateFieldChange(field.key, updated);
+                              }}
+                            >
+                              &times;
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                      <Input
+                        placeholder={field.placeholder || 'Type and press Enter to add...'}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const val = (e.target as HTMLInputElement).value.trim();
+                            if (val) {
+                              handleCreateFieldChange(field.key, [...(createFormData[field.key] || []), val]);
+                              (e.target as HTMLInputElement).value = '';
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div className="flex gap-2 pt-2">
+                <Button onClick={handleCreateItem} disabled={creatingItem} className="flex-1">
+                  {creatingItem ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <UserPlus className="w-4 h-4 mr-2" />
+                  )}
+                  Create {config.title.slice(0, -1)}
+                </Button>
+                <Button variant="outline" onClick={() => setShowCreateDialog(false)} disabled={creatingItem}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

@@ -14,6 +14,7 @@ import {
   bulkUpdateTeachers,
   getTeacherSpecializations,
   updateTeacherProfile,
+  createTeacher,
   type TeacherData,
   type TeacherFilters
 } from '@/action/teacherActions';
@@ -166,12 +167,79 @@ export default function TeacherManagement({ initialTeachers = [] }: TeacherManag
         description: 'Number of years of teaching experience',
       },
     ],
+    createFields: [
+      {
+        key: 'username',
+        label: 'Username',
+        type: 'text' as const,
+        placeholder: 'Enter username',
+        required: true,
+      },
+      {
+        key: 'email',
+        label: 'Email',
+        type: 'text' as const,
+        placeholder: 'teacher@example.com',
+        required: true,
+      },
+      {
+        key: 'role',
+        label: 'Role',
+        type: 'select' as const,
+        placeholder: 'Select role',
+        required: true,
+        options: [
+          { value: 'teacher', label: 'Teacher' },
+          { value: 'junior_teacher', label: 'Junior Teacher' },
+          { value: 'senior_teacher', label: 'Senior Teacher' },
+          { value: 'lead_teacher', label: 'Lead Teacher' },
+        ],
+      },
+      {
+        key: 'bio',
+        label: 'Bio',
+        type: 'textarea' as const,
+        placeholder: 'Teacher biography...',
+      },
+      {
+        key: 'youtubeChannelId',
+        label: 'YouTube Channel ID',
+        type: 'text' as const,
+        placeholder: 'UCxxxxxxxxxxxxxxxxxxxxxxxx',
+        description: 'YouTube channel ID for the teacher\'s ministry channel',
+      },
+      {
+        key: 'specializations',
+        label: 'Specializations',
+        type: 'tags' as const,
+        placeholder: 'Type a specialization and press Enter...',
+      },
+      {
+        key: 'qualifications',
+        label: 'Qualifications',
+        type: 'tags' as const,
+        placeholder: 'Type a qualification and press Enter...',
+      },
+      {
+        key: 'experience',
+        label: 'Years of Experience',
+        type: 'number' as const,
+        placeholder: '0',
+      },
+      {
+        key: 'imageURL',
+        label: 'Profile Image URL',
+        type: 'text' as const,
+        placeholder: 'https://example.com/photo.jpg',
+      },
+    ],
     loadData: getAllTeachers,
     updateRole: updateTeacherRole,
     toggleStatus: toggleTeacherStatus,
     deleteItem: deleteTeacher,
     bulkUpdate: bulkUpdateTeachers,
-    updateProfile: updateTeacherProfile
+    updateProfile: updateTeacherProfile,
+    createItem: createTeacher,
   };
 
   return (

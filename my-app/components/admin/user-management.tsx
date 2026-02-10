@@ -9,6 +9,7 @@ import {
   getUserStats,
   bulkUpdateUsers,
   updateUserProfile,
+  createUser,
   type UserData,
   type UserFilters
 } from '@/action/userActions';
@@ -77,6 +78,50 @@ export default function UserManagement({ initialUsers = [] }: UserManagementProp
         visibleWhen: (item: any) => ['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(item.role),
       },
     ],
+    createFields: [
+      {
+        key: 'username',
+        label: 'Username',
+        type: 'text' as const,
+        placeholder: 'Enter username',
+        required: true,
+      },
+      {
+        key: 'email',
+        label: 'Email',
+        type: 'text' as const,
+        placeholder: 'user@example.com',
+        required: true,
+      },
+      {
+        key: 'role',
+        label: 'Role',
+        type: 'select' as const,
+        placeholder: 'Select role',
+        required: true,
+        options: [
+          { value: 'member', label: 'Member' },
+          { value: 'teacher', label: 'Teacher' },
+          { value: 'junior_teacher', label: 'Junior Teacher' },
+          { value: 'senior_teacher', label: 'Senior Teacher' },
+          { value: 'lead_teacher', label: 'Lead Teacher' },
+          { value: 'dev', label: 'Dev' },
+          { value: 'admin', label: 'Admin' },
+        ],
+      },
+      {
+        key: 'bio',
+        label: 'Bio',
+        type: 'textarea' as const,
+        placeholder: 'User biography...',
+      },
+      {
+        key: 'imageURL',
+        label: 'Profile Image URL',
+        type: 'text' as const,
+        placeholder: 'https://example.com/photo.jpg',
+      },
+    ],
     loadData: getAllUsers,
     updateRole: updateUserRole,
     toggleStatus: toggleUserStatus,
@@ -96,7 +141,8 @@ export default function UserManagement({ initialUsers = [] }: UserManagementProp
       return deleteUser(userId);
     },
     bulkUpdate: bulkUpdateUsers,
-    updateProfile: updateUserProfile
+    updateProfile: updateUserProfile,
+    createItem: createUser,
   };
 
   return (
