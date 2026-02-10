@@ -71,6 +71,7 @@ export default function AppSidebar() {
   const { isSignedIn } = useAuth();
   const { user } = useUser();
   const { state } = useSidebar();
+  const [mounted, setMounted] = React.useState(false);
   const [communities, setCommunities] = React.useState([]);
   const [blogs, setBlogs] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
@@ -78,6 +79,12 @@ export default function AppSidebar() {
   const [hasFetched, setHasFetched] = React.useState(false);
   const [hasFetchedBlogs, setHasFetchedBlogs] = React.useState(false);
   const [userRole, setUserRole] = React.useState<string | null>(null);
+
+  // Defer rendering of Radix UI components until after hydration to prevent
+  // aria-controls ID mismatches between server and client.
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch user role on client side
   React.useEffect(() => {
@@ -158,6 +165,28 @@ export default function AppSidebar() {
 
   // Check if user can create blogs (admin or teacher)
   const canCreateBlogs = userRole === "admin" || userRole === "teacher" || userRole === "junior_teacher" || userRole === "senior_teacher" || userRole === "lead_teacher";
+
+  // Render a lightweight skeleton during SSR / before hydration to avoid
+  // Radix aria-controls ID mismatches.
+  if (!mounted) {
+    return (
+      <>
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild>
+                <Link href="/" aria-label="Home">
+                  <Home className="h-6 w-6" />
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent />
+        <SidebarRail />
+      </>
+    );
+  }
   
   return (
     <>
