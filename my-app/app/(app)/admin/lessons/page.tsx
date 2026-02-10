@@ -22,6 +22,10 @@ import {
   X,
   Check,
   AlertTriangle,
+  ExternalLink,
+  RefreshCw,
+  Download,
+  CheckCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -42,7 +46,18 @@ import {
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type TabType = 'lessons' | 'categories';
+type TabType = 'lessons' | 'categories' | 'new_videos';
+
+interface YouTubeVideo {
+  videoId: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  channelTitle: string;
+  channelId: string;
+  publishedAt: string;
+  teacherUsername?: string;
+}
 
 interface TagOption {
   _id: string;
@@ -130,6 +145,12 @@ export default function AdminLessonsPage() {
   // Confirmations
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'lesson' | 'category'; id: string; title: string } | null>(null);
 
+  // New Videos (YouTube feed)
+  const [newVideos, setNewVideos] = useState<YouTubeVideo[]>([]);
+  const [videosLoading, setVideosLoading] = useState(false);
+  const [videosError, setVideosError] = useState<string | null>(null);
+  const [videosFetched, setVideosFetched] = useState(false);
+
   // ─── Data fetching ───────────────────────────────────────────────────────
 
   const fetchData = useCallback(async () => {
@@ -161,6 +182,65 @@ export default function AdminLessonsPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Fetch YouTube feed when New Videos tab is active
+  const fetchNewVideos = useCallback(async (force = false) => {
+    if (videosFetched && !force) return;
+    setVideosLoading(true);
+    setVideosError(null);
+    try {
+      const res = await fetch('/api/youtube-feed?limit=24');
+      if (!res.ok) throw new Error('Failed to fetch videos');
+      const data = await res.json();
+      setNewVideos(data.videos || []);
+      setVideosFetched(true);
+    } catch (err) {
+      console.error('Error fetching new videos:', err);
+      setVideosError('Unable to load new videos. Check that the YouTube API key is configured.');
+    } finally {
+      setVideosLoading(false);
+    }
+  }, [videosFetched]);
+
+  useEffect(() => {
+    if (activeTab === 'new_videos') {
+      fetchNewVideos();
+    }
+  }, [activeTab, fetchNewVideos]);
+
+  // Check if a YouTube video is already imported as a lesson
+  function isVideoImported(videoId: string): boolean {
+    return lessons.some(l => l.videoId === videoId);
+  }
+
+  // Quick-import: pre-fill the lesson form from a YouTube video
+  function importVideoAsLesson(video: YouTubeVideo) {
+    setLessonForm({
+      title: video.title
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'"),
+      description: video.description
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'"),
+      videoId: video.videoId,
+      categoryId: categories.length > 0 ? categories[0]._id : '',
+      tagIds: [],
+      content: '',
+      sortOrder: 0,
+      isPublished: true,
+    });
+    setEditingLesson(null);
+    setShowLessonForm(true);
+    setShowCategoryForm(false);
+    setActiveTab('lessons');
+    showMessage('success', `Pre-filled form with "${video.title.substring(0, 40)}...". Select a category and save.`);
+  }
 
   // ─── Message helper ──────────────────────────────────────────────────────
 
@@ -475,7 +555,7 @@ export default function AdminLessonsPage() {
 
         {/* Tab Navigation + Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant={activeTab === 'lessons' ? 'default' : 'outline'}
               onClick={() => setActiveTab('lessons')}
@@ -491,6 +571,14 @@ export default function AdminLessonsPage() {
             >
               <FolderOpen className="h-4 w-4" />
               Categories ({categories.length})
+            </Button>
+            <Button
+              variant={activeTab === 'new_videos' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('new_videos')}
+              className={`gap-2 ${activeTab === 'new_videos' ? 'bg-red-600 hover:bg-red-700' : ''}`}
+            >
+              <Video className="h-4 w-4" />
+              New Videos
             </Button>
           </div>
           <div className="flex gap-2">
@@ -510,6 +598,17 @@ export default function AdminLessonsPage() {
               <Button onClick={openCreateCategory} className="gap-2 bg-purple-600 hover:bg-purple-700">
                 <Plus className="h-4 w-4" />
                 New Category
+              </Button>
+            )}
+            {activeTab === 'new_videos' && (
+              <Button
+                variant="outline"
+                onClick={() => fetchNewVideos(true)}
+                disabled={videosLoading}
+                className="gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${videosLoading ? 'animate-spin' : ''}`} />
+                Refresh Feed
               </Button>
             )}
           </div>
@@ -903,6 +1002,127 @@ export default function AdminLessonsPage() {
                   </Card>
                 ))}
               </div>
+            )}
+          </>
+        )}
+
+        {/* ─── New Videos Tab ──────────────────────────────────────────── */}
+        {activeTab === 'new_videos' && (
+          <>
+            {videosLoading && (
+              <div className="flex flex-col items-center justify-center py-16">
+                <Loader2 className="h-10 w-10 text-red-600 animate-spin mb-4" />
+                <p className="text-muted-foreground">Loading latest videos from teacher channels...</p>
+              </div>
+            )}
+
+            {videosError && !videosLoading && (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <AlertTriangle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Could not load videos</h3>
+                  <p className="text-muted-foreground mb-4">{videosError}</p>
+                  <Button variant="outline" onClick={() => fetchNewVideos(true)} className="gap-2">
+                    <RefreshCw className="h-4 w-4" />
+                    Try Again
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {!videosLoading && !videosError && newVideos.length === 0 && videosFetched && (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Video className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No new videos available</h3>
+                  <p className="text-muted-foreground">
+                    Videos will appear here once teachers have YouTube channels configured.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {!videosLoading && !videosError && newVideos.length > 0 && (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Showing {newVideos.length} recent videos from teacher channels. Click &quot;Import as Lesson&quot; to quickly add a video to your lesson library.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {newVideos.map((video) => {
+                    const imported = isVideoImported(video.videoId);
+                    return (
+                      <Card key={video.videoId} className={`transition-all hover:shadow-md ${imported ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20' : ''}`}>
+                        <CardContent className="p-0">
+                          {/* Thumbnail */}
+                          <div className="relative w-full aspect-video bg-gray-100 dark:bg-gray-800">
+                            <img
+                              src={video.thumbnail || `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`}
+                              alt={video.title}
+                              className="w-full h-full object-cover"
+                            />
+                            {imported && (
+                              <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium bg-green-600 text-white flex items-center gap-1">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Imported
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="p-4">
+                            {/* Title */}
+                            <h3 className="font-semibold text-sm line-clamp-2 mb-1" title={video.title}>
+                              {video.title}
+                            </h3>
+
+                            {/* Channel + Date */}
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                              <span className="truncate">{video.channelTitle}{video.teacherUsername && ` (${video.teacherUsername})`}</span>
+                              <span className="flex-shrink-0">
+                                {new Date(video.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </span>
+                            </div>
+
+                            {/* Description */}
+                            {video.description && (
+                              <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{video.description}</p>
+                            )}
+
+                            {/* Actions */}
+                            <div className="flex gap-2">
+                              {imported ? (
+                                <Button variant="outline" size="sm" disabled className="gap-1 flex-1 text-green-700 dark:text-green-400 border-green-300 dark:border-green-700">
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                  Already Imported
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  onClick={() => importVideoAsLesson(video)}
+                                  className="gap-1 flex-1 bg-blue-600 hover:bg-blue-700"
+                                  disabled={categories.length === 0}
+                                  title={categories.length === 0 ? 'Create a category first' : 'Import as a new lesson'}
+                                >
+                                  <Download className="h-3.5 w-3.5" />
+                                  Import as Lesson
+                                </Button>
+                              )}
+                              <a
+                                href={`https://www.youtube.com/watch?v=${video.videoId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Button variant="outline" size="sm" className="gap-1">
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                </Button>
+                              </a>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </>
         )}
