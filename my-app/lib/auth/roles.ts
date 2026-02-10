@@ -27,8 +27,8 @@ export const ROLES = {
 export const ROLE_HIERARCHY: Record<UserRole, number> = {
   guest: 0,
   member: 1,
-  teacher: 2,
-  junior_teacher: 3,
+  junior_teacher: 2,
+  teacher: 3,
   moderator: 4,
   senior_teacher: 5,
   lead_teacher: 6,
@@ -71,21 +71,6 @@ export const ROLE_PERMISSIONS = {
     canCreatePosts: true,
     canComment: true,
     canCreateCommunities: true,
-    canModerate: false,
-    canManageUsers: false,
-    canManageTeachers: false,
-    canAccessAdminPanel: true,
-    canManageBlogs: true,
-    canDeleteMembers: false,
-    canGiveTeacherApprovals: false,
-    canDeleteOtherContent: false,
-    canEditOwnContent: true,
-    canDeleteOwnContent: true,
-  },
-  [ROLES.JUNIOR_TEACHER]: {
-    canCreatePosts: true,
-    canComment: true,
-    canCreateCommunities: true,
     canModerate: true,
     canManageUsers: false,
     canManageTeachers: false,
@@ -94,6 +79,21 @@ export const ROLE_PERMISSIONS = {
     canDeleteMembers: false,
     canGiveTeacherApprovals: false,
     canDeleteOtherContent: true,
+    canEditOwnContent: true,
+    canDeleteOwnContent: true,
+  },
+  [ROLES.JUNIOR_TEACHER]: {
+    canCreatePosts: true,
+    canComment: true,
+    canCreateCommunities: true,
+    canModerate: false,
+    canManageUsers: false,
+    canManageTeachers: false,
+    canAccessAdminPanel: true,
+    canManageBlogs: true,
+    canDeleteMembers: false,
+    canGiveTeacherApprovals: false,
+    canDeleteOtherContent: false,
     canEditOwnContent: true,
     canDeleteOwnContent: true,
   },
@@ -191,7 +191,7 @@ export function isAdmin(userRole: UserRole): boolean {
 }
 
 export function isModerator(userRole: UserRole): boolean {
-  return ['moderator', 'junior_teacher', 'senior_teacher', 'lead_teacher', 'dev', 'admin'].includes(userRole);
+  return ['moderator', 'teacher', 'senior_teacher', 'lead_teacher', 'dev', 'admin'].includes(userRole);
 }
 
 export function canEditOwnContent(userRole: UserRole): boolean {
