@@ -14,6 +14,7 @@ import {
   Flag,
   Tag,
   FlaskConical,
+  Video,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -137,6 +138,29 @@ export default async function AdminPage() {
                 <Button asChild className="w-full">
                   <Link href="/admin/blogs">
                     Manage Blogs
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </RoleGuard>
+
+          {/* Lesson Management - For all teachers and up */}
+          <RoleGuard permission="canAccessAdminPanel">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <Video className="h-5 w-5 text-rose-600" />
+                  <CardTitle>Lesson Management</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Manage video lessons, categories, and content
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/lessons">
+                    Manage Lessons
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
