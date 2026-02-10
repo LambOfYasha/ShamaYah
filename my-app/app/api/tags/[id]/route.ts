@@ -4,13 +4,14 @@ import { getCurrentUser } from '@/lib/auth/middleware';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getCurrentUser();
     
     // Check if user is admin
-    if (user.role !== 'admin') {
+    if (!user || user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -22,7 +23,7 @@ export async function PUT(
 
     // Update the tag
     const updatedTag = await adminClient
-      .patch(params.id)
+      .patch(id)
       .set({
         name,
         description: description || '',
@@ -39,22 +40,23 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getCurrentUser();
     
     // Check if user is admin
-    if (user.role !== 'admin') {
+    if (!user || user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Delete the tag
-    await adminClient.delete(params.id);
+    await adminClient.delete(id);
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting tag:', error);
     return NextResponse.json({ error: 'Failed to delete tag' }, { status: 500 });
   }
-} 
+}

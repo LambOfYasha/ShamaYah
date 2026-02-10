@@ -6,9 +6,10 @@ import { adminClient } from '@/sanity/lib/adminClient';
 // PUT - Update specialty
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -28,7 +29,7 @@ export async function PUT(
     // Check if specialty exists
     const existingSpecialty = await adminClient.fetch(`
       *[_type == "specialty" && _id == $id && isDeleted != true][0]
-    `, { id: params.id });
+    `, { id });
 
     if (!existingSpecialty) {
       return NextResponse.json({ error: 'Specialty not found' }, { status: 404 });
@@ -37,7 +38,7 @@ export async function PUT(
     // Check if name already exists (excluding current specialty)
     const duplicateSpecialty = await adminClient.fetch(`
       *[_type == "specialty" && name == $name && _id != $id && isDeleted != true][0]
-    `, { name: name.trim(), id: params.id });
+    `, { name: name.trim(), id });
 
     if (duplicateSpecialty) {
       return NextResponse.json({ error: 'Specialty with this name already exists' }, { status: 409 });
@@ -45,7 +46,7 @@ export async function PUT(
 
     // Update specialty
     const updatedSpecialty = await adminClient
-      .patch(params.id)
+      .patch(id)
       .set({
         name: name.trim(),
         description: description?.trim() || '',
@@ -64,9 +65,10 @@ export async function PUT(
 // PATCH - Update specialty status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -82,7 +84,7 @@ export async function PATCH(
     // Check if specialty exists
     const existingSpecialty = await adminClient.fetch(`
       *[_type == "specialty" && _id == $id && isDeleted != true][0]
-    `, { id: params.id });
+    `, { id });
 
     if (!existingSpecialty) {
       return NextResponse.json({ error: 'Specialty not found' }, { status: 404 });
@@ -90,7 +92,7 @@ export async function PATCH(
 
     // Update specialty status
     const updatedSpecialty = await adminClient
-      .patch(params.id)
+      .patch(id)
       .set({
         isActive: isActive,
         updatedAt: new Date().toISOString()
@@ -107,9 +109,10 @@ export async function PATCH(
 // DELETE - Delete specialty
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -123,7 +126,7 @@ export async function DELETE(
     // Check if specialty exists
     const existingSpecialty = await adminClient.fetch(`
       *[_type == "specialty" && _id == $id && isDeleted != true][0]
-    `, { id: params.id });
+    `, { id });
 
     if (!existingSpecialty) {
       return NextResponse.json({ error: 'Specialty not found' }, { status: 404 });
@@ -142,7 +145,7 @@ export async function DELETE(
 
     // Soft delete specialty
     const deletedSpecialty = await adminClient
-      .patch(params.id)
+      .patch(id)
       .set({
         isDeleted: true,
         deletedAt: new Date().toISOString(),

@@ -6,9 +6,10 @@ import { isAdmin, isModerator } from '@/lib/auth/roles';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUser();
     
     // Check for authentication error
@@ -29,7 +30,7 @@ export async function GET(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const communityId = params.id;
+    const communityId = id;
 
     const communityQuery = defineQuery(`
       *[_type == "communityQuestion" && _id == $communityId && (isDeleted == false || isDeleted == null)][0] {
@@ -94,9 +95,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUser();
     
     // Check for authentication error
@@ -117,7 +119,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const communityId = params.id;
+    const communityId = id;
     const body = await request.json();
     const { updates } = body;
 
@@ -147,9 +149,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUser();
     
     // Check for authentication error
@@ -170,7 +173,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const communityId = params.id;
+    const communityId = id;
 
     // Soft delete the community
     const deletedCommunity = await adminClient
