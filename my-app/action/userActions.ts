@@ -294,9 +294,10 @@ export async function getUserStats() {
       "activeUsers": count(*[_type == "user" && isDeleted != true && isActive == true]),
       "reportedUsers": count(*[_type == "user" && isDeleted != true && isReported == true]),
       "newUsersThisMonth": count(*[_type == "user" && isDeleted != true && _createdAt >= $startOfMonth]),
+      "teachers": count(*[_type == "user" && isDeleted != true && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"]]),
       "roleBreakdown": {
         "admins": count(*[_type == "user" && isDeleted != true && role == "admin"]),
-        "teachers": count(*[_type == "user" && isDeleted != true && role == "teacher"]),
+        "teachers": count(*[_type == "user" && isDeleted != true && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"]]),
         "members": count(*[_type == "user" && isDeleted != true && role == "member"])
       }
     }`, {

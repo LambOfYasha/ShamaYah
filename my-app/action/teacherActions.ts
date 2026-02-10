@@ -320,24 +320,20 @@ export async function getTeacherStats() {
       return { success: false, error: 'Insufficient permissions' };
     }
 
-    const stats = await adminClient.fetch(`
-      {
-        "totalTeachers": count(*[_type == "user" && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"]]),
-        "activeTeachers": count(*[_type == "user" && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"] && isActive == true]),
-        "reportedTeachers": count(*[_type == "user" && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"] && isReported == true]),
-        "newTeachersThisMonth": count(*[_type == "user" && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"] && _createdAt >= "${new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()}"])
-      }
-    `);
-
-    // Get role breakdown
-    const roleBreakdown = await adminClient.fetch(`
-      {
+    const stats = await adminClient.fetch(`{
+      "totalTeachers": count(*[_type == "user" && isDeleted != true && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"]]),
+      "activeTeachers": count(*[_type == "user" && isDeleted != true && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"] && isActive == true]),
+      "reportedTeachers": count(*[_type == "user" && isDeleted != true && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"] && isReported == true]),
+      "newTeachersThisMonth": count(*[_type == "user" && isDeleted != true && role in ["teacher", "junior_teacher", "senior_teacher", "lead_teacher"] && _createdAt >= $startOfMonth]),
+      "roleBreakdown": {
         "leadTeachers": count(*[_type == "user" && role == "lead_teacher" && isDeleted != true]),
         "seniorTeachers": count(*[_type == "user" && role == "senior_teacher" && isDeleted != true]),
         "juniorTeachers": count(*[_type == "user" && role == "junior_teacher" && isDeleted != true]),
         "regularTeachers": count(*[_type == "user" && role == "teacher" && isDeleted != true])
       }
-    `);
+    }`, {
+      startOfMonth: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+    });
 
     return { 
       success: true, 
@@ -347,10 +343,10 @@ export async function getTeacherStats() {
         reportedTeachers: stats.reportedTeachers || 0,
         newTeachersThisMonth: stats.newTeachersThisMonth || 0,
         roleBreakdown: {
-          leadTeachers: roleBreakdown.leadTeachers || 0,
-          seniorTeachers: roleBreakdown.seniorTeachers || 0,
-          juniorTeachers: roleBreakdown.juniorTeachers || 0,
-          regularTeachers: roleBreakdown.regularTeachers || 0
+          leadTeachers: stats.roleBreakdown?.leadTeachers || 0,
+          seniorTeachers: stats.roleBreakdown?.seniorTeachers || 0,
+          juniorTeachers: stats.roleBreakdown?.juniorTeachers || 0,
+          regularTeachers: stats.roleBreakdown?.regularTeachers || 0
         }
       }
     };
