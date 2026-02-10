@@ -40,7 +40,7 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
     setIsLoading(true);
     try {
       const storageKey = `notifications_${user.id}`;
-      const storedNotifications = localStorage.getItem(storageKey);
+      const storedNotifications = typeof window !== 'undefined' ? window.localStorage.getItem(storageKey) : null;
       
       if (storedNotifications) {
         // Load existing notifications from localStorage
@@ -69,7 +69,7 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
         ];
         
         setNotifications(mockNotifications);
-        localStorage.setItem(storageKey, JSON.stringify(mockNotifications));
+        if (typeof window !== 'undefined') window.localStorage.setItem(storageKey, JSON.stringify(mockNotifications));
       }
     } catch (error) {
       console.error('Error loading notifications:', error);
@@ -82,7 +82,7 @@ export default function SimpleNotificationIcon({ userId }: NotificationIconProps
   const saveNotifications = (newNotifications: Notification[]) => {
     if (user) {
       const storageKey = `notifications_${user.id}`;
-      localStorage.setItem(storageKey, JSON.stringify(newNotifications));
+      if (typeof window !== 'undefined') window.localStorage.setItem(storageKey, JSON.stringify(newNotifications));
     }
   };
 

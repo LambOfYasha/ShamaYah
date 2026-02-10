@@ -412,6 +412,13 @@ export const userType = defineType({
       initialValue: 0,
       hidden: ({document}) => !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(document?.role),
     }),
+    defineField({
+      name: 'youtubeChannelId',
+      title: 'YouTube Channel ID',
+      type: 'string',
+      description: 'The YouTube channel ID for the teacher\'s ministry channel (e.g. UCxxxxxxxxxxxxxxxxxxxxxxxx). Used to fetch new videos.',
+      hidden: ({document}) => !['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(document?.role),
+    }),
   ],
   preview: {
     select: {

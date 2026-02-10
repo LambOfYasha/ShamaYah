@@ -11,7 +11,11 @@ import {
   ArrowRight,
   LayoutDashboard,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Video,
+  PlayCircle,
+  ExternalLink,
+  Loader2
 } from "lucide-react";
 import Image from "next/image";
 import GuestCreateCommunityButton from "@/components/community/GuestCreateCommunityButton";
@@ -30,6 +34,17 @@ interface SiteStats {
   totalMembers: number;
 }
 
+interface YouTubeVideo {
+  videoId: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  channelTitle: string;
+  channelId: string;
+  publishedAt: string;
+  teacherUsername?: string;
+}
+
 export default function HomePage() {
   const { isSignedIn, isLoaded } = useUser();
   const { isCompactMode } = useCompactMode();
@@ -42,6 +57,27 @@ export default function HomePage() {
     totalMembers: 0
   });
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [newVideos, setNewVideos] = useState<YouTubeVideo[]>([]);
+  const [videosLoading, setVideosLoading] = useState(true);
+
+  // Fetch new videos from teacher YouTube channels
+  useEffect(() => {
+    const fetchNewVideos = async () => {
+      try {
+        const res = await fetch('/api/youtube-feed?limit=6');
+        if (res.ok) {
+          const data = await res.json();
+          setNewVideos(data.videos || []);
+        }
+      } catch (error) {
+        console.error('Error fetching new videos:', error);
+      } finally {
+        setVideosLoading(false);
+      }
+    };
+
+    fetchNewVideos();
+  }, []);
 
   // Fetch verse of the day
   useEffect(() => {
@@ -233,6 +269,96 @@ export default function HomePage() {
               />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* New Videos Section */}
+      <section className={`${isCompactMode ? 'py-8 sm:py-16' : 'py-12 sm:py-20'} bg-background`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`text-center ${isCompactMode ? 'mb-6 sm:mb-10' : 'mb-8 sm:mb-12'}`}>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Video className={`${isCompactMode ? 'h-6 w-6' : 'h-8 w-8'} text-red-600`} />
+              <h2 className={`${isCompactMode ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold`}>
+                New Videos
+              </h2>
+            </div>
+            <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-muted-foreground`}>
+              Latest uploads from our teachers&apos; ministry channels
+            </p>
+          </div>
+
+          {videosLoading && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 text-red-600 animate-spin mb-3" />
+              <p className="text-muted-foreground">Loading new videos...</p>
+            </div>
+          )}
+
+          {!videosLoading && newVideos.length === 0 && (
+            <div className="text-center py-8">
+              <Video className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">New videos from our teachers will appear here soon.</p>
+            </div>
+          )}
+
+          {!videosLoading && newVideos.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                {newVideos.map((video) => (
+                  <Card key={video.videoId} className="group hover:shadow-lg transition-all duration-300 border-0 bg-card">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start gap-3">
+                        <PlayCircle className={`${isCompactMode ? 'h-5 w-5' : 'h-6 w-6'} text-red-600 mt-1 flex-shrink-0`} />
+                        <div className="min-w-0">
+                          <CardTitle className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} line-clamp-2 group-hover:text-red-600 transition-colors`}>
+                            {video.title}
+                          </CardTitle>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`${isCompactMode ? 'text-xs' : 'text-xs sm:text-sm'} text-muted-foreground`}>
+                              {video.channelTitle}
+                              {video.teacherUsername && ` \u2022 ${video.teacherUsername}`}
+                            </span>
+                          </div>
+                          <span className={`${isCompactMode ? 'text-xs' : 'text-xs sm:text-sm'} text-muted-foreground`}>
+                            {new Date(video.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${video.videoId}`}
+                          title={video.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="absolute inset-0 w-full h-full"
+                        />
+                      </div>
+                      <a
+                        href={`https://www.youtube.com/channel/${video.channelId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`inline-flex items-center gap-1 mt-3 ${isCompactMode ? 'text-xs' : 'text-xs sm:text-sm'} text-red-600 hover:text-red-700 transition-colors`}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Visit Channel
+                      </a>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="text-center mt-8">
+                <Button asChild variant="outline" size="lg">
+                  <Link href="/lessons">
+                    View All Lessons
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </section>
 

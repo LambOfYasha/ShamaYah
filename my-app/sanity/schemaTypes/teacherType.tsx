@@ -72,6 +72,12 @@ export const teacherType = defineType({
       description: 'Whether this teacher has been reported',
       initialValue: false,
     }),
+    defineField({
+      name: 'youtubeChannelId',
+      title: 'YouTube Channel ID',
+      type: 'string',
+      description: 'The YouTube channel ID for the teacher\'s ministry channel (e.g. UCxxxxxxxxxxxxxxxxxxxxxxxx). Used to fetch new videos.',
+    }),
   ],
   preview: {
     select: {

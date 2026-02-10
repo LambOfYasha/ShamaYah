@@ -18,6 +18,8 @@ export interface UserData {
   commentCount: number;
   reportCount: number;
   imageURL?: string;
+  bio?: string;
+  youtubeChannelId?: string;
 }
 
 export interface UserFilters {
@@ -87,7 +89,9 @@ export async function getAllUsers(filters: UserFilters = {}) {
       postCount,
       commentCount,
       reportCount,
-      imageURL
+      imageURL,
+      bio,
+      youtubeChannelId
     }`;
 
     const users = await adminClient.fetch(query);
@@ -303,6 +307,58 @@ export async function getUserStats() {
   } catch (error) {
     console.error('Error fetching user stats:', error);
     return { success: false, error: 'Failed to fetch user stats' };
+  }
+}
+
+export interface UserProfileUpdate {
+  bio?: string;
+  youtubeChannelId?: string;
+}
+
+export async function updateUserProfile(userId: string, profileData: UserProfileUpdate) {
+  try {
+    const { userId: currentUserId } = await auth();
+    if (!currentUserId) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const currentUser = await getUser();
+    if ('error' in currentUser || currentUser.role !== 'admin') {
+      return { success: false, error: 'Insufficient permissions' };
+    }
+
+    // Validate the user exists
+    const targetUser = await adminClient.fetch(
+      `*[_type == "user" && _id == $userId && isDeleted != true][0]{ _id, role }`,
+      { userId }
+    );
+
+    if (!targetUser) {
+      return { success: false, error: 'User not found' };
+    }
+
+    // Build the update object with only allowed fields
+    const allowedUpdates: Record<string, unknown> = {};
+    if (profileData.bio !== undefined) allowedUpdates.bio = profileData.bio;
+    // Only allow youtubeChannelId for teacher roles
+    if (profileData.youtubeChannelId !== undefined && 
+        ['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(targetUser.role)) {
+      allowedUpdates.youtubeChannelId = profileData.youtubeChannelId;
+    }
+
+    if (Object.keys(allowedUpdates).length === 0) {
+      return { success: false, error: 'No valid fields to update' };
+    }
+
+    await adminClient
+      .patch(userId)
+      .set(allowedUpdates)
+      .commit();
+
+    return { success: true, message: 'User profile updated successfully' };
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    return { success: false, error: 'Failed to update user profile' };
   }
 }
 

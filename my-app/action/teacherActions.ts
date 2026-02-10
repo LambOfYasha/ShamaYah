@@ -25,6 +25,7 @@ export interface TeacherData {
   rating?: number;
   totalStudents?: number;
   coursesCreated?: number;
+  youtubeChannelId?: string;
 }
 
 export interface TeacherFilters {
@@ -106,7 +107,8 @@ export async function getAllTeachers(filters: TeacherFilters = {}) {
       experience,
       rating,
       totalStudents,
-      coursesCreated
+      coursesCreated,
+      youtubeChannelId
     }`;
 
     const teachers = await adminClient.fetch(query);
@@ -181,6 +183,7 @@ export async function getTeacherById(teacherId: string) {
       rating,
       totalStudents,
       coursesCreated,
+      youtubeChannelId,
       preferences
     }`, { teacherId });
 
@@ -383,6 +386,58 @@ export async function getTeacherSpecializations() {
   } catch (error) {
     console.error('Error fetching teacher specializations:', error);
     return { success: false, error: 'Failed to fetch specializations' };
+  }
+}
+
+export interface TeacherProfileUpdate {
+  bio?: string;
+  youtubeChannelId?: string;
+  qualifications?: string[];
+  experience?: number;
+}
+
+export async function updateTeacherProfile(teacherId: string, profileData: TeacherProfileUpdate) {
+  try {
+    const { userId: currentUserId } = await auth();
+    if (!currentUserId) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const currentUser = await getUser();
+    if ('error' in currentUser || !['admin', 'lead_teacher', 'dev'].includes(currentUser.role)) {
+      return { success: false, error: 'Insufficient permissions' };
+    }
+
+    // Validate the teacher exists and is actually a teacher
+    const teacher = await adminClient.fetch(
+      `*[_type == "user" && _id == $teacherId && (role == "teacher" || role == "junior_teacher" || role == "senior_teacher" || role == "lead_teacher") && isDeleted != true][0]{ _id }`,
+      { teacherId }
+    );
+
+    if (!teacher) {
+      return { success: false, error: 'Teacher not found' };
+    }
+
+    // Build the update object with only allowed fields
+    const allowedUpdates: Record<string, unknown> = {};
+    if (profileData.bio !== undefined) allowedUpdates.bio = profileData.bio;
+    if (profileData.youtubeChannelId !== undefined) allowedUpdates.youtubeChannelId = profileData.youtubeChannelId;
+    if (profileData.qualifications !== undefined) allowedUpdates.qualifications = profileData.qualifications;
+    if (profileData.experience !== undefined) allowedUpdates.experience = profileData.experience;
+
+    if (Object.keys(allowedUpdates).length === 0) {
+      return { success: false, error: 'No valid fields to update' };
+    }
+
+    await adminClient
+      .patch(teacherId)
+      .set(allowedUpdates)
+      .commit();
+
+    return { success: true, message: 'Teacher profile updated successfully' };
+  } catch (error) {
+    console.error('Error updating teacher profile:', error);
+    return { success: false, error: 'Failed to update teacher profile' };
   }
 }
 

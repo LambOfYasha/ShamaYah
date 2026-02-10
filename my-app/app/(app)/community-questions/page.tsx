@@ -76,9 +76,7 @@ export default async function CommunityQuestionsPage() {
               <p className="text-sm sm:text-base text-gray-600">Join discussions and ask questions to the community</p>
             </div>
             <div className="flex items-center gap-2">
-              {user && (user.role === "admin" || user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher") && (
-                <CreateCommunityButton />
-              )}
+              <CreateCommunityButton />
             </div>
           </div>
         </div>
@@ -469,9 +467,7 @@ export default async function CommunityQuestionsPage() {
                 <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
                   Be the first to start a community discussion
                 </p>
-                {user && (user.role === "admin" || user.role === "teacher" || user.role === "junior_teacher" || user.role === "senior_teacher" || user.role === "lead_teacher") && (
-                  <CreateCommunityButton />
-                )}
+                <CreateCommunityButton />
               </div>
             </CardContent>
           </Card>

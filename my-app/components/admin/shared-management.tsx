@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -55,7 +57,10 @@ import {
   RefreshCw,
   GraduationCap,
   Star,
-  User
+  User,
+  Save,
+  Loader2,
+  Pencil
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getImageUrl } from '@/lib/utils';
@@ -86,6 +91,16 @@ export interface BaseFilters {
   limit?: number;
 }
 
+export interface ProfileField {
+  key: string;
+  label: string;
+  type: 'text' | 'textarea' | 'number' | 'tags';
+  placeholder?: string;
+  description?: string;
+  /** Only show this field when this function returns true for the item */
+  visibleWhen?: (item: any) => boolean;
+}
+
 export interface ManagementConfig {
   title: string;
   icon: React.ComponentType<any>;
@@ -93,6 +108,7 @@ export interface ManagementConfig {
   roles: { value: string; label: string }[];
   additionalFilters?: { key: string; label: string; options: { value: string; label: string }[] }[];
   additionalColumns?: { key: string; label: string; render: (item: any) => React.ReactNode }[];
+  profileFields?: ProfileField[];
   getRoleBadgeVariant: (role: string) => string;
   getStatusBadgeVariant: (item: any) => string;
   loadData: (filters: any) => Promise<any>;
@@ -100,6 +116,7 @@ export interface ManagementConfig {
   toggleStatus: (id: string, active: boolean) => Promise<any>;
   deleteItem: (id: string) => Promise<any>;
   bulkUpdate: (ids: string[], updates: any) => Promise<any>;
+  updateProfile?: (id: string, data: Record<string, any>) => Promise<any>;
 }
 
 interface SharedManagementProps {
@@ -129,6 +146,9 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showItemDialog, setShowItemDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileFormData, setProfileFormData] = useState<Record<string, any>>({});
+  const [savingProfile, setSavingProfile] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -286,6 +306,41 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
         description: 'Failed to perform bulk action',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleOpenDetails = (item: any) => {
+    setEditingItem(item);
+    setShowItemDialog(true);
+    setIsEditingProfile(false);
+    // Initialize form data from item
+    const initialData: Record<string, any> = {};
+    config.profileFields?.forEach(field => {
+      initialData[field.key] = item[field.key] ?? (field.type === 'tags' ? [] : field.type === 'number' ? 0 : '');
+    });
+    setProfileFormData(initialData);
+  };
+
+  const handleProfileFieldChange = (key: string, value: any) => {
+    setProfileFormData(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveProfile = async () => {
+    if (!editingItem || !config.updateProfile) return;
+    setSavingProfile(true);
+    try {
+      const result = await config.updateProfile(editingItem._id, profileFormData);
+      if (result.success) {
+        toast({ title: 'Success', description: result.message || 'Profile updated successfully' });
+        setIsEditingProfile(false);
+        loadData();
+      } else {
+        toast({ title: 'Error', description: result.error || 'Failed to update profile', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to update profile', variant: 'destructive' });
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -530,10 +585,7 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => {
-                              setEditingItem(item);
-                              setShowItemDialog(true);
-                            }}
+                            onClick={() => handleOpenDetails(item)}
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -620,10 +672,18 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
       </Card>
 
       {/* Item Details Dialog */}
-      <Dialog open={showItemDialog} onOpenChange={setShowItemDialog}>
-        <DialogContent className="max-w-2xl">
+      <Dialog open={showItemDialog} onOpenChange={(open) => { setShowItemDialog(open); if (!open) setIsEditingProfile(false); }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{config.title.slice(0, -1)} Details</DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle>{config.title.slice(0, -1)} Details</DialogTitle>
+              {config.updateProfile && config.profileFields && config.profileFields.length > 0 && !isEditingProfile && (
+                <Button size="sm" variant="outline" onClick={() => setIsEditingProfile(true)}>
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Button>
+              )}
+            </div>
           </DialogHeader>
           {editingItem && (
             <div className="space-y-4">
@@ -689,10 +749,138 @@ export default function SharedManagement({ config, initialData = [] }: SharedMan
                   <div className="text-sm text-gray-600">Reports</div>
                 </div>
               </div>
+
+              {/* Editable Profile Section */}
+              {config.profileFields && config.profileFields.length > 0 && (
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <Edit className="w-4 h-4" />
+                    Profile Sections
+                  </h3>
+                  {isEditingProfile ? (
+                    <div className="space-y-4">
+                      {config.profileFields
+                        .filter(field => !field.visibleWhen || field.visibleWhen(editingItem))
+                        .map(field => (
+                          <div key={field.key} className="space-y-1">
+                            <Label htmlFor={`profile-${field.key}`} className="text-sm font-medium">
+                              {field.label}
+                            </Label>
+                            {field.description && (
+                              <p className="text-xs text-muted-foreground">{field.description}</p>
+                            )}
+                            {field.type === 'text' && (
+                              <Input
+                                id={`profile-${field.key}`}
+                                placeholder={field.placeholder}
+                                value={profileFormData[field.key] || ''}
+                                onChange={(e) => handleProfileFieldChange(field.key, e.target.value)}
+                              />
+                            )}
+                            {field.type === 'textarea' && (
+                              <Textarea
+                                id={`profile-${field.key}`}
+                                placeholder={field.placeholder}
+                                value={profileFormData[field.key] || ''}
+                                onChange={(e) => handleProfileFieldChange(field.key, e.target.value)}
+                                rows={3}
+                              />
+                            )}
+                            {field.type === 'number' && (
+                              <Input
+                                id={`profile-${field.key}`}
+                                type="number"
+                                placeholder={field.placeholder}
+                                value={profileFormData[field.key] ?? ''}
+                                onChange={(e) => handleProfileFieldChange(field.key, e.target.value ? Number(e.target.value) : undefined)}
+                              />
+                            )}
+                            {field.type === 'tags' && (
+                              <div className="space-y-2">
+                                <div className="flex flex-wrap gap-1">
+                                  {(profileFormData[field.key] || []).map((tag: string, i: number) => (
+                                    <Badge key={i} variant="secondary" className="gap-1">
+                                      {tag}
+                                      <button
+                                        type="button"
+                                        className="ml-1 text-xs hover:text-destructive"
+                                        onClick={() => {
+                                          const updated = [...(profileFormData[field.key] || [])];
+                                          updated.splice(i, 1);
+                                          handleProfileFieldChange(field.key, updated);
+                                        }}
+                                      >
+                                        ×
+                                      </button>
+                                    </Badge>
+                                  ))}
+                                </div>
+                                <Input
+                                  placeholder={field.placeholder || 'Type and press Enter to add...'}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      const val = (e.target as HTMLInputElement).value.trim();
+                                      if (val) {
+                                        handleProfileFieldChange(field.key, [...(profileFormData[field.key] || []), val]);
+                                        (e.target as HTMLInputElement).value = '';
+                                      }
+                                    }
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      <div className="flex gap-2 pt-2">
+                        <Button size="sm" onClick={handleSaveProfile} disabled={savingProfile}>
+                          {savingProfile ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Save className="w-4 h-4 mr-2" />
+                          )}
+                          Save Changes
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setIsEditingProfile(false)} disabled={savingProfile}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {config.profileFields
+                        .filter(field => !field.visibleWhen || field.visibleWhen(editingItem))
+                        .map(field => (
+                          <div key={field.key}>
+                            <label className="text-sm font-medium text-muted-foreground">{field.label}</label>
+                            {field.description && (
+                              <p className="text-xs text-muted-foreground">{field.description}</p>
+                            )}
+                            {field.type === 'tags' ? (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {(editingItem[field.key] || []).length > 0 ? (
+                                  (editingItem[field.key] || []).map((tag: string, i: number) => (
+                                    <Badge key={i} variant="outline">{tag}</Badge>
+                                  ))
+                                ) : (
+                                  <span className="text-sm text-muted-foreground italic">Not set</span>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="text-sm mt-1">
+                                {editingItem[field.key] || <span className="text-muted-foreground italic">Not set</span>}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
       </Dialog>
     </div>
   );
-} 
+}

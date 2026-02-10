@@ -102,7 +102,8 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Apply default theme if settings are not loaded yet
     if (!settings) {
-      const savedTheme = localStorage.getItem('theme') || 'light';
+      if (typeof window === 'undefined') return;
+      const savedTheme = window.localStorage.getItem('theme') || 'light';
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
@@ -153,7 +154,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       root.setAttribute('data-theme', appliedTheme);
       
       // Save to localStorage for immediate application on next load
-      localStorage.setItem('theme', appliedTheme);
+      if (typeof window !== 'undefined') window.localStorage.setItem('theme', appliedTheme);
       
       // Debug logging
       console.log('Theme applied:', appliedTheme, 'Classes:', root.className);

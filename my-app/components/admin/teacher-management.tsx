@@ -13,6 +13,7 @@ import {
   getTeacherStats,
   bulkUpdateTeachers,
   getTeacherSpecializations,
+  updateTeacherProfile,
   type TeacherData,
   type TeacherFilters
 } from '@/action/teacherActions';
@@ -135,11 +136,42 @@ export default function TeacherManagement({ initialTeachers = [] }: TeacherManag
       if (!teacher.isActive) return 'secondary';
       return 'default';
     },
+    profileFields: [
+      {
+        key: 'bio',
+        label: 'Bio',
+        type: 'textarea' as const,
+        placeholder: 'Teacher biography...',
+        description: 'A short biography displayed on the teacher\'s profile',
+      },
+      {
+        key: 'youtubeChannelId',
+        label: 'YouTube Channel ID',
+        type: 'text' as const,
+        placeholder: 'UCxxxxxxxxxxxxxxxxxxxxxxxx',
+        description: 'The YouTube channel ID for the teacher\'s ministry channel (used in New Videos feed)',
+      },
+      {
+        key: 'qualifications',
+        label: 'Qualifications',
+        type: 'tags' as const,
+        placeholder: 'Type a qualification and press Enter...',
+        description: 'Teaching qualifications and certifications',
+      },
+      {
+        key: 'experience',
+        label: 'Years of Experience',
+        type: 'number' as const,
+        placeholder: '0',
+        description: 'Number of years of teaching experience',
+      },
+    ],
     loadData: getAllTeachers,
     updateRole: updateTeacherRole,
     toggleStatus: toggleTeacherStatus,
     deleteItem: deleteTeacher,
-    bulkUpdate: bulkUpdateTeachers
+    bulkUpdate: bulkUpdateTeachers,
+    updateProfile: updateTeacherProfile
   };
 
   return (

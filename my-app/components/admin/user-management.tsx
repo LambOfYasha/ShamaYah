@@ -8,6 +8,7 @@ import {
   deleteUser, 
   getUserStats,
   bulkUpdateUsers,
+  updateUserProfile,
   type UserData,
   type UserFilters
 } from '@/action/userActions';
@@ -59,6 +60,23 @@ export default function UserManagement({ initialUsers = [] }: UserManagementProp
       if (!user.isActive) return 'secondary';
       return 'default';
     },
+    profileFields: [
+      {
+        key: 'bio',
+        label: 'Bio',
+        type: 'textarea' as const,
+        placeholder: 'User biography...',
+        description: 'A short biography displayed on the user\'s profile',
+      },
+      {
+        key: 'youtubeChannelId',
+        label: 'YouTube Channel ID',
+        type: 'text' as const,
+        placeholder: 'UCxxxxxxxxxxxxxxxxxxxxxxxx',
+        description: 'The YouTube channel ID for ministry channel (only applicable for teachers)',
+        visibleWhen: (item: any) => ['teacher', 'junior_teacher', 'senior_teacher', 'lead_teacher'].includes(item.role),
+      },
+    ],
     loadData: getAllUsers,
     updateRole: updateUserRole,
     toggleStatus: toggleUserStatus,
@@ -77,7 +95,8 @@ export default function UserManagement({ initialUsers = [] }: UserManagementProp
       
       return deleteUser(userId);
     },
-    bulkUpdate: bulkUpdateUsers
+    bulkUpdate: bulkUpdateUsers,
+    updateProfile: updateUserProfile
   };
 
   return (
