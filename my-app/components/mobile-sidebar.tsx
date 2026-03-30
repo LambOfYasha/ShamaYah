@@ -1,13 +1,35 @@
 "use client"
 
 import * as React from "react"
-import { Menu, X } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import AppSidebar from "./app-sidebar"
 
 export function MobileSidebar() {
   const [open, setOpen] = React.useState(false)
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Delay the Radix Sheet until after hydration so its generated dialog
+  // attributes do not differ between the server HTML and the first client render.
+  if (!mounted) {
+    return (
+      <Button
+        type="button"
+        variant="ghost"
+        className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 lg:hidden"
+        disabled
+        aria-hidden="true"
+      >
+        <Menu className="h-6 w-6" />
+        <span className="sr-only">Toggle Menu</span>
+      </Button>
+    )
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

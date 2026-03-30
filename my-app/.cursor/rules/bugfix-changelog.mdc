@@ -1,0 +1,13 @@
+---
+description: Require changelog updates whenever a bug fix is made
+globs: **/*.{ts,tsx,js,jsx,md}
+alwaysApply: true
+---
+## Bug fix changelog rule
+
+- Whenever you change code to fix a bug, regression, hydration issue, runtime error, or broken behavior, also update `README.md`.
+- Add or update a `## Changelog` section if it does not already exist.
+- Add a timestamped entry for the fix.
+- State what was fixed, the root cause, and why the change resolves the issue.
+- Keep changelog entries concise and factual.
+- Do not skip the changelog update for small fixes.
