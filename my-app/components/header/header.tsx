@@ -1,11 +1,13 @@
 "use client"
 
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs"
+import { useEffect, useState } from "react"
 import { Button } from "../ui/button"
 import { ChevronLeftIcon, MenuIcon, Shield, Users, UserCheck, BookOpen } from "lucide-react"
 import { useSidebar } from "../ui/sidebar"
 import { RoleGuard } from "../auth/RoleGuard"
 import Link from "next/link"
+
 import { MobileSidebar } from "../mobile-sidebar"
 
 // Use the simple notification icon for now
@@ -13,7 +15,12 @@ import NotificationIcon from "./simple-notification-icon";
 
 function Header() {
     const {user} = useUser()
-    const {toggleSidebar, open, isMobile} = useSidebar()
+    const {toggleSidebar, open} = useSidebar()
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
   return (
 <header className="flex items-center justify-between p-3 sm:p-4 border-b relative z-50 bg-background">
@@ -51,45 +58,53 @@ function Header() {
                 <span className="hidden sm:inline">Lessons</span>
             </Link>
         </Button>
-        
-        <SignedIn>
-            {/* Members Link - hidden on mobile */}
-            <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-                <Link href="/members" className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    <span className="hidden md:inline">Members</span>
-                </Link>
-            </Button>
+
+        {/* Keep Clerk-driven auth UI client-only so the header markup stays stable through hydration. */}
+        {mounted && (
+            <>
+                <SignedIn>
+                    {/* Members Link - hidden on mobile */}
+                    <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                        <Link href="/members" className="flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            <span className="hidden md:inline">Members</span>
+                        </Link>
+                    </Button>
+                    
+                    {/* Staff Link - hidden on mobile */}
+                    <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                        <Link href="/staff" className="flex items-center gap-2">
+                            <UserCheck className="h-4 w-4" />
+                            <span className="hidden md:inline">Staff</span>
+                        </Link>
+                    </Button>
+                    
+                    {/* Admin Link - hidden on mobile */}
+                    <RoleGuard permission="canAccessAdminPanel">
+                        <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                            <Link href="/admin" className="flex items-center gap-2">
+                                <Shield className="h-4 w-4" />
+                                <span className="hidden md:inline">Admin</span>
+                            </Link>
+                        </Button>
+                    </RoleGuard>
+                    
+                    {/* Notification Icon */}
+                    <NotificationIcon userId={user?.id || ''} />
+                    
+                    <UserButton/>
+                </SignedIn>
             
-            {/* Staff Link - hidden on mobile */}
-            <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-                <Link href="/staff" className="flex items-center gap-2">
-                    <UserCheck className="h-4 w-4" />
-                    <span className="hidden md:inline">Staff</span>
-                </Link>
-            </Button>
-            
-            {/* Admin Link - hidden on mobile */}
-            <RoleGuard permission="canAccessAdminPanel">
-                <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-                    <Link href="/admin" className="flex items-center gap-2">
-                        <Shield className="h-4 w-4" />
-                        <span className="hidden md:inline">Admin</span>
-                    </Link>
-                </Button>
-            </RoleGuard>
-            
-            {/* Notification Icon */}
-            <NotificationIcon userId={user?.id || ''} />
-            
-            <UserButton/>
-        </SignedIn>
-      
-        <SignedOut>
-            <Button asChild variant={"outline"} size="sm" className="text-sm">
-                <SignInButton mode="modal" />
-            </Button>
-        </SignedOut>
+                <SignedOut>
+                    {/* Let Clerk wrap the button so Button still renders the actual DOM node consistently. */}
+                    <SignInButton mode="modal">
+                        <Button variant={"outline"} size="sm" className="text-sm">
+                            Sign In
+                        </Button>
+                    </SignInButton>
+                </SignedOut>
+            </>
+        )}
     </div>
 </header>  
 )

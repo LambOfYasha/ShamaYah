@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Changelog
+
+### 2026-03-30 00:59 UTC-04:00
+
+- Fixed a hydration mismatch in the shared app shell by delaying client-only header and mobile sidebar UI until after hydration.
+- Fixed an invalid Clerk/Radix composition in `components/header/header.tsx` by letting `SignInButton` wrap `Button` instead of using `Button asChild` around Clerk.
+- Why this was happening: the server HTML for the header could differ from the first client render when Clerk- and Radix-driven UI generated different initial markup or attributes.
+- Why this fix works: the server and first client render now stay structurally consistent, and the sign-in button renders a stable DOM node before Clerk enhances it.

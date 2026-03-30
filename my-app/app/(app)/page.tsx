@@ -48,6 +48,7 @@ interface YouTubeVideo {
 export default function HomePage() {
   const { isSignedIn, isLoaded } = useUser();
   const { isCompactMode } = useCompactMode();
+  const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [verseOfTheDay, setVerseOfTheDay] = useState<VerseOfTheDay | null>(null);
   const [siteStats, setSiteStats] = useState<SiteStats>({
@@ -59,6 +60,11 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [newVideos, setNewVideos] = useState<YouTubeVideo[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
+
+  // Wait for hydration before rendering Clerk-driven CTA content.
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch new videos from teacher YouTube channels
   useEffect(() => {
@@ -216,7 +222,8 @@ export default function HomePage() {
               </form>
 
               <div className={`flex flex-col sm:flex-row ${isCompactMode ? 'gap-2 sm:gap-3' : 'gap-3 sm:gap-4'} justify-center px-4`}>
-                {isLoaded && (
+                {/* Render the auth CTA only after hydration so Clerk state does not change the first client render. */}
+                {mounted && isLoaded && (
                   <>
                     {isSignedIn ? (
                       <Button asChild size="lg" className={`${isCompactMode ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} px-6 sm:px-8 ${isCompactMode ? 'py-2' : 'py-2 sm:py-3'} w-full sm:w-auto`}>
