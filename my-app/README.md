@@ -35,6 +35,48 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+## Adding New YouTube Feeds
+
+The site-wide `New Videos` feed is powered by `GET /api/youtube-feed`.
+That route reads teacher channel IDs from Sanity and then fetches recent uploads from the YouTube Data API.
+
+### Requirements
+
+- `YOUTUBE_API_KEY` must be configured in the environment where the app runs.
+- The source record in Sanity must have a `youtubeChannelId` value.
+- If you are using a `user` document, the `role` must be one of:
+  - `teacher`
+  - `junior_teacher`
+  - `senior_teacher`
+  - `lead_teacher`
+
+### How to add a new feed
+
+1. Open the teacher record in Sanity Studio or the admin teacher/user management UI.
+2. Find the `YouTube Channel ID` field.
+3. Paste the raw YouTube channel ID, for example `UCxxxxxxxxxxxxxxxxxxxxxxxx`.
+4. Do **not** paste a full YouTube URL or an `@handle` in that field.
+5. Save and publish the record.
+
+### Which records are included
+
+- `teacher` documents with a non-empty `youtubeChannelId`
+- `user` documents with a teacher role and a non-empty `youtubeChannelId`
+- Records marked as deleted are ignored
+- Duplicate channel IDs are deduplicated automatically
+
+### Where the videos appear
+
+- Home page `New Videos` section
+- Lessons page `New Videos` tab
+- Direct API response from `/api/youtube-feed?limit=12`
+
+### Cache and verification
+
+- The YouTube feed route is cached for 30 minutes
+- After updating a channel ID, allow up to 30 minutes for refreshed results to appear
+- To verify the setup, open `/api/youtube-feed?limit=12` and confirm the new channel's videos are included
+
 ## Changelog
 
 ### 2026-03-30 00:59 UTC-04:00
