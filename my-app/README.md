@@ -22,7 +22,7 @@ Christian community platform for biblical discussion, publishing, lessons, moder
 | Editor | TipTap rich text editor |
 | AI / safety | OpenAI text and image moderation, appeals, analytics, reporting |
 | External content | YouTube Data API, Bible verse API |
-| Deployment | Vercel |
+| Deployment | Vercel, or a self-hosted Node server deployed over SSH |
 
 ## Repository map
 
@@ -260,11 +260,57 @@ That route reads teacher channel IDs from Sanity and then fetches recent uploads
 ## Deployment notes
 
 - Vercel is the intended host and reads `vercel.json`.
-- Production builds use `npm run build:prod`.
+- Vercel builds use `npm run build:prod`.
+- Linux SSH and other self-hosted deployments should use the shell-compatible build command shown below because `build:prod` in `package.json` uses Windows `set ...` syntax.
 - `next.config.ts` allows remote images from Clerk and Sanity CDNs.
 - `instrumentation.ts` guards server rendering against Node `localStorage` issues.
 - The Clerk webhook endpoint is `/api/webhooks/clerk`.
 - This codebase includes test and debug routes and helper scripts; review them before exposing every route publicly in production.
+
+### Deploy `main` to a web server over SSH
+
+The steps below assume a Linux server that you can access with SSH.
+
+#### Server prerequisites
+
+- SSH access to the server
+- Node.js 20 or newer
+- `npm` and `git`
+- A domain or public IP and a reverse proxy such as Nginx, Caddy, or Apache for HTTPS
+- All required production environment variables
+
+#### First-time setup on the server
+
+```bash
+ssh your-user@your-server
+mkdir -p /var/www/shama-yah
+cd /var/www/shama-yah
+git clone <your-repo-url> repo
+cd repo
+git checkout main
+cd my-app
+npm install
+nano .env.production
+DISABLE_ESLINT_PLUGIN=true NODE_ENV=production SKIP_TYPE_CHECK=true npm run build
+PORT=3000 npm run start
+```
+
+Add every variable from the environment section above to `.env.production`. Set `NEXT_PUBLIC_BASE_URL` to your production URL, then point Clerk production redirects and the webhook target to your live domain.
+
+#### Update an existing server checkout to the latest `main`
+
+```bash
+ssh your-user@your-server
+cd /var/www/shama-yah/repo
+git fetch origin
+git checkout main
+git pull origin main
+cd my-app
+npm install
+DISABLE_ESLINT_PLUGIN=true NODE_ENV=production SKIP_TYPE_CHECK=true npm run build
+```
+
+After the build completes, restart the running app with your process manager or service. If you are not using one yet, place the app behind Nginx, Caddy, or Apache and run it under `pm2`, `systemd`, `screen`, or `tmux` so it survives logout and reboots.
 
 ## Git branches
 
