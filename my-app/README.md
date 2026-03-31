@@ -159,13 +159,15 @@ CLERK_WEBHOOK_SECRET=
 OPENAI_API_KEY=
 YOUTUBE_API_KEY=
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
 ```
 
 ### Also required for Clerk to run
 Use the standard Clerk Next.js environment variables for your app instance:
 
-- publishable key for the browser
-- secret key for the server
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` for the browser
+- `CLERK_SECRET_KEY` for the server
 
 ### Runtime notes
 - `OPENAI_API_KEY` is optional in local development if you are okay with the built-in dev moderation fallback.
@@ -295,7 +297,27 @@ DISABLE_ESLINT_PLUGIN=true NODE_ENV=production SKIP_TYPE_CHECK=true npm run buil
 PORT=3000 npm run start
 ```
 
-Add every variable from the environment section above to `.env.production`. Set `NEXT_PUBLIC_BASE_URL` to your production URL, then point Clerk production redirects and the webhook target to your live domain.
+Add every variable from the environment section above to `.env.production`. Set `NEXT_PUBLIC_BASE_URL` to your production URL, then configure Clerk for that same live domain.
+
+##### Clerk production redirect setup
+
+1. Open your Clerk dashboard and switch to the production instance for this app.
+2. Set the application sign-in URL to `https://your-domain.com/sign-in`.
+3. Set the application sign-up URL to `https://your-domain.com/sign-up`.
+4. Set the post-authentication fallback redirect to `https://your-domain.com/dashboard` or another live page you want members to land on by default.
+5. Add your live origin, for example `https://your-domain.com`, anywhere Clerk asks for allowed production origins or redirect URLs.
+
+This app already redirects unauthenticated users to `/sign-in` and preserves the requested protected URL in the `redirect_url` query string. That means a user who tries to open a protected page such as `/dashboard` or `/admin` should be sent back to that page after a successful sign-in.
+
+##### Clerk webhook setup
+
+1. In Clerk, create a webhook endpoint that points to `https://your-domain.com/api/webhooks/clerk`.
+2. Subscribe that webhook to at least the `user.created` event.
+3. Copy the webhook signing secret from Clerk into `CLERK_WEBHOOK_SECRET` in `.env.production`.
+4. Restart or redeploy the app after saving the new environment value.
+5. Verify the setup by creating a test user in production and confirming the webhook reaches the app and the new user record is created successfully.
+
+For this repo, the webhook target must stay on `/api/webhooks/clerk` because that is the route handled by `app/api/webhooks/clerk/route.ts`.
 
 #### Update an existing server checkout to the latest `main`
 
