@@ -311,6 +311,7 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
                       block.children?.map((child: any) => child.text).join('') || ''
                     ).join('\n')
                 }
+                stripThemeConflictingInlineStyles
               />
             </div>
           </CardContent>
