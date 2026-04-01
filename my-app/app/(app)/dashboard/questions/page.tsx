@@ -32,7 +32,7 @@ export default async function CommunitiesPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center py-12">
             <h2 className="text-xl font-semibold mb-2">Unable to Load Communities</h2>
-            <p className="text-gray-600 mb-4">Please sign in to view your communities</p>
+            <p className="text-muted-foreground mb-4">Please sign in to view your communities</p>
             <Button asChild>
               <Link href="/sign-in">
                 Sign In
@@ -60,7 +60,7 @@ export default async function CommunitiesPage() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold">Questions</h1>
-            <p className="text-gray-600">Manage and discover questions</p>
+            <p className="text-muted-foreground">Manage and discover questions</p>
           </div>
           <CreateCommunityButton />
         </div>
@@ -109,8 +109,6 @@ export default async function CommunitiesPage() {
           </Card>
         </div>
 
-
-
         {/* My Communities */}
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">My Questions</h2>
@@ -127,18 +125,18 @@ export default async function CommunitiesPage() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge variant="outline">Community</Badge>
-                      <div className="flex items-center space-x-1 text-xs text-gray-500">
+                      <div className="flex items-center space-x-1 text-xs text-muted-foreground">
                         <Calendar className="w-3 h-3" />
                         <span>Joined {new Date(community.joinedAt || community._createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600 mb-4 line-clamp-2">
+                    <p className="text-muted-foreground mb-4 line-clamp-2">
                       {community.description || "No description available"}
                     </p>
                     
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                       <span>{(community.viewCount || 0).toLocaleString()} views</span>
                       <span>{community.postCount || 0} posts</span>
                     </div>
@@ -166,9 +164,9 @@ export default async function CommunitiesPage() {
           ) : (
             <Card>
               <CardContent className="p-12 text-center">
-                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <Users className="w-12 h-12 text-muted-foreground opacity-60 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No questions asked</h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Start by asking some questions or create your own
                 </p>
                 <Button asChild>
@@ -196,23 +194,23 @@ export default async function CommunitiesPage() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge variant="outline">Community</Badge>
-                      <div className="flex items-center space-x-1 text-xs text-gray-500">
+                      <div className="flex items-center space-x-1 text-xs text-muted-foreground">
                         <Calendar className="w-3 h-3" />
                         <span>Created {new Date(community.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600 mb-4 line-clamp-2">
+                    <p className="text-muted-foreground mb-4 line-clamp-2">
                       {community.description || "No description available"}
                     </p>
                     
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                       <span>{(community.viewCount || 0).toLocaleString()} views</span>
                       <span>{community.postCount || 0} posts</span>
                     </div>
                     
-                    <div className="flex items-center space-x-2 text-xs text-gray-500 mb-4">
+                    <div className="flex items-center space-x-2 text-xs text-muted-foreground mb-4">
                       <span>Moderated by {community.moderator.username}</span>
                     </div>
                     
@@ -229,9 +227,9 @@ export default async function CommunitiesPage() {
           ) : (
             <Card>
               <CardContent className="p-12 text-center">
-                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <Users className="w-12 h-12 text-muted-foreground opacity-60 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No recommended questions</h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Check back later for question recommendations
                 </p>
               </CardContent>
