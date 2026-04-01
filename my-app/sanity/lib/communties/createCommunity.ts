@@ -9,7 +9,8 @@ export async function createCommunity(
     moderatorId: string,
     imageData: ImageData | null,
     customSlug?: string,
-    customDescription?: string
+    customDescription?: string,
+    customContent?: string
 
 ) {
     console.log(`Creating community: ${name} with moderator: ${moderatorId}`)
@@ -81,13 +82,13 @@ export async function createCommunity(
         }
         
         // Create the community
-        const communityDoc: Partial<CommunityQuestion> = {
+        const communityDoc: Partial<CommunityQuestion> & { content?: string } = {
             _type: "communityQuestion",
             title: name,
             description: customDescription || `Welcom to r/${name}`,
+            content: customContent || "",
             slug: {
                 current: slug,
-                _type: "slug",
             },
             moderator: {
                 _type: "reference",

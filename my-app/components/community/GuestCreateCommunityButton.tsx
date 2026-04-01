@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import ClientRichEditor from '@/components/ui/client-rich-editor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, X, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useModeration } from '@/hooks/useModeration';
 import { ModerationFeedback } from '@/components/ui/moderation-feedback';
+import { richTextContentToPlainText } from '@/lib/utils';
 
 export default function GuestCreateCommunityButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +20,7 @@ export default function GuestCreateCommunityButton() {
   const [content, setContent] = useState('');
   const [guestName, setGuestName] = useState('');
   const { toast } = useToast();
+  const hasQuestionContent = Boolean(description.trim() || richTextContentToPlainText(content).trim());
 
   // Initialize moderation for guest community question content
   const {
@@ -40,7 +42,7 @@ export default function GuestCreateCommunityButton() {
     const value = e.target.value;
     setTitle(value);
     // Check title, description, and content together
-    updateModeratedContent(`${value}\n\n${description}\n\n${content}`);
+    updateModeratedContent(`${value}\n\n${description}\n\n${richTextContentToPlainText(content)}`);
   };
 
   // Update moderated content when description changes
@@ -48,21 +50,21 @@ export default function GuestCreateCommunityButton() {
     const value = e.target.value;
     setDescription(value);
     // Check title, description, and content together
-    updateModeratedContent(`${title}\n\n${value}\n\n${content}`);
+    updateModeratedContent(`${title}\n\n${value}\n\n${richTextContentToPlainText(content)}`);
   };
 
   // Update moderated content when content changes
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
+  const handleContentChange = (value: string) => {
     setContent(value);
     // Check title, description, and content together
-    updateModeratedContent(`${title}\n\n${description}\n\n${value}`);
+    updateModeratedContent(`${title}\n\n${description}\n\n${richTextContentToPlainText(value)}`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedDescription = description.trim() || richTextContentToPlainText(content).slice(0, 300);
     
-    if (!title.trim() || !description.trim() || !guestName.trim()) {
+    if (!title.trim() || !normalizedDescription.trim() || !guestName.trim()) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -108,7 +110,7 @@ export default function GuestCreateCommunityButton() {
         },
         body: JSON.stringify({
           title: title.trim(),
-          description: description.trim(),
+          description: normalizedDescription,
           content: content.trim(),
           guestUser,
         }),
@@ -206,13 +208,14 @@ export default function GuestCreateCommunityButton() {
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
               Question *
             </label>
-            <Textarea
+            <textarea
               id="description"
               value={description}
               onChange={handleDescriptionChange}
               placeholder="Ask your question here..."
               required
               rows={2}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
             />
           </div>
           
@@ -220,12 +223,11 @@ export default function GuestCreateCommunityButton() {
             <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
               Detailed Question
             </label>
-            <Textarea
-              id="content"
-              value={content}
+            <ClientRichEditor
+              content={content}
               onChange={handleContentChange}
               placeholder="Provide more details about your question..."
-              rows={4}
+              maxHeight="300px"
             />
           </div>
           
@@ -248,7 +250,7 @@ export default function GuestCreateCommunityButton() {
             </Button>
             <Button 
               type="submit" 
-              disabled={isLoading || !title.trim() || !description.trim() || !guestName.trim() || !canSubmit}
+              disabled={isLoading || !title.trim() || !hasQuestionContent || !guestName.trim() || !canSubmit}
             >
               {isLoading ? (
                 <>

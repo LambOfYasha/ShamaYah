@@ -72,11 +72,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
         <div className="max-w-md w-full mx-auto">
           <Card>
             <CardHeader className="text-center">
-              <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-                <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+              <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-muted rounded-full flex items-center justify-center mb-3 sm:mb-4">
+                <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
               </div>
               <CardTitle className="text-lg sm:text-xl">Profile Private</CardTitle>
-              <p className="text-sm sm:text-base text-gray-600 mt-2">
+              <p className="text-sm sm:text-base text-muted-foreground mt-2">
                 This user has set their profile to private and it cannot be viewed.
               </p>
             </CardHeader>
@@ -121,8 +121,8 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                     </AvatarFallback>
                   </Avatar>
                   {user.isActive && (
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-background rounded-full"></div>
                     </div>
                   )}
                 </div>
@@ -148,7 +148,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                   </div>
 
                   {/* Stats */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                     <div className="flex items-center justify-center sm:justify-start gap-1">
                       <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>{user.postCount} posts</span>
@@ -165,11 +165,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
                   {/* Bio */}
                   {user.bio && (
-                    <p className="text-sm sm:text-base text-gray-700 mb-3 sm:mb-4">{user.bio}</p>
+                    <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">{user.bio}</p>
                   )}
 
                   {/* Additional Info */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                     {user.location && (
                       <div className="flex items-center justify-center sm:justify-start gap-1">
                         <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -183,7 +183,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                           href={user.website} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
+                          className="text-primary hover:underline"
                         >
                           Website
                         </a>
@@ -205,8 +205,8 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-6 sm:py-8 text-gray-500">
-              <Activity className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
+            <div className="text-center py-6 sm:py-8 text-muted-foreground">
+              <Activity className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
               <p className="text-sm sm:text-base">Activity information is not available for public profiles.</p>
             </div>
           </CardContent>
@@ -221,7 +221,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
               <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>This is a public profile view. Some information may be hidden based on user privacy settings.</span>
             </div>
@@ -230,4 +230,4 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
       </div>
     </div>
   );
-} 
+}

@@ -29,8 +29,8 @@ export default function UserManagement({ initialUsers = [] }: UserManagementProp
     dataType: 'users',
     roles: [
       { value: 'member', label: 'Member' },
-      { value: 'teacher', label: 'Teacher' },
       { value: 'junior_teacher', label: 'Junior Teacher' },
+      { value: 'teacher', label: 'Teacher' },
       { value: 'senior_teacher', label: 'Senior Teacher' },
       { value: 'lead_teacher', label: 'Lead Teacher' },
       { value: 'dev', label: 'Dev' },
@@ -101,8 +101,8 @@ export default function UserManagement({ initialUsers = [] }: UserManagementProp
         required: true,
         options: [
           { value: 'member', label: 'Member' },
-          { value: 'teacher', label: 'Teacher' },
           { value: 'junior_teacher', label: 'Junior Teacher' },
+          { value: 'teacher', label: 'Teacher' },
           { value: 'senior_teacher', label: 'Senior Teacher' },
           { value: 'lead_teacher', label: 'Lead Teacher' },
           { value: 'dev', label: 'Dev' },
