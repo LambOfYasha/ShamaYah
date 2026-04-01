@@ -111,22 +111,16 @@ export default function SimpleRichEditor({
     extensions: [
       StarterKit.configure({
         bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
           HTMLAttributes: {
             class: 'list-disc list-inside',
           },
         },
         orderedList: {
-          keepMarks: true,
-          keepAttributes: false,
           HTMLAttributes: {
             class: 'list-decimal list-inside',
           },
         },
         listItem: {
-          keepMarks: true,
-          keepAttributes: false,
           HTMLAttributes: {
             class: 'mb-1',
           },
