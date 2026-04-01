@@ -305,12 +305,7 @@ export default async function ResponsePage({ params }: { params: Promise<{ slug:
             
             <div className="prose max-w-none">
               <RichContentRenderer 
-                content={typeof response.body === 'string' 
-                  ? response.body 
-                  : response.body.map((block: any) => 
-                      block.children?.map((child: any) => child.text).join('') || ''
-                    ).join('\n')
-                }
+                content={response.body}
                 stripThemeConflictingInlineStyles
               />
             </div>

@@ -312,12 +312,7 @@ export default async function BlogPage({
           <div className="prose max-w-none">
             {blog.content ? (
               <RichContentRenderer 
-                content={typeof blog.content === 'string' 
-                  ? blog.content 
-                  : blog.content.map((block: any) => 
-                      block.children?.map((child: any) => child.text).join('') || ''
-                    ).join('\n')
-                }
+                content={blog.content}
                 className="text-sm sm:text-base leading-relaxed"
                 stripThemeConflictingInlineStyles
               />

@@ -53,7 +53,7 @@ import { Button } from './button';
 import { Input } from './input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './dialog';
 import { Label } from './label';
-import { cn } from '@/lib/utils';
+import { cn, normalizeRichTextLinkUrl } from '@/lib/utils';
 
 interface RichTextEditorProps {
   content: string;
@@ -140,6 +140,8 @@ export default function SimpleRichEditor({
         openOnClick: false,
         HTMLAttributes: {
           class: 'text-blue-600 underline cursor-pointer',
+          target: '_blank',
+          rel: 'noopener noreferrer nofollow',
         },
       }),
       Image.configure({
@@ -202,7 +204,12 @@ export default function SimpleRichEditor({
 
   const addLink = () => {
     if (linkUrl) {
-      editor?.chain().focus().extendMarkRange('link').setLink({ href: linkUrl }).run();
+      const normalizedLinkUrl = normalizeRichTextLinkUrl(linkUrl);
+      editor?.chain().focus().extendMarkRange('link').setLink({
+        href: normalizedLinkUrl,
+        target: '_blank',
+        rel: 'noopener noreferrer nofollow',
+      }).run();
       setLinkUrl('');
       setShowLinkDialog(false);
     }

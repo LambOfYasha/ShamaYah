@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn, richTextContentToHtml } from '@/lib/utils';
 
 interface RichContentRendererProps {
-  content: string;
+  content: string | any[];
   className?: string;
   stripThemeConflictingInlineStyles?: boolean;
 }
@@ -31,15 +31,8 @@ const allowedInlineStyleProperties = new Set([
 
 export default function RichContentRenderer({ content, className, stripThemeConflictingInlineStyles = false }: RichContentRendererProps) {
   // Process and sanitize the content
-  const processContent = (html: string) => {
-    // Decode common HTML entities
-    let processed = html
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&nbsp;/g, ' ');
+  const processContent = (value: string | any[]) => {
+    let processed = richTextContentToHtml(value);
     
     // Sanitize the content to prevent XSS attacks
     const sanitized = processed

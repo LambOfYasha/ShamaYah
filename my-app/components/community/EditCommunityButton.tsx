@@ -1,30 +1,26 @@
 'use client';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import ClientRichEditor from "@/components/ui/client-rich-editor";
 import { Label } from "@/components/ui/label";
 import { Edit, ImageIcon, X } from "lucide-react";
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { richTextContentToHtml, richTextContentToPlainText } from "@/lib/utils";
 
 interface CommunityData {
   _id: string;
   title: string;
   description: string;
+  content?: string | any[];
   slug: {
     _type: string;
     current: string;
   };
+
   image?: {
     asset?: {
       _ref: string;
@@ -37,20 +33,23 @@ interface EditCommunityButtonProps {
   onEdit: (data: {
     title: string;
     description: string;
+    content: string;
     slug: string;
     imageBase64?: string;
     imageFilename?: string;
     imageContentType?: string;
+
   }) => Promise<void>;
 }
 
 export default function EditCommunityButton({ community, onEdit }: EditCommunityButtonProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(community.title);
-  const [description, setDescription] = useState(community.description);
+  const [description, setDescription] = useState(richTextContentToHtml(community.content || community.description));
   const [slug, setSlug] = useState(community.slug?.current || '');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +62,7 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setTitle(value);
-    
+
     if (!slug || slug === generateSlug(community.title)) {
       setSlug(generateSlug(value));
     }
@@ -71,7 +70,7 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    
+
     if (file) {
       setImageFile(file);
       const reader = new FileReader();
@@ -93,10 +92,12 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    const normalizedDescription = richTextContentToPlainText(description);
+
     if (!title.trim()) {
       setErrorMessage("Title is required");
       return;
+
     }
 
     if (!slug.trim()) {
@@ -104,7 +105,7 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
       return;
     }
 
-    if (!description.trim()) {
+    if (!normalizedDescription.trim()) {
       setErrorMessage("Description is required");
       return;
     }
@@ -132,11 +133,13 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
 
       await onEdit({
         title: title.trim(),
-        description: description.trim(),
+        description: normalizedDescription.slice(0, 300),
+        content: description.trim(),
         slug: slug.trim(),
         imageBase64,
         imageFilename: fileName,
         imageContentType: fileType,
+
       });
 
       setOpen(false);
@@ -202,15 +205,11 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
 
             <div className="space-y-2">
               <Label htmlFor="description">Question</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+              <ClientRichEditor
+                content={description}
+                onChange={setDescription}
                 placeholder="Ask a question"
-                required
-                minLength={10}
-                maxLength={500}
-                rows={4}
+                maxHeight="300px"
               />
             </div>
 
