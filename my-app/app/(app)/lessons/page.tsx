@@ -346,7 +346,7 @@ export default function LessonsPage() {
                           {lesson.tags && lesson.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-1">
                               {lesson.tags.map(tag => (
-                                <span key={tag._id} className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                                <span key={tag._id} className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs ">
                                   <Tag className="h-2.5 w-2.5" />
                                   {tag.name}
                                 </span>
