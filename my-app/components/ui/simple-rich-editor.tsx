@@ -116,14 +116,14 @@ export default function SimpleRichEditor({
           keepMarks: true,
           keepAttributes: false,
           HTMLAttributes: {
-            class: 'list-disc list-inside',
+            class: 'list-disc list-outside pl-6',
           },
         },
         orderedList: {
           keepMarks: true,
           keepAttributes: false,
           HTMLAttributes: {
-            class: 'list-decimal list-inside',
+            class: 'list-decimal list-outside pl-6',
           },
         },
         listItem: {
@@ -151,12 +151,12 @@ export default function SimpleRichEditor({
       }),
       CodeBlock.configure({
         HTMLAttributes: {
-          class: 'p-4 rounded-lg font-mono text-sm',
+          class: 'bg-gray-100 p-4 rounded-lg font-mono text-sm',
         },
       }),
       Blockquote.configure({
         HTMLAttributes: {
-          class: 'border-l-4  pl-4 italic',
+          class: 'border-l-4 border-gray-300 pl-4 italic',
         },
       }),
       Underline,
@@ -198,7 +198,10 @@ export default function SimpleRichEditor({
     editable: !readOnly,
     editorProps: {
       attributes: {
-        class: cn('prose max-w-none min-h-[200px] p-4 focus:outline-none', !readOnly && 'cursor-text'),
+        class: cn(
+          'prose max-w-none min-h-[200px] p-4 focus:outline-none [&_ul]:list-outside [&_ul]:pl-6 [&_ol]:list-outside [&_ol]:pl-6 [&_li>p]:my-0',
+          !readOnly && 'cursor-text'
+        ),
       },
     },
     immediatelyRender: false,
@@ -778,7 +781,7 @@ export default function SimpleRichEditor({
 
   if (!mounted || !editor) {
     return (
-      <div className={cn("border  rounded-md p-4 min-h-[200px] flex items-center justify-center", className)}>
+      <div className={cn("border border-gray-300 rounded-md p-4 min-h-[200px] bg-gray-50 flex items-center justify-center", className)}>
         <div className="text-gray-500">Loading editor...</div>
       </div>
     );

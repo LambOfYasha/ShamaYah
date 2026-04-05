@@ -93,7 +93,7 @@ export default function RichContentRenderer({ content, className, stripThemeConf
         "prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic",
         "prose-ul:list-disc prose-ul:pl-6",
         "prose-ol:list-decimal prose-ol:pl-6",
-        "prose-li:text-muted-foreground",
+        "prose-li:text-muted-foreground [&_li>p]:my-0",
         "prose-table:border-collapse prose-table:w-full",
         "prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-2 prose-th:bg-muted",
         "prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-2",
