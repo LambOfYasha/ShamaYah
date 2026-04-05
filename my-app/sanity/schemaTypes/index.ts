@@ -17,7 +17,8 @@ import { helpTicketType } from './helpTicketType'
 import { feedbackType } from './feedbackType'
 import { lessonCategoryType } from './lessonCategoryType'
 import { lessonType } from './lessonType'
+import { pageType } from './pageType'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [userType, teacherType, postType, commentType, embeddedCommentType, favoriteType, blogType, communityType, tagType, reportType, notificationType, adminSettingsType, specialtyType, guestQuestionType, helpTicketType, feedbackType, lessonCategoryType, lessonType],
+  types: [userType, teacherType, postType, commentType, embeddedCommentType, favoriteType, blogType, communityType, tagType, reportType, notificationType, adminSettingsType, specialtyType, guestQuestionType, helpTicketType, feedbackType, lessonCategoryType, lessonType, pageType],
 }

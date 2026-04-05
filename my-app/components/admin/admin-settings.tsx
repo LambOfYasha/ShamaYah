@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +31,7 @@ import {
   Mail
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { type AdminSettings as AdminSettingsValues, DEFAULT_ADMIN_SETTINGS, canManageAdminSettings } from '@/lib/admin-settings';
 
 interface AdminSettingsProps {
   userRole: string;
@@ -40,58 +41,177 @@ export default function AdminSettings({ userRole }: AdminSettingsProps) {
   const [activeTab, setActiveTab] = useState('general');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const canEditSettings = canManageAdminSettings(userRole);
 
   // System Settings State
   const [systemSettings, setSystemSettings] = useState({
-    siteName: 'DOM Project',
-    siteDescription: 'A platform for biblical discussion and community',
-    maintenanceMode: false,
-    registrationEnabled: true,
-    guestAccess: true,
-    maxFileSize: '10MB',
-    maxPostsPerDay: 10,
-    autoModeration: true,
-    emailNotifications: true,
-    analyticsEnabled: true
+    siteName: DEFAULT_ADMIN_SETTINGS.siteName,
+    siteDescription: DEFAULT_ADMIN_SETTINGS.siteDescription,
+    maintenanceMode: DEFAULT_ADMIN_SETTINGS.maintenanceMode,
+    registrationEnabled: DEFAULT_ADMIN_SETTINGS.registrationEnabled,
+    guestAccess: DEFAULT_ADMIN_SETTINGS.guestAccess,
+    maxFileSize: DEFAULT_ADMIN_SETTINGS.maxFileSize,
+    maxPostsPerDay: DEFAULT_ADMIN_SETTINGS.maxPostsPerDay,
+    autoModeration: DEFAULT_ADMIN_SETTINGS.autoModeration,
+    emailNotifications: DEFAULT_ADMIN_SETTINGS.emailNotifications,
+    analyticsEnabled: DEFAULT_ADMIN_SETTINGS.analyticsEnabled
   });
 
   // Security Settings State
   const [securitySettings, setSecuritySettings] = useState({
-    requireEmailVerification: true,
-    requireTwoFactor: false,
-    sessionTimeout: 24,
-    maxLoginAttempts: 5,
-    passwordMinLength: 8,
-    enableRateLimiting: true,
-    enableAuditLog: true,
-    enableBackup: true
+    requireEmailVerification: DEFAULT_ADMIN_SETTINGS.requireEmailVerification,
+    requireTwoFactor: DEFAULT_ADMIN_SETTINGS.requireTwoFactor,
+    sessionTimeout: DEFAULT_ADMIN_SETTINGS.sessionTimeout,
+    maxLoginAttempts: DEFAULT_ADMIN_SETTINGS.maxLoginAttempts,
+    passwordMinLength: DEFAULT_ADMIN_SETTINGS.passwordMinLength,
+    enableRateLimiting: DEFAULT_ADMIN_SETTINGS.enableRateLimiting,
+    enableAuditLog: DEFAULT_ADMIN_SETTINGS.enableAuditLog,
+    enableBackup: DEFAULT_ADMIN_SETTINGS.enableBackup
   });
 
   // Database Settings State
   const [databaseSettings, setDatabaseSettings] = useState({
-    backupFrequency: 'daily',
-    retentionPeriod: 30,
-    enableCompression: true,
-    enableEncryption: true,
-    maxConnections: 100
+    backupFrequency: DEFAULT_ADMIN_SETTINGS.backupFrequency,
+    retentionPeriod: DEFAULT_ADMIN_SETTINGS.retentionPeriod,
+    enableCompression: DEFAULT_ADMIN_SETTINGS.enableCompression,
+    enableEncryption: DEFAULT_ADMIN_SETTINGS.enableEncryption,
+    maxConnections: DEFAULT_ADMIN_SETTINGS.maxConnections
   });
 
   // Email Settings State
   const [emailSettings, setEmailSettings] = useState({
-    smtpHost: '',
-    smtpPort: 587,
-    smtpUsername: '',
-    smtpPassword: '',
-    fromEmail: 'noreply@domproject.com',
-    fromName: 'DOM Project',
-    enableEmailNotifications: true
+    smtpHost: DEFAULT_ADMIN_SETTINGS.smtpHost,
+    smtpPort: DEFAULT_ADMIN_SETTINGS.smtpPort,
+    smtpUsername: DEFAULT_ADMIN_SETTINGS.smtpUsername,
+    smtpPassword: DEFAULT_ADMIN_SETTINGS.smtpPassword,
+    fromEmail: DEFAULT_ADMIN_SETTINGS.fromEmail,
+    fromName: DEFAULT_ADMIN_SETTINGS.fromName,
+    enableEmailNotifications: DEFAULT_ADMIN_SETTINGS.enableEmailNotifications
   });
 
+  function syncSettings(settings: AdminSettingsValues) {
+    setSystemSettings({
+      siteName: settings.siteName,
+      siteDescription: settings.siteDescription,
+      maintenanceMode: settings.maintenanceMode,
+      registrationEnabled: settings.registrationEnabled,
+      guestAccess: settings.guestAccess,
+      maxFileSize: settings.maxFileSize,
+      maxPostsPerDay: settings.maxPostsPerDay,
+      autoModeration: settings.autoModeration,
+      emailNotifications: settings.emailNotifications,
+      analyticsEnabled: settings.analyticsEnabled,
+    });
+
+    setSecuritySettings({
+      requireEmailVerification: settings.requireEmailVerification,
+      requireTwoFactor: settings.requireTwoFactor,
+      sessionTimeout: settings.sessionTimeout,
+      maxLoginAttempts: settings.maxLoginAttempts,
+      passwordMinLength: settings.passwordMinLength,
+      enableRateLimiting: settings.enableRateLimiting,
+      enableAuditLog: settings.enableAuditLog,
+      enableBackup: settings.enableBackup,
+    });
+
+    setDatabaseSettings({
+      backupFrequency: settings.backupFrequency,
+      retentionPeriod: settings.retentionPeriod,
+      enableCompression: settings.enableCompression,
+      enableEncryption: settings.enableEncryption,
+      maxConnections: settings.maxConnections,
+    });
+
+    setEmailSettings({
+      smtpHost: settings.smtpHost,
+      smtpPort: settings.smtpPort,
+      smtpUsername: settings.smtpUsername,
+      smtpPassword: settings.smtpPassword,
+      fromEmail: settings.fromEmail,
+      fromName: settings.fromName,
+      enableEmailNotifications: settings.enableEmailNotifications,
+    });
+  }
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSettings() {
+      setLoading(true);
+
+      try {
+        const response = await fetch('/api/admin/settings', {
+          cache: 'no-store',
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load admin settings.');
+        }
+
+        if (isMounted) {
+          syncSettings({ ...DEFAULT_ADMIN_SETTINGS, ...data.settings });
+        }
+      } catch (error) {
+        if (isMounted) {
+          toast({
+            title: 'Error',
+            description: error instanceof Error ? error.message : 'Failed to load admin settings.',
+            variant: 'destructive',
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadSettings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [toast]);
+
   const handleSaveSettings = async (section: string) => {
+    if (!canEditSettings) {
+      toast({
+        title: 'Unavailable',
+        description: 'Only admin and dev roles can save system settings.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const normalizedSection = section.toLowerCase();
+      const settings = normalizedSection === 'general'
+        ? systemSettings
+        : normalizedSection === 'security'
+          ? securitySettings
+          : normalizedSection === 'database'
+            ? databaseSettings
+            : emailSettings;
+
+      const response = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          section: normalizedSection,
+          settings,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to save ${section} settings.`);
+      }
+
+      syncSettings({ ...DEFAULT_ADMIN_SETTINGS, ...data.settings });
       
       toast({
         title: 'Settings Saved',
@@ -156,6 +276,11 @@ export default function AdminSettings({ userRole }: AdminSettingsProps) {
                'Lead teacher access with limited administrative functions'}
             </span>
           </div>
+          {!canEditSettings ? (
+            <p className="mt-3 text-sm text-gray-600">
+              Only admin and dev roles can turn maintenance mode on or off and save settings changes.
+            </p>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -229,6 +354,7 @@ export default function AdminSettings({ userRole }: AdminSettingsProps) {
                     <Switch
                       checked={systemSettings.maintenanceMode}
                       onCheckedChange={(checked) => setSystemSettings(prev => ({ ...prev, maintenanceMode: checked }))}
+                      disabled={loading || !canEditSettings}
                     />
                   </div>
                   <div className="flex items-center justify-between">
@@ -283,7 +409,7 @@ export default function AdminSettings({ userRole }: AdminSettingsProps) {
                   </div>
                 </div>
               </div>
-              <Button onClick={() => handleSaveSettings('General')} disabled={loading}>
+              <Button onClick={() => handleSaveSettings('General')} disabled={loading || !canEditSettings}>
                 {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Save General Settings
               </Button>
@@ -383,7 +509,7 @@ export default function AdminSettings({ userRole }: AdminSettingsProps) {
                   </div>
                 </div>
               </div>
-              <Button onClick={() => handleSaveSettings('Security')} disabled={loading}>
+              <Button onClick={() => handleSaveSettings('Security')} disabled={loading || !canEditSettings}>
                 {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Save Security Settings
               </Button>
@@ -458,7 +584,7 @@ export default function AdminSettings({ userRole }: AdminSettingsProps) {
                   </div>
                 </div>
               </div>
-              <Button onClick={() => handleSaveSettings('Database')} disabled={loading}>
+              <Button onClick={() => handleSaveSettings('Database')} disabled={loading || !canEditSettings}>
                 {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Save Database Settings
               </Button>
@@ -542,7 +668,7 @@ export default function AdminSettings({ userRole }: AdminSettingsProps) {
                   </div>
                 </div>
               </div>
-              <Button onClick={() => handleSaveSettings('Email')} disabled={loading}>
+              <Button onClick={() => handleSaveSettings('Email')} disabled={loading || !canEditSettings}>
                 {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Save Email Settings
               </Button>

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import ClientRichEditor from '@/components/ui/client-rich-editor';
 import { editCommunityResponse } from '@/action/postActions';
 import { Edit, Loader2 } from 'lucide-react';
+import { richTextContentToHtml } from '@/lib/utils';
 
 interface EditResponseButtonProps {
   responseId: string;
@@ -33,16 +34,7 @@ export default function EditResponseButton({
   
   // Convert old block format to HTML string for compatibility
   const convertBodyToHtml = (body: string | any[]): string => {
-    if (typeof body === 'string') {
-      return body;
-    }
-    // Handle old Sanity block format
-    if (Array.isArray(body) && body.length > 0) {
-      return body.map((block: any) => 
-        block.children?.map((child: any) => child.text).join('') || ''
-      ).join('\n');
-    }
-    return '';
+    return richTextContentToHtml(body);
   };
   
   const [body, setBody] = useState(convertBodyToHtml(currentBody));

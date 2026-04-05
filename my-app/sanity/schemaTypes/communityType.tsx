@@ -21,6 +21,12 @@ export const communityType = defineType({
             description: 'The description of the community',
         }),
         defineField({
+            name: 'content',
+            title: 'Content',
+            type: 'text',
+            description: 'The rich content body of the community question',
+        }),
+        defineField({
             name: 'slug',
             title: 'Slug',
             type: 'slug',

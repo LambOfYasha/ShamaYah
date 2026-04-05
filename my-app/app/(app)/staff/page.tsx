@@ -130,7 +130,7 @@ export default async function StaffPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Staff Directory</h1>
-              <p className="text-sm sm:text-base text-gray-600">Meet our team of educators, moderators, and administrators</p>
+              <p className="text-sm sm:text-base text-muted-foreground">Meet our team of educators, moderators, and administrators</p>
             </div>
             <Badge variant="outline" className="flex items-center gap-1 w-fit">
               <Users className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -143,7 +143,7 @@ export default async function StaffPage() {
         <div className="mb-4 sm:mb-6">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground opacity-60 w-4 h-4" />
               <Input 
                 placeholder="Search staff..." 
                 className="pl-10"
@@ -188,7 +188,7 @@ export default async function StaffPage() {
                   </div>
                   <div>
                     <h2 className="text-xl sm:text-2xl font-bold">{config?.title}</h2>
-                    <p className="text-sm sm:text-base text-gray-600">{config?.description}</p>
+                    <p className="text-sm sm:text-base text-muted-foreground">{config?.description}</p>
                   </div>
                 </div>
 
@@ -232,7 +232,7 @@ export default async function StaffPage() {
                             </div>
 
                             {/* Stats */}
-                            <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
+                            <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                               <div className="flex items-center gap-1">
                                 <FileText className="w-3 h-3" />
                                 <span>{member.postCount} posts</span>
@@ -245,7 +245,7 @@ export default async function StaffPage() {
 
                             {/* Teacher-specific stats */}
                             {(member.role === 'teacher' || member.role.includes('teacher')) && (
-                              <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
+                              <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                                 {member.experience && (
                                   <div className="flex items-center gap-1">
                                     <Calendar className="w-3 h-3" />
@@ -268,7 +268,7 @@ export default async function StaffPage() {
                             )}
 
                             {/* Additional Info */}
-                            <div className="space-y-1 text-xs sm:text-sm text-gray-600">
+                            <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
                                 <span>Joined {formatDistanceToNow(new Date(member.joinedAt), { addSuffix: true })}</span>
@@ -286,7 +286,7 @@ export default async function StaffPage() {
                                     href={member.website} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
+                                    className="text-primary hover:underline"
                                   >
                                     Website
                                   </a>
@@ -314,7 +314,7 @@ export default async function StaffPage() {
 
                             {/* Bio Preview */}
                             {member.bio && (
-                              <p className="text-xs sm:text-sm text-gray-700 mt-2 sm:mt-3 line-clamp-2">
+                              <p className="text-xs sm:text-sm text-muted-foreground mt-2 sm:mt-3 line-clamp-2">
                                 {member.bio}
                               </p>
                             )}
@@ -333,9 +333,9 @@ export default async function StaffPage() {
         {staff.length === 0 && (
           <Card>
             <CardContent className="p-8 sm:p-12 text-center">
-              <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-gray-300" />
+              <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
               <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">No staff members found</h3>
-              <p className="text-sm sm:text-base text-gray-600">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 There are currently no staff members to display.
               </p>
             </CardContent>

@@ -16,6 +16,7 @@ export async function editCommunity(
     communityId: string,
     title: string,
     description: string,
+    content: string,
     slug: string,
     imageData: ImageData | null
 ) {
@@ -83,6 +84,7 @@ export async function editCommunity(
         const updateData: any = {
             title,
             description,
+            content,
             slug: {
                 current: slug,
                 _type: "slug",

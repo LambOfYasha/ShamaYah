@@ -28,9 +28,51 @@ const colorOptions = [
   { value: 'yellow', label: 'Yellow' },
   { value: 'purple', label: 'Purple' },
   { value: 'orange', label: 'Orange' },
-  { value: 'pink', label: 'Pink' },
+  { value: 'white', label: 'White' },
   { value: 'gray', label: 'Gray' },
 ];
+
+const colorClasses = {
+  blue: {
+    swatch: 'bg-blue-500 border-blue-500',
+    badge: 'bg-blue-100 text-blue-800 border-blue-200',
+  },
+  green: {
+    swatch: 'bg-green-500 border-green-500',
+    badge: 'bg-green-100 text-green-800 border-green-200',
+  },
+  red: {
+    swatch: 'bg-red-500 border-red-500',
+    badge: 'bg-red-100 text-red-800 border-red-200',
+  },
+  yellow: {
+    swatch: 'bg-yellow-400 border-yellow-500',
+    badge: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  },
+  purple: {
+    swatch: 'bg-purple-500 border-purple-500',
+    badge: 'bg-purple-100 text-purple-800 border-purple-200',
+  },
+  orange: {
+    swatch: 'bg-orange-500 border-orange-500',
+    badge: 'bg-orange-100 text-orange-800 border-orange-200',
+  },
+  pink: {
+    swatch: 'bg-pink-500 border-pink-500',
+    badge: 'bg-pink-100 text-pink-800 border-pink-200',
+  },
+  white: {
+    swatch: 'bg-white border-gray-300',
+    badge: 'bg-white text-gray-800 border-gray-300',
+  },
+  gray: {
+    swatch: 'bg-gray-500 border-gray-500',
+    badge: 'bg-gray-100 text-gray-800 border-gray-200',
+  },
+} as const;
+
+const getColorClasses = (value: string) =>
+  colorClasses[value as keyof typeof colorClasses] ?? colorClasses.blue;
 
 export default function TagsManagementPage() {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -40,12 +82,12 @@ export default function TagsManagementPage() {
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  
+
   // Form states
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [color, setColor] = useState('blue');
-  
+
   const { toast } = useToast();
 
   // Helper function to format dates safely
@@ -53,7 +95,7 @@ export default function TagsManagementPage() {
     if (!dateString) {
       return 'Unknown date';
     }
-    
+
     try {
       return formatDistanceToNow(parseISO(dateString), { addSuffix: true });
     } catch (error) {
@@ -62,7 +104,7 @@ export default function TagsManagementPage() {
         return new Date(dateString).toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'short',
-          day: 'numeric'
+          day: 'numeric',
         });
       } catch {
         return 'Unknown date';
@@ -119,7 +161,7 @@ export default function TagsManagementPage() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         toast({
           title: "Success",
@@ -169,7 +211,7 @@ export default function TagsManagementPage() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         toast({
           title: "Success",
@@ -254,7 +296,7 @@ export default function TagsManagementPage() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold">Tag Management</h1>
-            <p className="text-gray-600">Create and manage tags for blog posts</p>
+            <p >Create and manage tags for blog posts</p>
           </div>
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
             <DialogTrigger asChild>
@@ -300,7 +342,7 @@ export default function TagsManagementPage() {
                       {colorOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           <div className="flex items-center gap-2">
-                            <div className={`w-4 h-4 rounded-full bg-${option.value}-500`} />
+                            <div className={`w-4 h-4 rounded-full border ${getColorClasses(option.value).swatch}`} />
                             {option.label}
                           </div>
                         </SelectItem>
@@ -330,9 +372,9 @@ export default function TagsManagementPage() {
                     <TagIcon className="w-4 h-4" />
                     <CardTitle className="text-lg">{tag.name}</CardTitle>
                   </div>
-                  <Badge 
+                  <Badge
                     variant="secondary"
-                    className={`bg-${tag.color}-100 text-${tag.color}-800 border-${tag.color}-200`}
+                    className={getColorClasses(tag.color).badge}
                   >
                     {tag.color}
                   </Badge>
@@ -342,7 +384,7 @@ export default function TagsManagementPage() {
                 )}
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                <div className="flex items-center justify-between text-sm mb-4">
                   <span>Slug: {tag.slug}</span>
                   <span>Created: {formatDate(tag.createdAt || (tag as any)._createdAt)}</span>
                 </div>
@@ -372,9 +414,9 @@ export default function TagsManagementPage() {
         {tags.length === 0 && (
           <Card>
             <CardContent className="p-12 text-center">
-              <TagIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <TagIcon className="w-12 h-12  mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No tags found</h3>
-              <p className="text-gray-600 mb-4">
+              <p>
                 Create your first tag to start categorizing blog posts
               </p>
             </CardContent>
@@ -420,7 +462,7 @@ export default function TagsManagementPage() {
                     {colorOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full bg-${option.value}-500`} />
+                          <div className={`w-4 h-4 rounded-full border ${getColorClasses(option.value).swatch}`} />
                           {option.label}
                         </div>
                       </SelectItem>

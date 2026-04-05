@@ -1,12 +1,20 @@
 'use client';
 
+import ManagedPageContent from "@/components/pages/managed-page-content";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useManagedPage } from "@/hooks/use-managed-page";
 import Link from "next/link";
 import { ArrowLeft, Phone, MessageSquare, Youtube, ExternalLink } from "lucide-react";
 import Image from "next/image";
 
 export default function ContactPage() {
+  const { page: managedPage } = useManagedPage('contact');
+
+  if (managedPage) {
+    return <ManagedPageContent page={managedPage} />;
+  }
+
   return (
     <div className="min-h-screen">
       {/* Header */}

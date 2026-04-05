@@ -48,7 +48,7 @@ export default async function MembersPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Community Members</h1>
-              <p className="text-sm sm:text-base text-gray-600">Discover and connect with our community members</p>
+              <p className="text-sm sm:text-base text-muted-foreground">Discover and connect with our community members</p>
             </div>
             <Badge variant="outline" className="flex items-center gap-1 w-fit">
               <Users className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -61,7 +61,7 @@ export default async function MembersPage() {
         <div className="mb-4 sm:mb-6">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground opacity-60 w-4 h-4" />
               <Input 
                 placeholder="Search members..." 
                 className="pl-10"
@@ -112,7 +112,7 @@ export default async function MembersPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
+                    <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                       <div className="flex items-center gap-1">
                         <FileText className="w-3 h-3" />
                         <span>{member.postCount} posts</span>
@@ -124,7 +124,7 @@ export default async function MembersPage() {
                     </div>
 
                     {/* Additional Info */}
-                    <div className="space-y-1 text-xs sm:text-sm text-gray-600">
+                    <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         <span>Joined {formatDistanceToNow(new Date(member.joinedAt), { addSuffix: true })}</span>
@@ -142,7 +142,7 @@ export default async function MembersPage() {
                             href={member.website} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
+                            className="text-primary hover:underline"
                           >
                             Website
                           </a>
@@ -152,7 +152,7 @@ export default async function MembersPage() {
 
                     {/* Bio Preview */}
                     {member.bio && (
-                      <p className="text-xs sm:text-sm text-gray-700 mt-2 sm:mt-3 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-2 sm:mt-3 line-clamp-2">
                         {member.bio}
                       </p>
                     )}
@@ -167,9 +167,9 @@ export default async function MembersPage() {
         {members.length === 0 && (
           <Card>
             <CardContent className="p-8 sm:p-12 text-center">
-              <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-gray-300" />
+              <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
               <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">No members found</h3>
-              <p className="text-sm sm:text-base text-gray-600">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 There are currently no community members to display.
               </p>
             </CardContent>
@@ -178,4 +178,4 @@ export default async function MembersPage() {
       </div>
     </div>
   );
-} 
+}
