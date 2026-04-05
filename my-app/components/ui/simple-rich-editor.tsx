@@ -100,6 +100,7 @@ export default function SimpleRichEditor({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
   const [showFontFamilyPicker, setShowFontFamilyPicker] = useState(false);
+  const linkSelectionRef = useRef<{ from: number; to: number } | null>(null);
 
   const [mounted, setMounted] = useState(false);
 
@@ -200,16 +201,39 @@ export default function SimpleRichEditor({
     },
   });
 
+  const openLinkDialog = () => {
+    if (editor) {
+      const { from, to } = editor.state.selection;
+      linkSelectionRef.current = { from, to };
+
+      const currentHref = editor.getAttributes('link').href;
+      setLinkUrl(typeof currentHref === 'string' ? currentHref : '');
+    }
+
+    setShowLinkDialog(true);
+  };
+
+  const closeLinkDialog = () => {
+    linkSelectionRef.current = null;
+    setLinkUrl('');
+    setShowLinkDialog(false);
+  };
+
   const addLink = () => {
-    if (linkUrl) {
+    if (linkUrl && editor) {
       const normalizedLinkUrl = normalizeRichTextLinkUrl(linkUrl);
-      editor?.chain().focus().extendMarkRange('link').setLink({
+      const chain = editor.chain().focus();
+
+      if (linkSelectionRef.current) {
+        chain.setTextSelection(linkSelectionRef.current);
+      }
+
+      chain.extendMarkRange('link').setLink({
         href: normalizedLinkUrl,
         target: '_blank',
         rel: 'noopener noreferrer nofollow',
       }).run();
-      setLinkUrl('');
-      setShowLinkDialog(false);
+      closeLinkDialog();
     }
   };
 
@@ -549,9 +573,19 @@ export default function SimpleRichEditor({
           <div className="w-px h-6 bg-gray-300 mx-1" />
 
           {/* Media */}
-          <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
+          <Dialog open={showLinkDialog} onOpenChange={(open) => {
+            if (!open) {
+              closeLinkDialog();
+            }
+          }}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={openLinkDialog}
+              >
                 <LinkIcon className="w-4 h-4" />
               </Button>
             </DialogTrigger>
@@ -570,8 +604,8 @@ export default function SimpleRichEditor({
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={addLink}>Add Link</Button>
-                  <Button variant="outline" onClick={() => setShowLinkDialog(false)}>
+                  <Button type="button" onClick={addLink}>Add Link</Button>
+                  <Button type="button" variant="outline" onClick={closeLinkDialog}>
                     Cancel
                   </Button>
                 </div>
