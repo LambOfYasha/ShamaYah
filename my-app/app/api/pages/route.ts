@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/middleware';
-import { canManagePages, normalizeSitePagePayload } from '@/lib/pages';
+import {
+  canManagePages,
+  getManagedPageSlugError,
+  getPagePath,
+  getPageRedirectTargetError,
+  normalizeSitePagePayload,
+} from '@/lib/pages';
 import { adminClient } from '@/sanity/lib/adminClient';
 import { getPageBySlug, getPages } from '@/sanity/lib/pages';
 
@@ -38,12 +44,52 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = normalizeSitePagePayload(await request.json());
+    const slugError = getManagedPageSlugError(payload.slug);
 
-    if (!payload.title || !payload.slug || !payload.content) {
+    if (!payload.title || !payload.slug) {
       return NextResponse.json(
-        { error: 'Title, slug, and content are required' },
+        { error: 'Title and slug are required' },
         { status: 400 }
       );
+    }
+
+    if (slugError) {
+      return NextResponse.json({ error: slugError }, { status: 400 });
+    }
+
+    if (payload.routeBehavior === 'render' && !payload.content) {
+      return NextResponse.json(
+        { error: 'Page content is required when this route shows a page' },
+        { status: 400 }
+      );
+    }
+
+    if (payload.routeBehavior === 'redirect' && !payload.redirectTo) {
+      return NextResponse.json(
+        { error: 'Choose a destination page when this route redirects visitors' },
+        { status: 400 }
+      );
+    }
+
+    if (payload.routeBehavior === 'redirect') {
+      const redirectTargetError = getPageRedirectTargetError(payload.redirectTo);
+
+      if (redirectTargetError) {
+        return NextResponse.json({ error: redirectTargetError }, { status: 400 });
+      }
+    }
+
+    if (payload.routeBehavior === 'redirect') {
+      const redirectPathname = payload.redirectTo.startsWith('/')
+        ? new URL(payload.redirectTo, 'https://managed-page.local').pathname
+        : null;
+
+      if (redirectPathname === getPagePath(payload.slug)) {
+        return NextResponse.json(
+          { error: 'A page cannot redirect to itself' },
+          { status: 400 }
+        );
+      }
     }
 
     const existingPage = await adminClient.fetch<ExistingPageReference | null>(
@@ -69,6 +115,11 @@ export async function POST(request: NextRequest) {
       description: payload.description,
       content: payload.content,
       isPublished: payload.isPublished,
+      routeBehavior: payload.routeBehavior,
+      redirectType: payload.redirectType,
+      ...(payload.routeBehavior === 'redirect' && payload.redirectTo
+        ? { redirectTo: payload.redirectTo }
+        : {}),
       createdAt: timestamp,
       updatedAt: timestamp,
     });

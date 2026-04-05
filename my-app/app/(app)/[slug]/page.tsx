@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import ManagedPageContent from '@/components/pages/managed-page-content';
 import { getPageBySlug } from '@/sanity/lib/pages';
 
@@ -33,6 +33,14 @@ export default async function ManagedPageRoute({ params }: ManagedPageRouteProps
 
   if (!page) {
     notFound();
+  }
+
+  if (page.routeBehavior === 'redirect' && page.redirectTo) {
+    if (page.redirectType === 'permanent') {
+      permanentRedirect(page.redirectTo);
+    }
+
+    redirect(page.redirectTo);
   }
 
   return <ManagedPageContent page={page} />;

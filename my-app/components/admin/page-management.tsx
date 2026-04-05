@@ -2,7 +2,8 @@
 
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ExternalLink, FileText, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowRight, ExternalLink, FileText, Info, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ClientRichEditor from '@/components/ui/client-rich-editor';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
@@ -33,8 +35,11 @@ import {
   MANAGED_STATIC_PAGE_SLUGS,
   SitePage,
   SitePagePayload,
+  getManagedPageSlugError,
   getPagePath,
+  getPageRedirectTargetError,
   normalizePageSlug,
+  normalizePageRedirectTarget,
   normalizeSitePagePayload,
 } from '@/lib/pages';
 
@@ -44,6 +49,9 @@ const emptyFormState: SitePagePayload = {
   description: '',
   content: '',
   isPublished: true,
+  routeBehavior: 'render',
+  redirectTo: '',
+  redirectType: 'temporary',
 };
 
 function formatTimestamp(value?: string) {
@@ -115,6 +123,19 @@ export default function PageManagement() {
     return normalizedSlug ? getPagePath(normalizedSlug) : '/your-page-slug';
   }, [formState.slug, formState.title]);
 
+  const redirectPreview = useMemo(() => {
+    return normalizePageRedirectTarget(formState.redirectTo) || '/destination-page';
+  }, [formState.redirectTo]);
+
+  const redirectTargetError = useMemo(() => {
+    return formState.routeBehavior === 'redirect' ? getPageRedirectTargetError(formState.redirectTo) : null;
+  }, [formState.redirectTo, formState.routeBehavior]);
+
+  const slugError = useMemo(() => {
+    const sourceValue = formState.slug || formState.title;
+    return sourceValue ? getManagedPageSlugError(sourceValue) : null;
+  }, [formState.slug, formState.title]);
+
   function resetForm() {
     setEditingPage(null);
     setFormState(emptyFormState);
@@ -134,6 +155,9 @@ export default function PageManagement() {
       description: page.description || '',
       content: page.content || '',
       isPublished: page.isPublished,
+      routeBehavior: page.routeBehavior || 'render',
+      redirectTo: page.redirectTo || '',
+      redirectType: page.redirectType || 'temporary',
     });
     setSlugTouched(true);
     setDialogOpen(true);
@@ -155,10 +179,29 @@ export default function PageManagement() {
     }));
   }
 
+  function handleRouteBehaviorChange(value: string) {
+    const nextBehavior = value === 'redirect' ? 'redirect' : 'render';
+
+    setFormState((current) => ({
+      ...current,
+      routeBehavior: nextBehavior,
+      redirectTo: nextBehavior === 'redirect' ? current.redirectTo : '',
+      redirectType: nextBehavior === 'redirect' ? current.redirectType : 'temporary',
+    }));
+  }
+
+  function handleRedirectTargetChange(value: string) {
+    setFormState((current) => ({
+      ...current,
+      redirectTo: value,
+    }));
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const payload = normalizeSitePagePayload(formState);
+    const routeSlugError = getManagedPageSlugError(payload.slug);
 
     if (!payload.title) {
       toast({
@@ -178,13 +221,55 @@ export default function PageManagement() {
       return;
     }
 
-    if (!payload.content) {
+    if (routeSlugError) {
       toast({
         title: 'Error',
-        description: 'Page content is required',
+        description: routeSlugError,
         variant: 'destructive',
       });
       return;
+    }
+
+    if (payload.routeBehavior === 'render' && !payload.content) {
+      toast({
+        title: 'Error',
+        description: 'Page content is required when the route shows a page',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (payload.routeBehavior === 'redirect' && !payload.redirectTo) {
+      toast({
+        title: 'Error',
+        description: 'Choose where this route should send visitors',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (payload.routeBehavior === 'redirect' && redirectTargetError) {
+      toast({
+        title: 'Error',
+        description: redirectTargetError,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (payload.routeBehavior === 'redirect') {
+      const redirectPathname = payload.redirectTo.startsWith('/')
+        ? new URL(payload.redirectTo, 'https://managed-page.local').pathname
+        : null;
+
+      if (redirectPathname === getPagePath(payload.slug)) {
+        toast({
+          title: 'Error',
+          description: 'A page cannot redirect to itself',
+          variant: 'destructive',
+        });
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -269,8 +354,8 @@ export default function PageManagement() {
               <CardTitle>Page management</CardTitle>
             </div>
             <CardDescription>
-              Create, publish, edit, and remove Sanity-backed web pages. Use a matching slug to override
-              the existing informational routes, or create a brand-new route that renders automatically.
+              Create, publish, edit, redirect, and remove Sanity-backed web pages. Use a matching slug to
+              override the existing informational routes, or create a brand-new route that renders automatically.
             </CardDescription>
           </div>
 
@@ -289,7 +374,8 @@ export default function PageManagement() {
           </div>
           <p className="text-sm text-muted-foreground">
             Matching one of the routes above will replace that page with the Sanity-managed version after the
-            app loads. Any new single-segment slug will render through the new dynamic page route.
+            app loads. Any new single-segment slug will render through the new dynamic page route or redirect
+            visitors somewhere else.
           </p>
         </CardContent>
       </Card>
@@ -340,6 +426,9 @@ export default function PageManagement() {
                     <Badge variant={page.isPublished ? 'default' : 'secondary'}>
                       {page.isPublished ? 'Published' : 'Draft'}
                     </Badge>
+                    <Badge variant="outline">
+                      {page.routeBehavior === 'redirect' ? 'Redirect' : 'Page'}
+                    </Badge>
                   </div>
                   <CardDescription className="break-all">{getPagePath(page.slug)}</CardDescription>
                 </CardHeader>
@@ -347,6 +436,20 @@ export default function PageManagement() {
                   <p className="text-sm text-muted-foreground">
                     {page.description || excerpt || 'No summary available for this page yet.'}
                   </p>
+
+                  {page.routeBehavior === 'redirect' && page.redirectTo ? (
+                    <div className="rounded-lg border bg-muted/40 p-3">
+                      <p className="text-sm font-medium text-foreground">Redirect destination</p>
+                      <p className="mt-1 flex items-center gap-2 break-all text-sm text-muted-foreground">
+                        <span>{getPagePath(page.slug)}</span>
+                        <ArrowRight className="h-4 w-4 flex-none" />
+                        <span>{page.redirectTo}</span>
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {page.redirectType === 'permanent' ? 'Permanent redirect' : 'Temporary redirect'}
+                      </p>
+                    </div>
+                  ) : null}
 
                   <div className="space-y-1 text-xs text-muted-foreground">
                     <p>
@@ -363,7 +466,7 @@ export default function PageManagement() {
                       <Button asChild variant="outline" size="sm">
                         <Link href={getPagePath(page.slug)} target="_blank">
                           <ExternalLink className="mr-2 h-4 w-4" />
-                          Open page
+                          {page.routeBehavior === 'redirect' ? 'Test redirect' : 'Open page'}
                         </Link>
                       </Button>
                     ) : null}
@@ -407,7 +510,7 @@ export default function PageManagement() {
           <DialogHeader>
             <DialogTitle>{editingPage ? 'Edit page' : 'Create page'}</DialogTitle>
             <DialogDescription>
-              Manage the route slug, publication status, and rich content stored in Sanity.
+              Manage the route slug, whether it shows content or redirects visitors, and the content stored in Sanity.
             </DialogDescription>
           </DialogHeader>
 
@@ -434,6 +537,13 @@ export default function PageManagement() {
                     placeholder="about"
                     disabled={isSubmitting}
                   />
+                  {slugError ? (
+                    <p className="text-xs text-destructive">{slugError}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Use a short public route like `about-us`. App system routes such as `/admin` stay protected.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -476,22 +586,103 @@ export default function PageManagement() {
 
               <div className="rounded-lg border bg-muted/30 p-4">
                 <p className="text-sm font-medium">Route preview</p>
-                <p className="mt-1 break-all text-sm text-muted-foreground">{routePreview}</p>
+                {formState.routeBehavior === 'redirect' ? (
+                  <p className="mt-1 flex items-center gap-2 break-all text-sm text-muted-foreground">
+                    <span>{routePreview}</span>
+                    <ArrowRight className="h-4 w-4 flex-none" />
+                    <span>{redirectPreview}</span>
+                  </p>
+                ) : (
+                  <p className="mt-1 break-all text-sm text-muted-foreground">{routePreview}</p>
+                )}
                 <p className="mt-2 text-xs text-muted-foreground">
                   Use `/about`, `/contact`, `/faq`, `/guidelines`, `/privacy`, or `/terms` to override the
-                  current informational pages. Any new top-level slug will render automatically.
+                  current informational pages. Any new top-level slug can either show its own page content or
+                  redirect visitors to another page or website.
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label>Content</Label>
-                <ClientRichEditor
-                  content={formState.content}
-                  onChange={(content) => setFormState((current) => ({ ...current, content }))}
-                  placeholder="Write the page content here..."
-                  maxHeight="500px"
-                />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>What should this route do?</Label>
+                  <Select value={formState.routeBehavior} onValueChange={handleRouteBehaviorChange}>
+                    <SelectTrigger disabled={isSubmitting}>
+                      <SelectValue placeholder="Choose what visitors should see" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="render">Show this page</SelectItem>
+                      <SelectItem value="redirect">Redirect visitors elsewhere</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {formState.routeBehavior === 'redirect' ? (
+                  <div className="space-y-2">
+                    <Label>Redirect type</Label>
+                    <Select
+                      value={formState.redirectType}
+                      onValueChange={(value) =>
+                        setFormState((current) => ({
+                          ...current,
+                          redirectType: value === 'permanent' ? 'permanent' : 'temporary',
+                        }))
+                      }
+                    >
+                      <SelectTrigger disabled={isSubmitting}>
+                        <SelectValue placeholder="Choose redirect type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="temporary">Temporary redirect</SelectItem>
+                        <SelectItem value="permanent">Permanent redirect</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : null}
               </div>
+
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>
+                  {formState.routeBehavior === 'redirect' ? 'Visitors will be sent to another page' : 'Visitors will see this page'}
+                </AlertTitle>
+                <AlertDescription>
+                  {formState.routeBehavior === 'redirect'
+                    ? 'Use a destination like /contact, /help, or https://example.com. Temporary is best while testing, and permanent is best when the old address has fully moved.'
+                    : 'Use this option when you want the route to show its own title, description, and rich content.'}
+                </AlertDescription>
+              </Alert>
+
+              {formState.routeBehavior === 'redirect' ? (
+                <div className="space-y-2">
+                  <Label htmlFor="page-redirect-to">Send visitors to</Label>
+                  <Input
+                    id="page-redirect-to"
+                    value={formState.redirectTo}
+                    onChange={(event) => handleRedirectTargetChange(event.target.value)}
+                    placeholder="/contact or https://example.com"
+                    disabled={isSubmitting}
+                  />
+                  {redirectTargetError ? (
+                    <p className="text-xs text-destructive">{redirectTargetError}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Enter an internal path such as `/contact`, `/help`, or `/blogs/welcome`, or a full external URL.
+                    </p>
+                  )}
+                </div>
+              ) : null}
+
+              {formState.routeBehavior === 'render' ? (
+                <div className="space-y-2">
+                  <Label>Content</Label>
+                  <ClientRichEditor
+                    content={formState.content}
+                    onChange={(content) => setFormState((current) => ({ ...current, content }))}
+                    placeholder="Write the page content here..."
+                    maxHeight="500px"
+                  />
+                </div>
+              ) : null}
             </form>
           </ScrollArea>
 
