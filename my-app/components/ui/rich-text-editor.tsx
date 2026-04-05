@@ -193,14 +193,14 @@ export default function RichTextEditor({
       if (match) {
         const embedUrl = `https://www.youtube.com/embed/${match[1]}`;
         editor?.chain().focus().insertContent(`
-          <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
-            <iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen></iframe>
+          <div class="video-container">
+            <iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
           </div>
         `).run();
       } else {
         // For other video URLs, try to embed directly
         editor?.chain().focus().insertContent(`
-          <video controls style="max-width: 100%; height: auto;">
+          <video controls>
             <source src="${videoUrl}" type="video/mp4">
             Your browser does not support the video tag.
           </video>

@@ -24,7 +24,7 @@ export default async function FavoritesPage() {
           <div className="text-center py-12">
             <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
             <h2 className="text-xl font-semibold mb-2">Unable to Load Favorites</h2>
-            <p className="text-gray-600 mb-4">{favorites.error}</p>
+            <p className="text-muted-foreground mb-4">{favorites.error}</p>
             <Button onClick={() => window.location.reload()}>
               Try Again
             </Button>
@@ -49,7 +49,7 @@ export default async function FavoritesPage() {
               </Button>
               <div>
                 <h1 className="text-3xl font-bold mb-2">My Favorites</h1>
-                <p className="text-gray-600">Posts you've saved for later</p>
+                <p className="text-muted-foreground">Posts you've saved for later</p>
               </div>
             </div>
             <Badge variant="outline" className="flex items-center gap-1">

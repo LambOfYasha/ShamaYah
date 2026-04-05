@@ -40,7 +40,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Manage user accounts and permissions
                 </p>
                 <Button asChild className="w-full">
@@ -63,7 +63,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Manage teacher accounts and specializations
                 </p>
                 <Button asChild className="w-full">
@@ -86,7 +86,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Review and moderate community content
                 </p>
                 <Button asChild className="w-full">
@@ -109,7 +109,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Review and manage user reports
                 </p>
                 <Button asChild className="w-full">
@@ -132,7 +132,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Manage blog posts and content
                 </p>
                 <Button asChild className="w-full">
@@ -155,7 +155,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Manage video lessons, categories, and content
                 </p>
                 <Button asChild className="w-full">
@@ -178,7 +178,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Manage content tags and categories
                 </p>
                 <Button asChild className="w-full">
@@ -201,7 +201,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Manage community questions and discussions
                 </p>
                 <Button asChild className="w-full">
@@ -224,7 +224,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   View platform analytics and insights
                 </p>
                 <Button asChild className="w-full">
@@ -242,12 +242,12 @@ export default async function AdminPage() {
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center space-x-2">
-                  <Settings className="h-5 w-5 text-gray-600" />
+                  <Settings className="h-5 w-5 text-muted-foreground" />
                   <CardTitle>System Settings</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Configure system-wide settings
                 </p>
                 <Button asChild className="w-full">
@@ -270,7 +270,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Development test pages, API tests, and utilities
                 </p>
                 <Button asChild className="w-full">
@@ -286,15 +286,16 @@ export default async function AdminPage() {
         </div>
 
         {/* User Info */}
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-8 p-4 bg-muted rounded-lg">
           <h3 className="text-lg font-semibold mb-2">Current User</h3>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             <strong>Username:</strong> {user.username} | 
             <strong>Role:</strong> {user.role} | 
             <strong>Email:</strong> {user.email}
           </p>
+
         </div>
       </div>
     </div>
   );
-} 
+}

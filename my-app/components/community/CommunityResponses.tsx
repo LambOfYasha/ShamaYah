@@ -60,7 +60,7 @@ interface Response {
 export default function CommunityResponses({ communityQuestionId, user, communityQuestionTitle }: CommunityResponsesProps) {
   const [responses, setResponses] = useState<Response[]>([]);
   const [loading, setLoading] = useState(true);
-  const { isLoaded, isSignedIn, user: clerkUser } = useUser();
+  const { isSignedIn } = useUser();
 
   const fetchData = async () => {
     try {
@@ -138,7 +138,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
           ) : (
             <div className="flex flex-col items-center justify-center p-6">
               <h4 className="text-lg font-semibold mb-2">You need to be signed in to add a response</h4>
-              <Button onClick={() => clerkUser?.signIn()} className="h-10 px-6">
+              <Button onClick={() => window.location.assign('/sign-in')} className="h-10 px-6">
                 Sign In
               </Button>
             </div>
@@ -161,7 +161,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
         ) : (
           <div className="flex flex-col items-center justify-center p-6">
             <h4 className="text-lg font-semibold mb-2">You need to be signed in to add a response</h4>
-            <Button onClick={() => clerkUser?.signIn()} className="h-10 px-6">
+            <Button onClick={() => window.location.assign('/sign-in')} className="h-10 px-6">
               Sign In
             </Button>
           </div>
@@ -285,12 +285,7 @@ export default function CommunityResponses({ communityQuestionId, user, communit
                 {/* Render response body content */}
                 {response.body ? (
                   <RichContentRenderer 
-                    content={typeof response.body === 'string' 
-                      ? response.body 
-                      : response.body.map((block: any) => 
-                          block.children?.map((child: any) => child.text).join('') || ''
-                        ).join('\n')
-                    }
+                    content={response.body}
                     className="text-gray-700 leading-relaxed"
                   />
                 ) : (
@@ -313,4 +308,4 @@ export default function CommunityResponses({ communityQuestionId, user, communit
       </div>
     </div>
   );
-} 
+}

@@ -1,17 +1,17 @@
 'use client'
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-  } from "@/components/ui/dialog"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 import React, { useState, useRef, useTransition } from 'react'
 import { useUser } from '@clerk/nextjs' 
 import { Input } from "../ui/input"
-import { Textarea } from "../ui/textarea"
+import ClientRichEditor from "../ui/client-rich-editor"
 import { ImageIcon, Plus, X, MessageCircle } from "lucide-react"
 import Image from "next/image"
 import { Label } from "../ui/label"
@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation"
 import { useModeration } from "@/hooks/useModeration"
 import { ModerationFeedback } from "@/components/ui/moderation-feedback"
 import GuestCreateCommunityButton from "../community/GuestCreateCommunityButton"
+import { richTextContentToPlainText } from "@/lib/utils"
 
 function CreateCommunityButton() {
 
@@ -61,15 +62,14 @@ function CreateCommunityButton() {
     }
     
     // Check both name and description together
-    updateModeratedContent(`${value}\n\n${description}`);
+    updateModeratedContent(`${richTextContentToPlainText(value)}\n\n${richTextContentToPlainText(description)}`);
   }
 
   // Update moderated content when description changes
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newDescription = e.target.value;
+  const handleDescriptionChange = (newDescription: string) => {
     setDescription(newDescription);
     // Check both name and description together
-    updateModeratedContent(`${name}\n\n${newDescription}`);
+    updateModeratedContent(`${name}\n\n${richTextContentToPlainText(newDescription)}`);
   };
 
 const generateSlug = (text: string) => {
@@ -113,9 +113,16 @@ const resetForm = () => {
 
 const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault()
+
+  const normalizedDescription = richTextContentToPlainText(description)
   
   if (!user) {
     setErrorMessage("You must be signed in to create a community question.")
+    return
+  }
+
+  if (!name.trim() || !slug.trim() || !normalizedDescription.trim()) {
+    setErrorMessage("Title, slug, and question content are required.")
     return
   }
 
@@ -138,7 +145,12 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
         setErrorMessage("Image upload not implemented.")
         return
       }
-      const result = await createCommunityQuestion(name, slug, description, image)
+      const result = await createCommunityQuestion({
+        name,
+        slug,
+        description: normalizedDescription.slice(0, 300),
+        content: description.trim(),
+      })
       
       if ("createdCommunity" in result) {
         setOpen(false)
@@ -221,16 +233,11 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
           <label htmlFor="description" className="text-sm font-medium">
             Question
           </label>
-          <Textarea
-          id="description"
-          placeholder="Ask your question here"
-          className="w-full focus:ring-2 focus:ring-blue-500"
-          value={description}
+          <ClientRichEditor
+          content={description}
           onChange={handleDescriptionChange}
-          required
-          minLength={10}
-          maxLength={1000}
-          rows={4}
+          placeholder="Ask your question here"
+          maxHeight="300px"
           />
           
           {/* Moderation Feedback */}
@@ -295,7 +302,7 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
 
             <Button 
               type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+              className="w-full  font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={isPending || !user || !canSubmit}
             >
               {isPending ? "Creating..." : "Create Question"}

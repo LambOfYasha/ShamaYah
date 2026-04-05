@@ -53,7 +53,7 @@ import { Button } from './button';
 import { Input } from './input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './dialog';
 import { Label } from './label';
-import { cn } from '@/lib/utils';
+import { cn, normalizeRichTextLinkUrl } from '@/lib/utils';
 
 interface RichTextEditorProps {
   content: string;
@@ -100,6 +100,8 @@ export default function SimpleRichEditor({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
   const [showFontFamilyPicker, setShowFontFamilyPicker] = useState(false);
+  const linkSelectionRef = useRef<{ from: number; to: number } | null>(null);
+  const linkWasActiveRef = useRef(false);
 
   const [mounted, setMounted] = useState(false);
 
@@ -114,19 +116,17 @@ export default function SimpleRichEditor({
           keepMarks: true,
           keepAttributes: false,
           HTMLAttributes: {
-            class: 'list-disc list-inside',
+            class: 'list-disc list-outside pl-6',
           },
         },
         orderedList: {
           keepMarks: true,
           keepAttributes: false,
           HTMLAttributes: {
-            class: 'list-decimal list-inside',
+            class: 'list-decimal list-outside pl-6',
           },
         },
         listItem: {
-          keepMarks: true,
-          keepAttributes: false,
           HTMLAttributes: {
             class: 'mb-1',
           },
@@ -140,6 +140,8 @@ export default function SimpleRichEditor({
         openOnClick: false,
         HTMLAttributes: {
           class: 'text-blue-600 underline cursor-pointer',
+          target: '_blank',
+          rel: 'noopener noreferrer nofollow',
         },
       }),
       Image.configure({
@@ -194,18 +196,99 @@ export default function SimpleRichEditor({
     ],
     content: content,
     editable: !readOnly,
+    editorProps: {
+      attributes: {
+        class: cn(
+          'prose max-w-none min-h-[200px] p-4 focus:outline-none [&_ul]:list-outside [&_ul]:pl-6 [&_ol]:list-outside [&_ol]:pl-6 [&_li>p]:my-0',
+          !readOnly && 'cursor-text'
+        ),
+      },
+    },
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
   });
 
-  const addLink = () => {
-    if (linkUrl) {
-      editor?.chain().focus().extendMarkRange('link').setLink({ href: linkUrl }).run();
-      setLinkUrl('');
-      setShowLinkDialog(false);
+  const openLinkDialog = () => {
+    if (editor) {
+      const { from, to } = editor.state.selection;
+      linkSelectionRef.current = { from, to };
+
+      const currentHref = editor.getAttributes('link').href;
+      linkWasActiveRef.current = Boolean(currentHref);
+      setLinkUrl(typeof currentHref === 'string' ? currentHref : '');
     }
+
+    setShowLinkDialog(true);
+  };
+
+  const closeLinkDialog = () => {
+    linkSelectionRef.current = null;
+    linkWasActiveRef.current = false;
+    setLinkUrl('');
+    setShowLinkDialog(false);
+  };
+
+  const addLink = () => {
+    if (editor) {
+      const normalizedLinkUrl = normalizeRichTextLinkUrl(linkUrl.trim());
+      const selection = linkSelectionRef.current;
+      const hasTextSelection = Boolean(selection && selection.from !== selection.to);
+      const chain = editor.chain().focus();
+
+      if (selection) {
+        chain.setTextSelection(selection);
+      }
+
+      if (!normalizedLinkUrl) {
+        chain.extendMarkRange('link').unsetLink().run();
+        closeLinkDialog();
+        return;
+      }
+
+      if (hasTextSelection || linkWasActiveRef.current) {
+        chain.extendMarkRange('link').setLink({
+          href: normalizedLinkUrl,
+          target: '_blank',
+          rel: 'noopener noreferrer nofollow',
+        }).run();
+      } else {
+        chain
+          .insertContent({
+            type: 'text',
+            text: normalizedLinkUrl,
+            marks: [
+              {
+                type: 'link',
+                attrs: {
+                  href: normalizedLinkUrl,
+                  target: '_blank',
+                  rel: 'noopener noreferrer nofollow',
+                },
+              },
+            ],
+          })
+          .run();
+      }
+
+      closeLinkDialog();
+    }
+  };
+
+  const removeLink = () => {
+    if (!editor) {
+      return;
+    }
+
+    const chain = editor.chain().focus();
+
+    if (linkSelectionRef.current) {
+      chain.setTextSelection(linkSelectionRef.current);
+    }
+
+    chain.extendMarkRange('link').unsetLink().run();
+    closeLinkDialog();
   };
 
   const addImage = () => {
@@ -284,7 +367,7 @@ export default function SimpleRichEditor({
     }
 
     return (
-      <div className="border-b border-gray-200 p-2 bg-white sticky top-0 z-10">
+      <div className="border-b  p-2  sticky top-0 z-10">
         <div className="flex flex-wrap gap-1">
           {/* Text Formatting */}
           <Button
@@ -321,7 +404,7 @@ export default function SimpleRichEditor({
             <Strikethrough className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Text Style */}
           <Button
@@ -348,7 +431,7 @@ export default function SimpleRichEditor({
             <SuperscriptIcon className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Font Controls */}
           <div className="relative">
@@ -362,13 +445,13 @@ export default function SimpleRichEditor({
             </Button>
             {showFontFamilyPicker && (
               <div 
-                className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-20 max-h-48 overflow-y-auto"
+                className="absolute top-full left-0 mt-1  border  rounded-md shadow-lg z-20 max-h-48 overflow-y-auto"
                 onMouseDown={(e) => e.stopPropagation()}
               >
                 {fontFamilies.map((font) => (
                   <button
                     key={font}
-                    className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+                    className="block w-full text-left px-3 py-2 "
                     style={{ fontFamily: font }}
                     onClick={() => {
                       editor.chain().focus().setFontFamily(font).run();
@@ -394,13 +477,13 @@ export default function SimpleRichEditor({
             </Button>
             {showFontSizePicker && (
               <div 
-                className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-20 max-h-48 overflow-y-auto"
+                className="absolute top-full left-0 mt-1  border rounded-md shadow-lg z-20 max-h-48 overflow-y-auto"
                 onMouseDown={(e) => e.stopPropagation()}
               >
                 {fontSizes.map((size) => (
                   <button
                     key={size}
-                    className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+                    className="block w-full text-left px-3 py-2 "
                     style={{ fontSize: size }}
                     onClick={() => {
                       editor.chain().focus().setFontSize(size).run();
@@ -423,20 +506,20 @@ export default function SimpleRichEditor({
             >
               <Palette className="w-4 h-4 mr-1" />
               <div 
-                className="w-4 h-4 rounded border border-gray-300" 
+                className="w-4 h-4 rounded border " 
                 style={{ backgroundColor: selectedColor }}
               />
             </Button>
             {showColorPicker && (
               <div 
-                className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-20 p-2"
+                className="absolute top-full left-0 mt-1  border  rounded-md shadow-lg z-20 p-2"
                 onMouseDown={(e) => e.stopPropagation()}
               >
                 <div className="grid grid-cols-10 gap-1">
                   {colors.map((color) => (
                     <button
                       key={color}
-                      className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
+                      className="w-6 h-6 rounded border  hover:scale-110 transition-transform"
                       style={{ backgroundColor: color }}
                       onClick={() => {
                         editor.chain().focus().setColor(color).run();
@@ -450,7 +533,7 @@ export default function SimpleRichEditor({
             )}
           </div>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Alignment */}
           <Button
@@ -485,7 +568,7 @@ export default function SimpleRichEditor({
             <AlignJustify className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Lists */}
           <Button
@@ -510,7 +593,7 @@ export default function SimpleRichEditor({
             <ListOrdered className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Code */}
           <Button
@@ -530,7 +613,7 @@ export default function SimpleRichEditor({
             Block
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Quote */}
           <Button
@@ -541,12 +624,22 @@ export default function SimpleRichEditor({
             <Quote className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Media */}
-          <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
+          <Dialog open={showLinkDialog} onOpenChange={(open) => {
+            if (!open) {
+              closeLinkDialog();
+            }
+          }}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={openLinkDialog}
+              >
                 <LinkIcon className="w-4 h-4" />
               </Button>
             </DialogTrigger>
@@ -565,8 +658,11 @@ export default function SimpleRichEditor({
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={addLink}>Add Link</Button>
-                  <Button variant="outline" onClick={() => setShowLinkDialog(false)}>
+                  <Button type="button" onClick={addLink}>Apply Link</Button>
+                  <Button type="button" variant="outline" onClick={removeLink}>
+                    Remove Link
+                  </Button>
+                  <Button type="button" variant="outline" onClick={closeLinkDialog}>
                     Cancel
                   </Button>
                 </div>
@@ -643,7 +739,7 @@ export default function SimpleRichEditor({
             </DialogContent>
           </Dialog>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Table */}
           <Button
@@ -692,19 +788,17 @@ export default function SimpleRichEditor({
   }
 
   return (
-    <div className={cn("border border-gray-300 rounded-md overflow-hidden", className)}>
+    <div className={cn("border rounded-md overflow-hidden", className)}>
       {!readOnly && <MenuBar />}
       <div 
-        className="p-4 min-h-[200px] max-h-[600px] overflow-y-auto"
+        className="max-h-[600px] overflow-y-auto"
         style={{ maxHeight }}
       >
         <EditorContent 
           editor={editor} 
-          className="prose max-w-none focus:outline-none"
+          className="w-full"
         />
       </div>
     </div>
   );
 }
-
- 

@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { useModeration } from '@/hooks/useModeration';
 import { ModerationFeedback } from '@/components/ui/moderation-feedback';
 import { TagSelector } from '@/components/ui/tag-selector';
+import { richTextContentToHtml } from '@/lib/utils';
 
 interface Blog {
   _id: string;
@@ -53,16 +54,7 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
   
   // Convert old block format to HTML string for compatibility
   const convertContentToHtml = (content: string | any[]): string => {
-    if (typeof content === 'string') {
-      return content;
-    }
-    // Handle old Sanity block format
-    if (Array.isArray(content) && content.length > 0) {
-      return content.map((block: any) => 
-        block.children?.map((child: any) => child.text).join('') || ''
-      ).join('\n');
-    }
-    return '';
+    return richTextContentToHtml(content);
   };
 
   const [title, setTitle] = useState(blog.title);
@@ -101,7 +93,7 @@ export default function EditBlogButton({ blog, onEdit }: EditBlogButtonProps) {
     getModerationFeedback,
     canSubmit
   } = useModeration({
-    contentType: 'blog',
+    contentType: 'post',
     debounceMs: 1500,
     autoCheck: true
   });

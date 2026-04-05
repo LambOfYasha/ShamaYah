@@ -207,15 +207,15 @@ export default async function BlogPage({
         <div className="bg-background rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4">
             <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
                 {blog.title}
               </h1>
-              <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-3 sm:mb-4">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-3 sm:mb-4">
                 {blog.description}
               </p>
               
               {/* Meta Information */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>
@@ -312,16 +312,12 @@ export default async function BlogPage({
           <div className="prose max-w-none">
             {blog.content ? (
               <RichContentRenderer 
-                content={typeof blog.content === 'string' 
-                  ? blog.content 
-                  : blog.content.map((block: any) => 
-                      block.children?.map((child: any) => child.text).join('') || ''
-                    ).join('\n')
-                }
-                className="text-sm sm:text-base text-gray-700 leading-relaxed"
+                content={blog.content}
+                className="text-sm sm:text-base leading-relaxed"
+                stripThemeConflictingInlineStyles
               />
             ) : (
-              <p className="text-sm sm:text-base text-gray-600">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 This blog post is currently being written. Check back soon for the full content!
               </p>
             )}
@@ -342,8 +338,8 @@ export default async function BlogPage({
                       className="object-cover"
                     />
                   ) : (
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                      <User className="w-6 h-6 sm:w-8 sm:h-8 text-gray-600" />
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-muted rounded-full flex items-center justify-center">
+                      <User className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
                     </div>
                   )}
                 </div>
@@ -356,10 +352,10 @@ export default async function BlogPage({
                 >
                   {blog.author.username}
                 </ProfileLink>
-                <p className="text-xs sm:text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {blog.author.role === "teacher" || blog.author.role === "junior_teacher" || blog.author.role === "senior_teacher" || blog.author.role === "lead_teacher" ? "Teacher" : "Author"}
                 </p>
-                <p className="text-xs sm:text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Published on {(() => {
                     const blogWithDates = blog as any;
                     const date = blogWithDates.publishedAt || blogWithDates._createdAt;

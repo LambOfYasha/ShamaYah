@@ -23,6 +23,7 @@ import { editCommunity } from "@/action/editCommunity";
 import { getImageUrl } from "@/lib/utils";
 import { ReportButton } from "@/components/ui/report-button";
 import CommunityResponses from "@/components/community/CommunityResponses";
+import RichContentRenderer from "@/components/ui/rich-content-renderer";
 import { canEditContent, canDeleteContent } from "@/lib/auth/roles";
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
@@ -39,6 +40,7 @@ interface CommunityQuestionWithModerator {
     _type: string;
     current: string;
   };
+
   image?: {
     asset?: {
       _ref: string;
@@ -52,7 +54,7 @@ interface CommunityQuestionWithModerator {
   };
   createdAt?: string;
   categories?: string[];
-  content?: any[];
+  content?: string | any[];
 }
 
 async function getCommunityQuestion(slug: string): Promise<CommunityQuestionWithModerator | null> {
@@ -115,6 +117,7 @@ export default async function CommunityQuestionPage({
   const handleEditCommunity = async (data: {
     title: string;
     description: string;
+    content: string;
     slug: string;
     imageBase64?: string;
     imageFilename?: string;
@@ -132,6 +135,7 @@ export default async function CommunityQuestionPage({
       communityQuestion._id,
       data.title,
       data.description,
+      data.content,
       data.slug,
       imageData
     );
@@ -140,10 +144,6 @@ export default async function CommunityQuestionPage({
       throw new Error(result.error);
     }
   };
-
-
-
-
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -254,17 +254,12 @@ export default async function CommunityQuestionPage({
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">About this Community</h2>
           <div className="prose max-w-none">
-            {communityQuestion.content ? (
-              <div className="text-gray-700 leading-relaxed">
-                {/* Render content blocks */}
-                {communityQuestion.content.map((block: any, index: number) => (
-                  <div key={index} className="mb-4">
-                    {block.children?.map((child: any, childIndex: number) => (
-                      <span key={childIndex}>{child.text}</span>
-                    ))}
-                  </div>
-                ))}
-              </div>
+            {communityQuestion.content || communityQuestion.description ? (
+              <RichContentRenderer
+                content={communityQuestion.content || communityQuestion.description}
+                className="text-gray-700 leading-relaxed"
+                stripThemeConflictingInlineStyles
+              />
             ) : (
               <p className="text-gray-600">
                 This community is a place for open discussion and learning. 
