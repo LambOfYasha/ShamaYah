@@ -1,13 +1,20 @@
 'use client';
 
+import ManagedPageContent from "@/components/pages/managed-page-content";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useManagedPage } from "@/hooks/use-managed-page";
 import Link from "next/link";
 import { ArrowLeft, Users, BookOpen, Shield, Heart, Globe, Target, Award } from "lucide-react";
 import Image from "next/image";
 
 
 export default function AboutPage() {
+  const { page: managedPage } = useManagedPage('about');
+
+  if (managedPage) {
+    return <ManagedPageContent page={managedPage} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">

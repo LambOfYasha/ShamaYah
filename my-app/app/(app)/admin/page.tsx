@@ -11,6 +11,7 @@ import {
   Settings,
   ArrowRight,
   BookOpen,
+  FileText,
   Flag,
   Tag,
   FlaskConical,
@@ -184,6 +185,28 @@ export default async function AdminPage() {
                 <Button asChild className="w-full">
                   <Link href="/admin/tags">
                     Manage Tags
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </RoleGuard>
+
+          <RoleGuard requiredRole="dev">
+            <Card className="hover:shadow-lg transition-shadow border-l-4 border-l-violet-500">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <FileText className="h-5 w-5 text-violet-600" />
+                  <CardTitle>Page Management</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Create and manage Sanity-backed pages for public routes
+                </p>
+                <Button asChild className="w-full">
+                  <Link href="/admin/pages">
+                    Manage Pages
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>

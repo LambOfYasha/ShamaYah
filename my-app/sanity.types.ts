@@ -104,6 +104,19 @@ export interface Blog extends SanityDocument {
   viewCount?: number
 }
 
+export interface Page extends SanityDocument {
+  _type: 'page'
+  title: string
+  description?: string
+  content: string | PortableTextBlock[]
+  slug: {
+    current: string
+  }
+  isPublished: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
 export interface CommunityQuestion extends SanityDocument {
   _type: 'communityQuestion'
   title: string
