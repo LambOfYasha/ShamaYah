@@ -171,31 +171,30 @@ async function getMaintenanceModeResponse(userId: string | null | undefined, req
   return NextResponse.redirect(maintenanceUrl);
 }
 
-const middleware = clerkMiddleware({
-  afterAuth: async (auth, req) => {
-    // Handle protected routes
-    if (isProtectedRoute(req) && !auth.userId) {
-      // Allow guest API routes for unauthenticated users
-      if (isPublicApiRoute(req)) {
-        return;
-      }
-      const signInUrl = new URL('/sign-in', req.url);
-      signInUrl.searchParams.set('redirect_url', req.url);
-      return NextResponse.redirect(signInUrl);
+const middleware = clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth();
+
+  if (isProtectedRoute(req) && !userId) {
+    if (isPublicApiRoute(req)) {
+      return;
     }
 
-    const maintenanceModeResponse = await getMaintenanceModeResponse(auth.userId, req);
+    const signInUrl = new URL('/sign-in', req.url);
+    signInUrl.searchParams.set('redirect_url', req.url);
+    return NextResponse.redirect(signInUrl);
+  }
 
-    if (maintenanceModeResponse) {
-      return maintenanceModeResponse;
-    }
+  const maintenanceModeResponse = await getMaintenanceModeResponse(userId, req);
 
-    const managedRedirectResponse = await getManagedPageRedirectResponse(req);
+  if (maintenanceModeResponse) {
+    return maintenanceModeResponse;
+  }
 
-    if (managedRedirectResponse) {
-      return managedRedirectResponse;
-    }
-  },
+  const managedRedirectResponse = await getManagedPageRedirectResponse(req);
+
+  if (managedRedirectResponse) {
+    return managedRedirectResponse;
+  }
 });
 
 export default middleware;
