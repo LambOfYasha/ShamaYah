@@ -198,7 +198,7 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
                 pattern="[a-z0-9-]*"
                 title="Lowercase letters, numbers, and hyphens only"
               />
-              <p className="text-sm text-gray-500">
+              <p className="text-sm ">
                 This will be used in the URL: shama.com/community-questions/{slug || "community-slug"}
               </p>
             </div>
@@ -242,8 +242,8 @@ export default function EditCommunityButton({ community, onEdit }: EditCommunity
                   <div className="flex items-center justify-center w-full">
                     <Label htmlFor="community-image" className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                       <div className="flex flex-col items-center justify-center">
-                        <ImageIcon className="w-6 h-6 mb-2 text-gray-400" />
-                        <p className="text-xs text-gray-500">
+                        <ImageIcon className="w-6 h-6 mb-2 " />
+                        <p className="text-xs ">
                           Click to upload image
                         </p>
                       </div>

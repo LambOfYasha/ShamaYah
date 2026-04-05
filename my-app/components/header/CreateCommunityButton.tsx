@@ -302,7 +302,7 @@ const handleCreateCommunity = async (e: React.FormEvent<HTMLFormElement>) => {
 
             <Button 
               type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+              className="w-full  font-medium py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={isPending || !user || !canSubmit}
             >
               {isPending ? "Creating..." : "Create Question"}

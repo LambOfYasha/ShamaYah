@@ -151,12 +151,12 @@ export default function SimpleRichEditor({
       }),
       CodeBlock.configure({
         HTMLAttributes: {
-          class: 'bg-gray-100 p-4 rounded-lg font-mono text-sm',
+          class: 'p-4 rounded-lg font-mono text-sm',
         },
       }),
       Blockquote.configure({
         HTMLAttributes: {
-          class: 'border-l-4 border-gray-300 pl-4 italic',
+          class: 'border-l-4  pl-4 italic',
         },
       }),
       Underline,
@@ -401,7 +401,7 @@ export default function SimpleRichEditor({
             <Strikethrough className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Text Style */}
           <Button
@@ -428,7 +428,7 @@ export default function SimpleRichEditor({
             <SuperscriptIcon className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Font Controls */}
           <div className="relative">
@@ -448,7 +448,7 @@ export default function SimpleRichEditor({
                 {fontFamilies.map((font) => (
                   <button
                     key={font}
-                    className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+                    className="block w-full text-left px-3 py-2 "
                     style={{ fontFamily: font }}
                     onClick={() => {
                       editor.chain().focus().setFontFamily(font).run();
@@ -480,7 +480,7 @@ export default function SimpleRichEditor({
                 {fontSizes.map((size) => (
                   <button
                     key={size}
-                    className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+                    className="block w-full text-left px-3 py-2 "
                     style={{ fontSize: size }}
                     onClick={() => {
                       editor.chain().focus().setFontSize(size).run();
@@ -503,7 +503,7 @@ export default function SimpleRichEditor({
             >
               <Palette className="w-4 h-4 mr-1" />
               <div 
-                className="w-4 h-4 rounded border border-gray-300" 
+                className="w-4 h-4 rounded border " 
                 style={{ backgroundColor: selectedColor }}
               />
             </Button>
@@ -516,7 +516,7 @@ export default function SimpleRichEditor({
                   {colors.map((color) => (
                     <button
                       key={color}
-                      className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
+                      className="w-6 h-6 rounded border  hover:scale-110 transition-transform"
                       style={{ backgroundColor: color }}
                       onClick={() => {
                         editor.chain().focus().setColor(color).run();
@@ -530,7 +530,7 @@ export default function SimpleRichEditor({
             )}
           </div>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Alignment */}
           <Button
@@ -565,7 +565,7 @@ export default function SimpleRichEditor({
             <AlignJustify className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Lists */}
           <Button
@@ -590,7 +590,7 @@ export default function SimpleRichEditor({
             <ListOrdered className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Code */}
           <Button
@@ -610,7 +610,7 @@ export default function SimpleRichEditor({
             Block
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Quote */}
           <Button
@@ -621,7 +621,7 @@ export default function SimpleRichEditor({
             <Quote className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Media */}
           <Dialog open={showLinkDialog} onOpenChange={(open) => {
@@ -736,7 +736,7 @@ export default function SimpleRichEditor({
             </DialogContent>
           </Dialog>
 
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6  mx-1" />
 
           {/* Table */}
           <Button
@@ -778,14 +778,14 @@ export default function SimpleRichEditor({
 
   if (!mounted || !editor) {
     return (
-      <div className={cn("border border-gray-300 rounded-md p-4 min-h-[200px] bg-gray-50 flex items-center justify-center", className)}>
+      <div className={cn("border  rounded-md p-4 min-h-[200px] flex items-center justify-center", className)}>
         <div className="text-gray-500">Loading editor...</div>
       </div>
     );
   }
 
   return (
-    <div className={cn("border border-gray-300 rounded-md overflow-hidden", className)}>
+    <div className={cn("border rounded-md overflow-hidden", className)}>
       {!readOnly && <MenuBar />}
       <div 
         className="max-h-[600px] overflow-y-auto"
