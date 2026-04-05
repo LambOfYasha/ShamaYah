@@ -101,6 +101,7 @@ export default function SimpleRichEditor({
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
   const [showFontFamilyPicker, setShowFontFamilyPicker] = useState(false);
   const linkSelectionRef = useRef<{ from: number; to: number } | null>(null);
+  const linkWasActiveRef = useRef(false);
 
   const [mounted, setMounted] = useState(false);
 
@@ -195,6 +196,11 @@ export default function SimpleRichEditor({
     ],
     content: content,
     editable: !readOnly,
+    editorProps: {
+      attributes: {
+        class: cn('prose max-w-none min-h-[200px] p-4 focus:outline-none', !readOnly && 'cursor-text'),
+      },
+    },
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
@@ -207,6 +213,7 @@ export default function SimpleRichEditor({
       linkSelectionRef.current = { from, to };
 
       const currentHref = editor.getAttributes('link').href;
+      linkWasActiveRef.current = Boolean(currentHref);
       setLinkUrl(typeof currentHref === 'string' ? currentHref : '');
     }
 
@@ -215,26 +222,70 @@ export default function SimpleRichEditor({
 
   const closeLinkDialog = () => {
     linkSelectionRef.current = null;
+    linkWasActiveRef.current = false;
     setLinkUrl('');
     setShowLinkDialog(false);
   };
 
   const addLink = () => {
-    if (linkUrl && editor) {
-      const normalizedLinkUrl = normalizeRichTextLinkUrl(linkUrl);
+    if (editor) {
+      const normalizedLinkUrl = normalizeRichTextLinkUrl(linkUrl.trim());
+      const selection = linkSelectionRef.current;
+      const hasTextSelection = Boolean(selection && selection.from !== selection.to);
       const chain = editor.chain().focus();
 
-      if (linkSelectionRef.current) {
-        chain.setTextSelection(linkSelectionRef.current);
+      if (selection) {
+        chain.setTextSelection(selection);
       }
 
-      chain.extendMarkRange('link').setLink({
-        href: normalizedLinkUrl,
-        target: '_blank',
-        rel: 'noopener noreferrer nofollow',
-      }).run();
+      if (!normalizedLinkUrl) {
+        chain.extendMarkRange('link').unsetLink().run();
+        closeLinkDialog();
+        return;
+      }
+
+      if (hasTextSelection || linkWasActiveRef.current) {
+        chain.extendMarkRange('link').setLink({
+          href: normalizedLinkUrl,
+          target: '_blank',
+          rel: 'noopener noreferrer nofollow',
+        }).run();
+      } else {
+        chain
+          .insertContent({
+            type: 'text',
+            text: normalizedLinkUrl,
+            marks: [
+              {
+                type: 'link',
+                attrs: {
+                  href: normalizedLinkUrl,
+                  target: '_blank',
+                  rel: 'noopener noreferrer nofollow',
+                },
+              },
+            ],
+          })
+          .run();
+      }
+
       closeLinkDialog();
     }
+  };
+
+  const removeLink = () => {
+    if (!editor) {
+      return;
+    }
+
+    const chain = editor.chain().focus();
+
+    if (linkSelectionRef.current) {
+      chain.setTextSelection(linkSelectionRef.current);
+    }
+
+    chain.extendMarkRange('link').unsetLink().run();
+    closeLinkDialog();
   };
 
   const addImage = () => {
@@ -313,7 +364,7 @@ export default function SimpleRichEditor({
     }
 
     return (
-      <div className="border-b border-gray-200 p-2 bg-white sticky top-0 z-10">
+      <div className="border-b  p-2  sticky top-0 z-10">
         <div className="flex flex-wrap gap-1">
           {/* Text Formatting */}
           <Button
@@ -391,7 +442,7 @@ export default function SimpleRichEditor({
             </Button>
             {showFontFamilyPicker && (
               <div 
-                className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-20 max-h-48 overflow-y-auto"
+                className="absolute top-full left-0 mt-1  border  rounded-md shadow-lg z-20 max-h-48 overflow-y-auto"
                 onMouseDown={(e) => e.stopPropagation()}
               >
                 {fontFamilies.map((font) => (
@@ -423,7 +474,7 @@ export default function SimpleRichEditor({
             </Button>
             {showFontSizePicker && (
               <div 
-                className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-20 max-h-48 overflow-y-auto"
+                className="absolute top-full left-0 mt-1  border rounded-md shadow-lg z-20 max-h-48 overflow-y-auto"
                 onMouseDown={(e) => e.stopPropagation()}
               >
                 {fontSizes.map((size) => (
@@ -458,7 +509,7 @@ export default function SimpleRichEditor({
             </Button>
             {showColorPicker && (
               <div 
-                className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-20 p-2"
+                className="absolute top-full left-0 mt-1  border  rounded-md shadow-lg z-20 p-2"
                 onMouseDown={(e) => e.stopPropagation()}
               >
                 <div className="grid grid-cols-10 gap-1">
@@ -604,7 +655,10 @@ export default function SimpleRichEditor({
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button type="button" onClick={addLink}>Add Link</Button>
+                  <Button type="button" onClick={addLink}>Apply Link</Button>
+                  <Button type="button" variant="outline" onClick={removeLink}>
+                    Remove Link
+                  </Button>
                   <Button type="button" variant="outline" onClick={closeLinkDialog}>
                     Cancel
                   </Button>
@@ -734,16 +788,14 @@ export default function SimpleRichEditor({
     <div className={cn("border border-gray-300 rounded-md overflow-hidden", className)}>
       {!readOnly && <MenuBar />}
       <div 
-        className="p-4 min-h-[200px] max-h-[600px] overflow-y-auto"
+        className="max-h-[600px] overflow-y-auto"
         style={{ maxHeight }}
       >
         <EditorContent 
           editor={editor} 
-          className="prose max-w-none focus:outline-none"
+          className="w-full"
         />
       </div>
     </div>
   );
 }
-
- 
