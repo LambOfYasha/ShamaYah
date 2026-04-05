@@ -296,7 +296,7 @@ export default function TagsManagementPage() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold">Tag Management</h1>
-            <p className="text-gray-600">Create and manage tags for blog posts</p>
+            <p >Create and manage tags for blog posts</p>
           </div>
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
             <DialogTrigger asChild>
@@ -414,9 +414,9 @@ export default function TagsManagementPage() {
         {tags.length === 0 && (
           <Card>
             <CardContent className="p-12 text-center">
-              <TagIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <TagIcon className="w-12 h-12  mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No tags found</h3>
-              <p className="text-gray-600 mb-4">
+              <p>
                 Create your first tag to start categorizing blog posts
               </p>
             </CardContent>
