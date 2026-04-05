@@ -1,15 +1,22 @@
 'use client';
 
+import ManagedPageContent from "@/components/pages/managed-page-content";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useManagedPage } from "@/hooks/use-managed-page";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, HelpCircle, Users, BookOpen, Shield, MessageSquare, Settings, User } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
 export default function FAQPage() {
+  const { page: managedPage } = useManagedPage('faq');
   const [openItems, setOpenItems] = useState<string[]>([]);
+
+  if (managedPage) {
+    return <ManagedPageContent page={managedPage} />;
+  }
 
   const toggleItem = (itemId: string) => {
     setOpenItems(prev => 

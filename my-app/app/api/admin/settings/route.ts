@@ -1,119 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminClient } from '@/sanity/lib/adminClient';
+import {
+  type AdminSettings,
+  DEFAULT_ADMIN_SETTINGS,
+  canManageAdminSettings,
+  canReadAdminSettings,
+  getClientSafeAdminSettings,
+} from '@/lib/admin-settings';
 import { getUser } from '@/lib/user/getUser';
 import { isAdmin } from '@/lib/auth/roles';
 
-export interface AdminSettings {
-  // General Settings
-  siteName: string;
-  siteDescription: string;
-  maintenanceMode: boolean;
-  registrationEnabled: boolean;
-  guestAccess: boolean;
-  maxFileSize: string;
-  maxPostsPerDay: number;
-  autoModeration: boolean;
-  emailNotifications: boolean;
-  analyticsEnabled: boolean;
-  
-  // Security Settings
-  requireEmailVerification: boolean;
-  requireTwoFactor: boolean;
-  sessionTimeout: number;
-  maxLoginAttempts: number;
-  passwordMinLength: number;
-  enableRateLimiting: boolean;
-  enableAuditLog: boolean;
-  enableBackup: boolean;
-  
-  // Database Settings
-  backupFrequency: string;
-  retentionPeriod: number;
-  enableCompression: boolean;
-  enableEncryption: boolean;
-  maxConnections: number;
-  
-  // Email Settings
-  smtpHost: string;
-  smtpPort: number;
-  smtpUsername: string;
-  smtpPassword: string;
-  fromEmail: string;
-  fromName: string;
-  enableEmailNotifications: boolean;
+interface PersistedAdminSettingsDocument extends AdminSettings {
+  _id: string;
 }
 
 export async function GET(request: NextRequest) {
   try {
     console.log("=== ADMIN SETTINGS API CALLED ===");
-    
+
     const user = await getUser();
-    
+
     // Check for authentication error
     if ("error" in user) {
       console.error("Authentication error:", user.error);
       return NextResponse.json({ error: user.error }, { status: 401 });
     }
 
-    // Check if user exists
     if (!user || !user._id) {
       console.error("User not found or missing ID");
       return NextResponse.json({ error: 'User authentication failed' }, { status: 401 });
     }
 
-    // Check if user has admin role (only admins can access settings)
-    if (!isAdmin(user.role)) {
-      console.error("User does not have admin role:", user.role);
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    if (!canReadAdminSettings(user.role)) {
+      console.error("User does not have settings access:", user.role);
+      return NextResponse.json({ error: 'Settings access required' }, { status: 403 });
     }
 
     // Get settings from Sanity (or return default settings)
     const settingsQuery = `*[_type == "adminSettings"][0]`;
-    const settings = await adminClient.fetch(settingsQuery);
-
-    const defaultSettings: AdminSettings = {
-      // General Settings
-      siteName: 'DOM Project',
-      siteDescription: 'A platform for biblical discussion and community',
-      maintenanceMode: false,
-      registrationEnabled: true,
-      guestAccess: true,
-      maxFileSize: '10MB',
-      maxPostsPerDay: 10,
-      autoModeration: true,
-      emailNotifications: true,
-      analyticsEnabled: true,
-      
-      // Security Settings
-      requireEmailVerification: true,
-      requireTwoFactor: false,
-      sessionTimeout: 24,
-      maxLoginAttempts: 5,
-      passwordMinLength: 8,
-      enableRateLimiting: true,
-      enableAuditLog: true,
-      enableBackup: true,
-      
-      // Database Settings
-      backupFrequency: 'daily',
-      retentionPeriod: 30,
-      enableCompression: true,
-      enableEncryption: true,
-      maxConnections: 100,
-      
-      // Email Settings
-      smtpHost: '',
-      smtpPort: 587,
-      smtpUsername: '',
-      smtpPassword: '',
-      fromEmail: 'noreply@domproject.com',
-      fromName: 'DOM Project',
-      enableEmailNotifications: true
-    };
+    const settings = await adminClient.fetch<PersistedAdminSettingsDocument | null>(settingsQuery);
 
     return NextResponse.json({
       success: true,
-      settings: settings || defaultSettings
+      settings: getClientSafeAdminSettings(settings)
     });
 
   } catch (error) {
@@ -128,23 +57,21 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const user = await getUser();
-    
+
     // Check for authentication error
     if ("error" in user) {
       console.error("Authentication error:", user.error);
       return NextResponse.json({ error: user.error }, { status: 401 });
     }
 
-    // Check if user exists
     if (!user || !user._id) {
       console.error("User not found or missing ID");
       return NextResponse.json({ error: 'User authentication failed' }, { status: 401 });
     }
 
-    // Check if user has admin role
-    if (!isAdmin(user.role)) {
-      console.error("User does not have admin role:", user.role);
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    if (!canManageAdminSettings(user.role)) {
+      console.error("User does not have settings management role:", user.role);
+      return NextResponse.json({ error: 'Admin or developer access required' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -156,16 +83,23 @@ export async function PATCH(request: NextRequest) {
 
     // Get existing settings
     const existingSettingsQuery = `*[_type == "adminSettings"][0]`;
-    const existingSettings = await adminClient.fetch(existingSettingsQuery);
+    const existingSettings = await adminClient.fetch<PersistedAdminSettingsDocument | null>(existingSettingsQuery);
+    const normalizedSettings =
+      section === 'email' &&
+      existingSettings?.smtpPassword &&
+      typeof settings.smtpPassword === 'string' &&
+      !settings.smtpPassword.trim()
+        ? { ...settings, smtpPassword: existingSettings.smtpPassword }
+        : settings;
 
-    let updatedSettings;
+    let updatedSettings: PersistedAdminSettingsDocument;
     if (existingSettings) {
       // Update existing settings
-      updatedSettings = await adminClient
+      const committedSettings = await adminClient
         .patch(existingSettings._id)
         .set({
           ...existingSettings,
-          ...settings,
+          ...normalizedSettings,
           updatedAt: new Date().toISOString(),
           updatedBy: {
             _type: 'reference',
@@ -173,11 +107,14 @@ export async function PATCH(request: NextRequest) {
           }
         })
         .commit();
+
+      updatedSettings = committedSettings as unknown as PersistedAdminSettingsDocument;
     } else {
       // Create new settings document
-      updatedSettings = await adminClient.create({
+      const createdSettings = await adminClient.create({
         _type: 'adminSettings',
-        ...settings,
+        ...DEFAULT_ADMIN_SETTINGS,
+        ...normalizedSettings,
         createdAt: new Date().toISOString(),
         createdBy: {
           _type: 'reference',
@@ -189,13 +126,15 @@ export async function PATCH(request: NextRequest) {
           _ref: user._id
         }
       });
+
+      updatedSettings = createdSettings as unknown as PersistedAdminSettingsDocument;
     }
 
     console.log("Settings updated:", section);
 
     return NextResponse.json({
       success: true,
-      settings: updatedSettings
+      settings: getClientSafeAdminSettings(updatedSettings)
     });
 
   } catch (error) {

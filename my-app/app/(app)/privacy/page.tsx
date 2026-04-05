@@ -1,12 +1,20 @@
 'use client';
 
+import ManagedPageContent from "@/components/pages/managed-page-content";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useManagedPage } from "@/hooks/use-managed-page";
 import Link from "next/link";
 import { ArrowLeft, Shield, Eye, Lock, Database, Users, Globe, Mail } from "lucide-react";
 import Image from "next/image";
 
 export default function PrivacyPolicyPage() {
+  const { page: managedPage } = useManagedPage('privacy');
+
+  if (managedPage) {
+    return <ManagedPageContent page={managedPage} />;
+  }
+
   return (
     <div className="min-h-screen">
       {/* Header */}

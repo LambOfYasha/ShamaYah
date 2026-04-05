@@ -22,7 +22,7 @@ Christian community platform for biblical discussion, publishing, lessons, moder
 | Editor | TipTap rich text editor |
 | AI / safety | OpenAI text and image moderation, appeals, analytics, reporting |
 | External content | YouTube Data API, Bible verse API |
-| Deployment | Vercel, or a self-hosted Node server deployed over SSH |
+| Deployment | Vercel by default, Linux self-hosting supported |
 
 ## Repository map
 
@@ -155,44 +155,78 @@ NEXT_PUBLIC_SANITY_PROJECT_ID=
 NEXT_PUBLIC_SANITY_DATASET=
 NEXT_PUBLIC_SANITY_API_VERSION=2025-07-05
 SANITY_ADMIN_API_TOKEN=
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
 CLERK_WEBHOOK_SECRET=
 OPENAI_API_KEY=
 YOUTUBE_API_KEY=
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
+VERCEL_PROJECT_PRODUCTION_URL=app.example.com
 ```
 
-### Also required for Clerk to run
-Use the standard Clerk Next.js environment variables for your app instance:
-
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` for the browser
-- `CLERK_SECRET_KEY` for the server
+### Clerk note
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` must come from the same Clerk application.
+- Update Clerk allowed origins, redirect URLs, and webhook settings to match the hostname you use locally or on the Linux server.
 
 ### Runtime notes
 - `OPENAI_API_KEY` is optional in local development if you are okay with the built-in dev moderation fallback.
 - `YOUTUBE_API_KEY` is only required for live teacher-channel syncing; the lessons area still has Sanity and fallback content paths.
-- `VERCEL_ENV` and `VERCEL_PROJECT_PRODUCTION_URL` are used during production and Vercel runtime flows.
 - `SANITY_ADMIN_API_TOKEN` is required for write actions, role changes, lesson management, and Clerk-to-Sanity syncing.
+- `NEXT_PUBLIC_BASE_URL` should be the exact URL you use during local development, for example `http://localhost:3000`.
+- `VERCEL_PROJECT_PRODUCTION_URL` is also used for self-hosted production. Set it to the hostname only, without `https://`, because `lib/baseUrl.ts` prepends `https://` when `NODE_ENV=production`.
 
 ## Getting started
 
 ### Prerequisites
-- A current Node.js version compatible with Next.js 16
+- Node.js 20 LTS or newer
+- npm 10 or newer is recommended
 - A Sanity project and dataset
 - A Clerk application
 - Optional but recommended: OpenAI API access and a YouTube Data API key
 
-### Install
-The repo contains both `package-lock.json` and `pnpm-lock.yaml`, but `vercel.json` is wired for `npm install` and `npm run build:prod`, so `npm` is the safest default.
+### Linux host prerequisites
+For Ubuntu or Debian based machines:
+```bash
+sudo apt update
+sudo apt install -y git curl build-essential
+```
+
+Install Node.js from your preferred source such as `nvm`, NodeSource, or your distro packages, then verify:
+```bash
+node -v
+npm -v
+```
+
+### Install dependencies
+The app root is `my-app/`. Run install and deploy commands from this directory.
+
+The repo contains both `package-lock.json` and `pnpm-lock.yaml`, but `vercel.json` is wired for `npm install`, so `npm` is the safest default.
 
 ```bash
 npm install
 ```
 
-### Configure environment
-Create `my-app/.env.local` with the variables above, then make sure:
+For repeatable installs on a Linux server or CI runner, prefer:
+```bash
+npm ci
+```
 
+### Configure environment
+Create `my-app/.env.local` for development. For Linux production, prefer `my-app/.env.production` and keep it out of Git.
+
+Minimum local example:
+```bash
+NEXT_PUBLIC_SANITY_PROJECT_ID=...
+NEXT_PUBLIC_SANITY_DATASET=...
+NEXT_PUBLIC_SANITY_API_VERSION=2025-07-05
+SANITY_ADMIN_API_TOKEN=...
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
+CLERK_SECRET_KEY=...
+CLERK_WEBHOOK_SECRET=...
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
+
+Then make sure:
 - Clerk redirects and webhook settings point back to this app
 - Sanity has the expected schemas deployed and generated
 - Any teacher records that should power the YouTube feed have a `youtubeChannelId`
@@ -201,6 +235,236 @@ Create `my-app/.env.local` with the variables above, then make sure:
 ```bash
 npm run dev
 ```
+
+To expose the dev server on your LAN from a Linux machine:
+```bash
+npm run dev -- --hostname 0.0.0.0 --port 3000
+```
+
+Then browse to `http://server-ip:3000`.
+
+## Linux local webserver deployment
+
+### Recommended production topology
+- Ubuntu or Debian LTS
+- Node.js 20 LTS or newer
+- `systemd` to keep the Next.js process running
+- Nginx reverse proxy in front of `next start`
+- HTTPS enabled at the reverse proxy
+
+### 1. Copy the app to the server
+```bash
+sudo mkdir -p /var/www/shamayah
+sudo chown $USER:$USER /var/www/shamayah
+git clone <your-repo-url> /var/www/shamayah
+cd /var/www/shamayah/my-app
+npm ci
+```
+
+### 2. Create the production environment file
+Create `my-app/.env.production` with your production values.
+
+Minimum self-hosted example:
+```bash
+NEXT_PUBLIC_SANITY_PROJECT_ID=...
+NEXT_PUBLIC_SANITY_DATASET=...
+NEXT_PUBLIC_SANITY_API_VERSION=2025-07-05
+SANITY_ADMIN_API_TOKEN=...
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
+CLERK_SECRET_KEY=...
+CLERK_WEBHOOK_SECRET=...
+OPENAI_API_KEY=...
+YOUTUBE_API_KEY=...
+NEXT_PUBLIC_BASE_URL=https://app.example.com
+VERCEL_PROJECT_PRODUCTION_URL=app.example.com
+```
+
+Important:
+- `NEXT_PUBLIC_BASE_URL` should include the full public URL.
+- `VERCEL_PROJECT_PRODUCTION_URL` should be the hostname only, without the scheme.
+- The production `baseUrl` helper currently assumes `https://` in production. If you run the app behind plain HTTP only, absolute URLs built from that helper will be wrong. For Linux production, put the app behind HTTPS or update `lib/baseUrl.ts` before relying on plain-HTTP production URLs.
+
+### 3. Build on Linux
+Use the normal Next.js build on Linux:
+```bash
+NODE_ENV=production npm run build
+```
+
+Do not use `npm run build:prod` on Linux. That script uses Windows `set ...` syntax.
+
+### 4. Smoke test the production server
+Run the app locally on the server before wiring up Nginx:
+```bash
+npm run start -- --hostname 127.0.0.1 --port 3000
+```
+
+If you need direct LAN access without a reverse proxy during testing, use `0.0.0.0` instead of `127.0.0.1`.
+
+### 5. Create a systemd service
+Create `/etc/systemd/system/shamayah.service`:
+```ini
+[Unit]
+Description=Shama Yah Next.js app
+After=network.target
+
+[Service]
+Type=simple
+User=<deploy-user>
+WorkingDirectory=/var/www/shamayah/my-app
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/env npm run start -- --hostname 127.0.0.1 --port 3000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then enable it:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now shamayah
+sudo systemctl status shamayah
+```
+
+### 6. Configure Nginx
+Create `/etc/nginx/sites-available/shamayah`:
+```nginx
+server {
+    listen 80;
+    server_name app.example.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
+
+Enable the site and reload Nginx:
+```bash
+sudo ln -s /etc/nginx/sites-available/shamayah /etc/nginx/sites-enabled/shamayah
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+If UFW is enabled, allow web traffic:
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+```
+
+### 7. Enable HTTPS
+For a public or internally resolved hostname, use Certbot if the host is reachable and you control DNS:
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d app.example.com
+```
+
+If the server is LAN-only, use an internal CA, a self-signed certificate trusted by your client machines, or a local domain that your network resolves.
+
+### 8. Update provider settings
+- Clerk allowed origins, sign-in URLs, sign-up URLs, and webhook endpoints must use your Linux server hostname.
+- Sanity CORS settings must allow your local domain or server hostname.
+- If you access the app by name on your LAN, add DNS or `/etc/hosts` entries for that hostname.
+
+### 9. Deploy updates
+For normal updates on the Linux server:
+```bash
+git pull
+npm ci
+NODE_ENV=production npm run build
+sudo systemctl restart shamayah
+```
+
+### Common Linux deployment pitfalls
+- If the build fails because `build:prod` was used, switch to `NODE_ENV=production npm run build`.
+- If auth redirects or Clerk webhooks fail, verify your production hostname is registered in Clerk.
+- If generated URLs point to the wrong place, re-check `NEXT_PUBLIC_BASE_URL` and `VERCEL_PROJECT_PRODUCTION_URL`.
+- If the site is unreachable externally, check `systemctl status shamayah`, `sudo nginx -t`, and your firewall rules for ports `80` and `443`.
+
+### Alternate stack: Ubuntu + Nginx + PM2
+Use this option if you prefer PM2 over a native `systemd` service. The Nginx reverse-proxy and HTTPS setup can stay the same; only the Node.js process manager changes.
+
+#### 1. Install PM2 globally on the server
+```bash
+sudo npm install -g pm2
+pm2 -v
+```
+
+#### 2. Build the app
+From `my-app/`, after your production environment file is in place:
+```bash
+npm ci
+NODE_ENV=production npm run build
+```
+
+#### 3. Start the app with PM2
+```bash
+pm2 start npm --name shamayah -- run start -- --hostname 127.0.0.1 --port 3000
+```
+
+That keeps Next.js bound to localhost so only Nginx exposes it publicly.
+
+#### 4. Save the PM2 process list and enable boot startup
+```bash
+pm2 save
+pm2 startup
+```
+
+Run the additional command that `pm2 startup` prints, then save once more:
+```bash
+pm2 save
+```
+
+#### 5. Common PM2 commands
+- Check status: `pm2 status`
+- View logs: `pm2 logs shamayah`
+- Restart after a new build: `pm2 restart shamayah --update-env`
+- Remove the process: `pm2 delete shamayah`
+
+#### 6. Deploy updates with PM2
+```bash
+git pull
+npm ci
+NODE_ENV=production npm run build
+pm2 restart shamayah --update-env
+```
+
+#### 7. Pair PM2 with Nginx and HTTPS
+- Reuse the same Nginx site configuration shown above.
+- Keep `proxy_pass` pointing to `http://127.0.0.1:3000`.
+- Keep Clerk, Sanity CORS, `NEXT_PUBLIC_BASE_URL`, and `VERCEL_PROJECT_PRODUCTION_URL` aligned with your public HTTPS hostname.
+
+## Scripts
+
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Next.js dev server |
+| `npm run build` | Standard production build |
+| `npm run build:prod` | Windows-shell deployment build; use `npm run build` on Linux servers |
+| `npm run build:force` | Windows-shell force-build path used for harder deployment recovery cases |
+| `npm run start` | Start the production server |
+| `npm run lint` | Run linting |
+| `npm run lint:fix` | Auto-fix lint issues where possible |
+| `npm run typegen` | Extract and generate Sanity schema typings |
+
+## Deployment notes
+
+- Vercel is the original default host and reads `vercel.json`.
+- Linux self-hosting is supported with a standard `next build` plus `next start` workflow behind a reverse proxy.
+- On Linux servers, use `NODE_ENV=production npm run build`; `npm run build:prod` and `npm run build:force` are Windows-shell specific.
+- `next.config.ts` allows remote images from Clerk and Sanity CDNs.
+- `instrumentation.ts` guards server rendering against Node `localStorage` issues.
+- The Clerk webhook endpoint is `/api/webhooks/clerk`.
+- `lib/baseUrl.ts` expects `VERCEL_PROJECT_PRODUCTION_URL` in production and prepends `https://`.
+- This codebase includes test and debug routes and helper scripts; review them before exposing every route publicly in production.
 
 ## Adding New YouTube Feeds
 
@@ -212,8 +476,8 @@ That route reads teacher channel IDs from Sanity and then fetches recent uploads
 - `YOUTUBE_API_KEY` must be configured in the environment where the app runs.
 - The source record in Sanity must have a `youtubeChannelId` value.
 - If you are using a `user` document, the `role` must be one of:
-  - `teacher`
   - `junior_teacher`
+  - `teacher`
   - `senior_teacher`
   - `lead_teacher`
 
@@ -245,94 +509,6 @@ That route reads teacher channel IDs from Sanity and then fetches recent uploads
 - To verify the setup, open `/api/youtube-feed?limit=12` and confirm the new channel's videos are included
 
 ## Changelog
-
-## Scripts
-
-| Script | Purpose |
-| --- | --- |
-| `npm run dev` | Start the Next.js dev server |
-| `npm run build` | Standard production build |
-| `npm run build:prod` | Deployment-oriented build with lint and type checks skipped |
-| `npm run build:force` | Force build path used for harder deployment recovery cases |
-| `npm run start` | Start the production server |
-| `npm run lint` | Run linting |
-| `npm run lint:fix` | Auto-fix lint issues where possible |
-| `npm run typegen` | Extract and generate Sanity schema typings |
-
-## Deployment notes
-
-- Vercel is the intended host and reads `vercel.json`.
-- Vercel builds use `npm run build:prod`.
-- Linux SSH and other self-hosted deployments should use the shell-compatible build command shown below because `build:prod` in `package.json` uses Windows `set ...` syntax.
-- `next.config.ts` allows remote images from Clerk and Sanity CDNs.
-- `instrumentation.ts` guards server rendering against Node `localStorage` issues.
-- The Clerk webhook endpoint is `/api/webhooks/clerk`.
-- This codebase includes test and debug routes and helper scripts; review them before exposing every route publicly in production.
-
-### Deploy `main` to a web server over SSH
-
-The steps below assume a Linux server that you can access with SSH.
-
-#### Server prerequisites
-
-- SSH access to the server
-- Node.js 20 or newer
-- `npm` and `git`
-- A domain or public IP and a reverse proxy such as Nginx, Caddy, or Apache for HTTPS
-- All required production environment variables
-
-#### First-time setup on the server
-
-```bash
-ssh your-user@your-server
-mkdir -p /var/www/shama-yah
-cd /var/www/shama-yah
-git clone <your-repo-url> repo
-cd repo
-git checkout main
-cd my-app
-npm install
-nano .env.production
-DISABLE_ESLINT_PLUGIN=true NODE_ENV=production SKIP_TYPE_CHECK=true npm run build
-PORT=3000 npm run start
-```
-
-Add every variable from the environment section above to `.env.production`. Set `NEXT_PUBLIC_BASE_URL` to your production URL, then configure Clerk for that same live domain.
-
-##### Clerk production redirect setup
-
-1. Open your Clerk dashboard and switch to the production instance for this app.
-2. Set the application sign-in URL to `https://your-domain.com/sign-in`.
-3. Set the application sign-up URL to `https://your-domain.com/sign-up`.
-4. Set the post-authentication fallback redirect to `https://your-domain.com/dashboard` or another live page you want members to land on by default.
-5. Add your live origin, for example `https://your-domain.com`, anywhere Clerk asks for allowed production origins or redirect URLs.
-
-This app already redirects unauthenticated users to `/sign-in` and preserves the requested protected URL in the `redirect_url` query string. That means a user who tries to open a protected page such as `/dashboard` or `/admin` should be sent back to that page after a successful sign-in.
-
-##### Clerk webhook setup
-
-1. In Clerk, create a webhook endpoint that points to `https://your-domain.com/api/webhooks/clerk`.
-2. Subscribe that webhook to at least the `user.created` event.
-3. Copy the webhook signing secret from Clerk into `CLERK_WEBHOOK_SECRET` in `.env.production`.
-4. Restart or redeploy the app after saving the new environment value.
-5. Verify the setup by creating a test user in production and confirming the webhook reaches the app and the new user record is created successfully.
-
-For this repo, the webhook target must stay on `/api/webhooks/clerk` because that is the route handled by `app/api/webhooks/clerk/route.ts`.
-
-#### Update an existing server checkout to the latest `main`
-
-```bash
-ssh your-user@your-server
-cd /var/www/shama-yah/repo
-git fetch origin
-git checkout main
-git pull origin main
-cd my-app
-npm install
-DISABLE_ESLINT_PLUGIN=true NODE_ENV=production SKIP_TYPE_CHECK=true npm run build
-```
-
-After the build completes, restart the running app with your process manager or service. If you are not using one yet, place the app behind Nginx, Caddy, or Apache and run it under `pm2`, `systemd`, `screen`, or `tmux` so it survives logout and reboots.
 
 ## Git branches
 
