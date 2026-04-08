@@ -442,6 +442,20 @@ pm2 restart shamayah --update-env
 - Keep `proxy_pass` pointing to `http://127.0.0.1:3000`.
 - Keep Clerk, Sanity CORS, `NEXT_PUBLIC_BASE_URL`, and `VERCEL_PROJECT_PRODUCTION_URL` aligned with your public HTTPS hostname.
 
+## Running without Vercel
+
+### What this means in practice
+This app does not need Vercel hosting, a Vercel account, or the Vercel CLI to run in production.
+You can run it on your own server as a standard Next.js Node.js app behind Nginx, Apache, Caddy, or another reverse proxy.
+
+Important:
+- This is not a static-export-only site. Because the app uses Next.js App Router features, API routes, Clerk auth, Sanity Studio, and server-side logic, a webserver alone cannot serve it as plain static files.
+- To self-host it, run the Next.js server with `npm run start` and let your webserver proxy requests to that Node.js process.
+- `vercel.json` only affects Vercel deployments and can be ignored when you host the app yourself.
+- The `vercel` package currently listed in `package.json` is not imported by the application code, so it is not what makes the app run in production.
+- `VERCEL_PROJECT_PRODUCTION_URL` is still the environment variable name used by `lib/baseUrl.ts`. Even when you do not use Vercel, set it to your public hostname without `https://`.
+- `lib/auth/middleware.ts` still checks `VERCEL_ENV` for some production build-time auth fallbacks. If a self-hosted `next build` fails because auth code is evaluated during build, set `VERCEL_ENV=production` as a compatibility shim for the build environment or refactor that check later.
+
 ## Scripts
 
 | Script | Purpose |
@@ -457,13 +471,14 @@ pm2 restart shamayah --update-env
 
 ## Deployment notes
 
-- Vercel is the original default host and reads `vercel.json`.
+- Vercel is the original default host and reads `vercel.json`, but self-hosted installs can ignore that file.
 - Linux self-hosting is supported with a standard `next build` plus `next start` workflow behind a reverse proxy.
 - On Linux servers, use `NODE_ENV=production npm run build`; `npm run build:prod` and `npm run build:force` are Windows-shell specific.
 - `next.config.ts` allows remote images from Clerk and Sanity CDNs.
 - `instrumentation.ts` guards server rendering against Node `localStorage` issues.
 - The Clerk webhook endpoint is `/api/webhooks/clerk`.
-- `lib/baseUrl.ts` expects `VERCEL_PROJECT_PRODUCTION_URL` in production and prepends `https://`.
+- `lib/baseUrl.ts` expects `VERCEL_PROJECT_PRODUCTION_URL` in production and prepends `https://`, even on non-Vercel hosts.
+- `lib/auth/middleware.ts` checks `VERCEL_ENV` for some build-time auth fallbacks, so a self-hosted production build may need `VERCEL_ENV=production` as a compatibility shim.
 - This codebase includes test and debug routes and helper scripts; review them before exposing every route publicly in production.
 
 ## Adding New YouTube Feeds
