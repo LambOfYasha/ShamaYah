@@ -254,10 +254,10 @@ Then browse to `http://server-ip:3000`.
 
 ### 1. Copy the app to the server
 ```bash
-sudo mkdir -p /var/www/shamayah
-sudo chown $USER:$USER /var/www/shamayah
-git clone <your-repo-url> /var/www/shamayah
-cd /var/www/shamayah/my-app
+sudo mkdir -p /srv/apps/<project-name>
+sudo chown $USER:$USER /srv/apps/<project-name>
+git clone <your-repo-url> /srv/apps/<project-name>
+cd /srv/apps/<project-name>/my-app
 npm ci
 ```
 
@@ -301,16 +301,16 @@ npm run start -- --hostname 127.0.0.1 --port 3000
 If you need direct LAN access without a reverse proxy during testing, use `0.0.0.0` instead of `127.0.0.1`.
 
 ### 5. Create a systemd service
-Create `/etc/systemd/system/shamayah.service`:
+Create `/etc/systemd/system/<project-name>.service`:
 ```ini
 [Unit]
-Description=Shama Yah Next.js app
+Description=<project-name> Next.js app
 After=network.target
 
 [Service]
 Type=simple
 User=<deploy-user>
-WorkingDirectory=/var/www/shamayah/my-app
+WorkingDirectory=/srv/apps/<project-name>/my-app
 Environment=NODE_ENV=production
 ExecStart=/usr/bin/env npm run start -- --hostname 127.0.0.1 --port 3000
 Restart=always
@@ -323,12 +323,12 @@ WantedBy=multi-user.target
 Then enable it:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now shamayah
-sudo systemctl status shamayah
+sudo systemctl enable --now <project-name>
+sudo systemctl status <project-name>
 ```
 
 ### 6. Configure Nginx
-Create `/etc/nginx/sites-available/shamayah`:
+Create `/etc/nginx/sites-available/<project-name>`:
 ```nginx
 server {
     listen 80;
@@ -349,7 +349,7 @@ server {
 
 Enable the site and reload Nginx:
 ```bash
-sudo ln -s /etc/nginx/sites-available/shamayah /etc/nginx/sites-enabled/shamayah
+sudo ln -s /etc/nginx/sites-available/<project-name> /etc/nginx/sites-enabled/<project-name>
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -380,14 +380,14 @@ For normal updates on the Linux server:
 git pull
 npm ci
 NODE_ENV=production npm run build
-sudo systemctl restart shamayah
+sudo systemctl restart <project-name>
 ```
 
 ### Common Linux deployment pitfalls
 - If the build fails because `build:prod` was used, switch to `NODE_ENV=production npm run build`.
 - If auth redirects or Clerk webhooks fail, verify your production hostname is registered in Clerk.
 - If generated URLs point to the wrong place, re-check `NEXT_PUBLIC_BASE_URL` and `VERCEL_PROJECT_PRODUCTION_URL`.
-- If the site is unreachable externally, check `systemctl status shamayah`, `sudo nginx -t`, and your firewall rules for ports `80` and `443`.
+- If the site is unreachable externally, check `systemctl status <project-name>`, `sudo nginx -t`, and your firewall rules for ports `80` and `443`.
 
 ### Alternate stack: Ubuntu + Nginx + PM2
 Use this option if you prefer PM2 over a native `systemd` service. The Nginx reverse-proxy and HTTPS setup can stay the same; only the Node.js process manager changes.
@@ -407,7 +407,7 @@ NODE_ENV=production npm run build
 
 #### 3. Start the app with PM2
 ```bash
-pm2 start npm --name shamayah -- run start -- --hostname 127.0.0.1 --port 3000
+pm2 start npm --name <project-name> -- run start -- --hostname 127.0.0.1 --port 3000
 ```
 
 That keeps Next.js bound to localhost so only Nginx exposes it publicly.
@@ -425,16 +425,16 @@ pm2 save
 
 #### 5. Common PM2 commands
 - Check status: `pm2 status`
-- View logs: `pm2 logs shamayah`
-- Restart after a new build: `pm2 restart shamayah --update-env`
-- Remove the process: `pm2 delete shamayah`
+- View logs: `pm2 logs <project-name>`
+- Restart after a new build: `pm2 restart <project-name> --update-env`
+- Remove the process: `pm2 delete <project-name>`
 
 #### 6. Deploy updates with PM2
 ```bash
 git pull
 npm ci
 NODE_ENV=production npm run build
-pm2 restart shamayah --update-env
+pm2 restart <project-name> --update-env
 ```
 
 #### 7. Pair PM2 with Nginx and HTTPS
