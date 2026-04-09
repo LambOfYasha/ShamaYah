@@ -407,10 +407,12 @@ NODE_ENV=production npm run build
 
 #### 3. Start the app with PM2
 ```bash
-pm2 start npm --name <project-name> -- run start -- --hostname 127.0.0.1 --port 3000
+pm2 start ./node_modules/next/dist/bin/next --name <project-name> -- start --hostname 127.0.0.1 --port 3000
 ```
 
 That keeps Next.js bound to localhost so only Nginx exposes it publicly.
+
+If you already enabled the `systemd` service above, stop and disable it before starting PM2 so both process managers do not compete for port `3000`.
 
 #### 4. Save the PM2 process list and enable boot startup
 ```bash
