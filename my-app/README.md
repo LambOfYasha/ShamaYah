@@ -438,16 +438,72 @@ pm2 restart <project-name> --update-env
 ```
 
 #### 7. Pair PM2 with Nginx and HTTPS
-- Reuse the same Nginx site configuration shown above.
-- Keep `proxy_pass` pointing to `http://127.0.0.1:3000`.
-- Keep Clerk, Sanity CORS, `NEXT_PUBLIC_BASE_URL`, and `VERCEL_PROJECT_PRODUCTION_URL` aligned with your public HTTPS hostname.
+PM2 only keeps the Next.js process alive. Nginx still handles public traffic on ports `80` and `443`, terminates TLS, and proxies requests to `http://127.0.0.1:3000`.
+
+1. Confirm the PM2 app is healthy before adding Nginx:
+```bash
+pm2 status
+curl -I http://127.0.0.1:3000
+```
+
+2. Create or verify `/etc/nginx/sites-available/<project-name>` with the same reverse-proxy layout used in the `systemd` section:
+```nginx
+server {
+    listen 80;
+    server_name app.example.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
+
+3. Enable the site and reload Nginx:
+```bash
+sudo ln -s /etc/nginx/sites-available/<project-name> /etc/nginx/sites-enabled/<project-name>
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+4. Make the hostname reachable before requesting a certificate:
+- Point the DNS `A` record for `app.example.com` to your server's public IPv4 address.
+- If the server is behind a home router, reserve a stable LAN IP for it and forward TCP `80` and `443` from the router to that server.
+- If UFW is enabled, allow `OpenSSH` and `Nginx Full`.
+- Certbot's default HTTP challenge must reach port `80`, so `http://app.example.com` must work from outside your LAN before HTTPS setup will succeed.
+
+5. Install Certbot and let it update the Nginx site:
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d app.example.com
+```
+
+6. Align runtime and provider settings with the final HTTPS hostname:
+- Set `NEXT_PUBLIC_BASE_URL=https://app.example.com`.
+- Set `VERCEL_PROJECT_PRODUCTION_URL=app.example.com`.
+- Update Clerk allowed origins, redirect URLs, and webhook endpoints.
+- Update Sanity CORS settings to allow the same public hostname.
+
+7. Validate the finished setup:
+```bash
+pm2 status
+curl -I http://127.0.0.1:3000
+curl -I https://app.example.com
+sudo certbot renew --dry-run
+```
 
 ## Running without Vercel
 
 ### What this means in practice
 This app does not need Vercel hosting, a Vercel account, or the Vercel CLI to run in production.
 You can run it on your own server as a standard Next.js Node.js app behind Nginx, Apache, Caddy, or another reverse proxy.
-
+ 
 Important:
 - This is not a static-export-only site. Because the app uses Next.js App Router features, API routes, Clerk auth, Sanity Studio, and server-side logic, a webserver alone cannot serve it as plain static files.
 - To self-host it, run the Next.js server with `npm run start` and let your webserver proxy requests to that Node.js process.
