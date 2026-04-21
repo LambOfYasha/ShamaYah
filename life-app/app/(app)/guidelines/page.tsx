@@ -31,7 +31,7 @@ export default function GuidelinesPage() {
             {/* Light theme logo */}
             <Image
               src="/assets/logo_light.png"
-              alt="Shama Yah Logo"
+              alt="Light Is For Everyone Logo"
               width={150}
               height={60}
               className="h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4 dark:hidden"
@@ -39,7 +39,7 @@ export default function GuidelinesPage() {
             {/* Dark theme logo */}
             <Image
               src="/assets/logo_dark.png"
-              alt="Shama Yah Logo Dark"
+              alt="Light Is For Everyone Logo Dark"
               width={150}
               height={60}
               className="hidden dark:inline-block h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4"
@@ -62,7 +62,7 @@ export default function GuidelinesPage() {
               Welcome to Our Community
             </h2>
             <p className="text-base sm:text-lg md:text-xl leading-relaxed">
-              At Shama Yah, we are committed to creating a safe, respectful, and spiritually enriching 
+              At Light Is For Everyone, we are committed to creating a safe, respectful, and spiritually enriching 
               environment where believers can grow in their faith together. These guidelines help ensure 
               that our community remains a place of learning, encouragement, and biblical fellowship.
             </p>

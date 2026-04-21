@@ -31,7 +31,7 @@ export default function TermsOfServicePage() {
             {/* Light theme logo */}
             <Image
               src="/assets/logo_light.png"
-              alt="Shama Yah Logo"
+              alt="Light Is For Everyone Logo"
               width={150}
               height={60}
               className="h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4 dark:hidden"
@@ -39,7 +39,7 @@ export default function TermsOfServicePage() {
             {/* Dark theme logo */}
             <Image
               src="/assets/logo_dark.png"
-              alt="Shama Yah Logo Dark"
+              alt="Light Is For Everyone Logo Dark"
               width={150}
               height={60}
               className="hidden dark:inline-block h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4"
@@ -64,6 +64,7 @@ export default function TermsOfServicePage() {
               </div>
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6">
+              Welcome to Light Is For Everyone
               Welcome to Shama Yah
             </h2>
             <p className="text-base sm:text-lg md:text-xl leading-relaxed">

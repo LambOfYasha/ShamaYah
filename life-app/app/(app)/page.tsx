@@ -261,7 +261,7 @@ export default function HomePage() {
               Intro Lesson
             </h2>
             <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-muted-foreground`}>
-              Watch this introduction to learn more about Shama Yah and how we can help you grow in your faith.
+              Watch this introduction to learn more about Light Is For Everyone and how we can help you grow in your faith.
             </p>
           </div>
           
@@ -269,7 +269,7 @@ export default function HomePage() {
             <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg">
               <iframe
                 src="https://www.youtube.com/embed/vV_uDd8yNpk"
-                title="Shama Yah Introduction Video"
+                title="Light Is For Everyone Introduction Video"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="absolute inset-0 w-full h-full"

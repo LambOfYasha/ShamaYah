@@ -34,8 +34,8 @@ export default function FAQPage() {
       questions: [
         {
           id: 'what-is-shama-yah',
-          question: 'What is Shama Yah?',
-          answer: 'Shama Yah is a Christian community platform dedicated to fostering meaningful biblical discussions, theological exploration, and spiritual growth. We provide a space where believers can ask questions, share insights, and learn together in a respectful, Scripture-grounded environment.'
+          question: 'What is Light Is For Everyone?',
+          answer: 'Light Is For Everyone is a Christian community platform dedicated to fostering meaningful biblical discussions, theological exploration, and spiritual growth. We provide a space where believers can ask questions, share insights, and learn together in a respectful, Scripture-grounded environment.'
         },
         {
           id: 'how-to-join',
@@ -207,7 +207,7 @@ export default function FAQPage() {
             {/* Light theme logo */}
             <Image
               src="/assets/logo_light.png"
-              alt="Shama Yah Logo"
+              alt="Light Is For Everyone Logo"
               width={150}
               height={60}
               className="h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4 dark:hidden"
@@ -215,7 +215,7 @@ export default function FAQPage() {
             {/* Dark theme logo */}
             <Image
               src="/assets/logo_dark.png"
-              alt="Shama Yah Logo Dark"
+              alt="Light Is For Everyone Logo Dark"
               width={150}
               height={60}
               className="hidden dark:inline-block h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4"
@@ -224,7 +224,7 @@ export default function FAQPage() {
               Frequently Asked Questions
             </h1>
             <p className="text-base sm:text-lg mt-2">
-              Find answers to common questions about Shama Yah
+              Find answers to common questions about Light Is For Everyone
             </p>
           </div>
         </div>

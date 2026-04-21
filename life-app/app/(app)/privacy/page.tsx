@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
             {/* Light theme logo */}
             <Image
               src="/assets/logo_light.png"
-              alt="Shama Yah Logo"
+              alt="Light Is For Everyone Logo"
               width={150}
               height={60}
               className="h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4 dark:hidden"
@@ -39,7 +39,7 @@ export default function PrivacyPolicyPage() {
             {/* Dark theme logo */}
             <Image
               src="/assets/logo_dark.png"
-              alt="Shama Yah Logo Dark"
+              alt="Light Is For Everyone Logo Dark"
               width={150}
               height={60}
               className="hidden dark:inline-block h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4"
