@@ -1,4 +1,4 @@
-import { adminClient } from '@/sanity/lib/adminClient';
+import { client } from '@/sanity/lib/client';
 import { defineQuery } from 'groq';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,7 +38,7 @@ const membersQuery = defineQuery(`
 `);
 
 export default async function MembersPage() {
-  const members = await adminClient.fetch(membersQuery);
+  const members = await client.fetch(membersQuery);
   
   return (
     <div className="min-h-screen bg-muted py-4 sm:py-6 lg:py-8">

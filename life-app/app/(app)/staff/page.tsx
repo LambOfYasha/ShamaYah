@@ -1,4 +1,4 @@
-import { adminClient } from '@/sanity/lib/adminClient';
+import { client } from '@/sanity/lib/client';
 import { defineQuery } from 'groq';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -104,7 +104,7 @@ const roleConfig = {
 };
 
 export default async function StaffPage() {
-  const staff = await adminClient.fetch(staffQuery);
+  const staff = await client.fetch(staffQuery);
   
   // Group staff by role
   const staffByRole = staff.reduce((acc: any, member: any) => {
