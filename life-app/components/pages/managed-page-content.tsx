@@ -56,14 +56,14 @@ export default function ManagedPageContent({
           <div className="text-center">
             <Image
               src="/assets/logo_light.png"
-              alt="Shama Yah Logo"
+              alt="Light Is For Everyone Logo"
               width={150}
               height={60}
               className="mx-auto mb-4 h-12 w-auto dark:hidden sm:h-16"
             />
             <Image
               src="/assets/logo_dark.png"
-              alt="Shama Yah Logo Dark"
+              alt="Light Is For Everyone Logo Dark"
               width={150}
               height={60}
               className="mx-auto mb-4 hidden h-12 w-auto dark:inline-block sm:h-16"

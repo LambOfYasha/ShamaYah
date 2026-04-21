@@ -104,7 +104,7 @@ export default function Footer({ className = "" }: FooterProps) {
           <div className="border-t border-gray-800 pt-6">
             <div className="flex flex-col items-center space-y-4">
               <p className="text-sm text-muted-foreground text-center">
-                &copy; 2025 Shama Yah. All rights reserved.
+                &copy; 2025 Light Is For Everyone. All rights reserved.
               </p>
               <div className="flex items-center gap-4">
                 <Link href="https://discord.gg/shamayah" className="hover:text-white transition-colors">
@@ -151,7 +151,7 @@ export default function Footer({ className = "" }: FooterProps) {
         
         {/* Desktop Copyright and Social */}
         <div className="hidden sm:block border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center text-sm sm:text-base text-muted-foreground">
-          <p>&copy; 2026 Shama Yah. All rights reserved.</p>
+          <p>&copy; 2026 Light Is For Everyone. All rights reserved.</p>
           <div className="flex items-center gap-4 mt-4 sm:mt-0">
             <Link href="https://discord.gg/tqErypWMEG" className="hover:text-white transition-colors">
               <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />

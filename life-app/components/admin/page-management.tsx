@@ -523,7 +523,7 @@ export default function PageManagement() {
                     id="page-title"
                     value={formState.title}
                     onChange={(event) => handleTitleChange(event.target.value)}
-                    placeholder="About Shama Yah"
+                    placeholder="About Light Is For Everyone"
                     disabled={isSubmitting}
                   />
                 </div>

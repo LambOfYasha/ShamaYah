@@ -32,7 +32,7 @@ export default function AboutPage() {
             {/* Light theme logo */}
             <Image
               src="/assets/logo_light.png"
-              alt="Shama Yah Logo"
+              alt="Light Is For Everyone Logo"
               width={150}
               height={60}
               className="h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4 dark:hidden"
@@ -40,13 +40,13 @@ export default function AboutPage() {
             {/* Dark theme logo */}
             <Image
               src="/assets/logo_dark.png"
-              alt="Shama Yah Logo Dark"
+              alt="Light Is For Everyone Logo Dark"
               width={150}
               height={60}
               className="hidden dark:inline-block h-12 w-auto sm:h-16 mx-auto mb-3 sm:mb-4"
             />
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-              About Shama Yah
+              About Light Is For Everyone
             </h1>
           </div>
         </div>
@@ -60,7 +60,7 @@ export default function AboutPage() {
               Our Mission
             </h2>
             <p className="text-base sm:text-lg md:text-xl leading-relaxed">
-              Shama Yah is dedicated to fostering a vibrant community where believers can engage in meaningful 
+              Light Is For Everyone is dedicated to fostering a vibrant community where believers can engage in meaningful 
               biblical discussions, explore theological concepts, and grow together in their faith journey. 
               We believe in the power of collective wisdom and the importance of respectful dialogue in 
               understanding God's Word.

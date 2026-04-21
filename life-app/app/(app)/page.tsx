@@ -173,7 +173,7 @@ export default function HomePage() {
           {/* Light theme banner */}
           <Image
             src="/assets/logo_light.png"
-            alt="Shama Yah Logo Background"
+            alt="Light Is For Everyone Logo Background"
             fill
             className={`object-contain max-w-full ${isCompactMode ? 'max-h-[15vh]' : 'max-h-[20vh]'} sm:max-h-[70vh] md:max-h-[80vh] dark:hidden`}
             priority
@@ -181,7 +181,7 @@ export default function HomePage() {
           {/* Dark theme banner */}
           <Image
             src="/assets/logo_dark.png"
-            alt="Shama Yah Logo Background Dark"
+            alt="Light Is For Everyone Logo Background Dark"
             fill
             className={`hidden dark:block object-contain max-w-full ${isCompactMode ? 'max-h-[15vh]' : 'max-h-[20vh]'} sm:max-h-[70vh] md:max-h-[80vh]`}
             priority
@@ -196,7 +196,7 @@ export default function HomePage() {
              <div className={`${isCompactMode ? 'space-y-4' : 'space-y-6'} sm:space-y-8`}>
               <h1 className={`text-center ${isCompactMode ? 'text-2xl sm:text-3xl md:text-5xl' : 'text-3xl sm:text-4xl md:text-6xl'} font-bold`}>
                 Welcome to
-                <span className="block">Shama Yah</span>
+                <span className="block">Light Is For Everyone</span>
               </h1>
               <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-muted-foreground max-w-3xl mx-auto px-4`}>
                 A community for biblical discussion, theological exploration, and spiritual growth.

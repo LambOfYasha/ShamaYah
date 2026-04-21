@@ -3,7 +3,7 @@ import "./globals.css";
 import "./themes.css";
 
 export const metadata: Metadata = {
-  title: "Shama Yah",
+  title: "Light Is For Everyone",
   description: "Ask questions, get answers, and grow spiritually together",
   icons: {
     icon: [
