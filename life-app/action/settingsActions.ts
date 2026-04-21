@@ -2,6 +2,7 @@
 
 import { auth } from '@clerk/nextjs/server';
 import { getUser } from '@/lib/user/getUser';
+import { client } from '@/sanity/lib/client';
 import { adminClient } from '@/sanity/lib/adminClient';
 import { revalidatePath } from 'next/cache';
 
@@ -98,7 +99,7 @@ export async function updateUserProfile(formData: FormData) {
 
     // Check if username is already taken by another user
     const existingUserQuery = `*[_type == "user" && username == $username && _id != $userId][0]`;
-    const existingUser = await adminClient.fetch(existingUserQuery, { 
+    const existingUser = await client.fetch(existingUserQuery, { 
       username, 
       userId: user._id 
     });
@@ -150,7 +151,7 @@ export async function getUserSettings() {
     }
 
     // Get user document with settings
-    const userDoc = await adminClient.fetch(
+    const userDoc = await client.fetch(
       `*[_type == "user" && _id == $userId][0]`,
       { userId: user._id }
     );

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminClient } from '@/sanity/lib/adminClient';
+import { client } from '@/sanity/lib/client';
 import {
   type AdminSettings,
   DEFAULT_ADMIN_SETTINGS,
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     // Get settings from Sanity (or return default settings)
     const settingsQuery = `*[_type == "adminSettings"][0]`;
-    const settings = await adminClient.fetch<PersistedAdminSettingsDocument | null>(settingsQuery);
+    const settings = await client.fetch<PersistedAdminSettingsDocument | null>(settingsQuery);
 
     return NextResponse.json({
       success: true,
@@ -83,7 +84,7 @@ export async function PATCH(request: NextRequest) {
 
     // Get existing settings
     const existingSettingsQuery = `*[_type == "adminSettings"][0]`;
-    const existingSettings = await adminClient.fetch<PersistedAdminSettingsDocument | null>(existingSettingsQuery);
+    const existingSettings = await client.fetch<PersistedAdminSettingsDocument | null>(existingSettingsQuery);
     const normalizedSettings =
       section === 'email' &&
       existingSettings?.smtpPassword &&

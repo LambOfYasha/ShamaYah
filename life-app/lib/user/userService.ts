@@ -75,7 +75,7 @@ export class UserService {
         bio
       }`;
 
-      const users = await adminClient.fetch(query);
+      const users = await client.fetch(query);
       
       // Get total count for pagination
       let countQuery = `count(*[_type == "user" && isDeleted != true`;
@@ -94,7 +94,7 @@ export class UserService {
       }
       countQuery += `])`;
       
-      const totalCount = await adminClient.fetch(countQuery);
+      const totalCount = await client.fetch(countQuery);
 
       return {
         success: true,
@@ -114,7 +114,7 @@ export class UserService {
 
   static async getUserById(userId: string) {
     try {
-      const user = await adminClient.fetch(`*[_type == "user" && _id == $userId && isDeleted != true][0] {
+      const user = await client.fetch(`*[_type == "user" && _id == $userId && isDeleted != true][0] {
         _id,
         username,
         email,
@@ -144,7 +144,7 @@ export class UserService {
 
   static async getUserStats(): Promise<{ success: boolean; stats?: UserStats; error?: string }> {
     try {
-      const stats = await adminClient.fetch(`{
+      const stats = await client.fetch(`{
         "totalUsers": count(*[_type == "user" && isDeleted != true]),
         "activeUsers": count(*[_type == "user" && isDeleted != true && isActive == true]),
         "reportedUsers": count(*[_type == "user" && isDeleted != true && isReported == true]),
