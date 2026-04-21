@@ -1,4 +1,4 @@
-# Shama Yah — Project Overview
+# Light Is For Everyone — Project Overview
 
 A Christian community platform for asking questions, sharing blogs, and growing spiritually together. Built with **Next.js 15** (App Router), **Sanity CMS**, **Clerk** authentication, and **TailwindCSS**.
 

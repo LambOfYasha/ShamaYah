@@ -44,13 +44,13 @@ export default function FAQPage() {
         },
         {
           id: 'is-it-free',
-          question: 'Is Shama Yah free to use?',
-          answer: 'Yes, Shama Yah is completely free to use. We believe that access to biblical learning and community should be available to everyone, regardless of financial circumstances.'
+          question: 'Is Light Is For Everyone free to use?',
+          answer: 'Yes, Light Is For Everyone is completely free to use. We believe that access to biblical learning and community should be available to everyone, regardless of financial circumstances.'
         },
         {
           id: 'who-can-join',
-          question: 'Who can join Shama Yah?',
-          answer: 'Shama Yah is open to all believers who are interested in biblical study and theological discussion. We welcome people from all denominations and backgrounds who share our commitment to respectful dialogue and Scripture-based learning.'
+          question: 'Who can join Light Is For Everyone?',
+          answer: 'Light Is For Everyone is open to all believers who are interested in biblical study and theological discussion. We welcome people from all denominations and backgrounds who share our commitment to respectful dialogue and Scripture-based learning.'
         }
       ]
     },
@@ -143,12 +143,12 @@ export default function FAQPage() {
         {
           id: 'browser-compatibility',
           question: 'Which browsers are supported?',
-          answer: 'Shama Yah works best with modern browsers including Chrome, Firefox, Safari, and Edge. We recommend keeping your browser updated to the latest version for the best experience.'
+          answer: 'Light Is For Everyone works best with modern browsers including Chrome, Firefox, Safari, and Edge. We recommend keeping your browser updated to the latest version for the best experience.'
         },
         {
           id: 'mobile-app',
           question: 'Is there a mobile app?',
-          answer: 'Currently, Shama Yah is a web-based platform that works well on mobile devices through your browser. We\'re considering developing a dedicated mobile app in the future based on community feedback.'
+          answer: 'Currently, Light Is For Everyone is a web-based platform that works well on mobile devices through your browser. We\'re considering developing a dedicated mobile app in the future based on community feedback.'
         },
         {
           id: 'loading-issues',

@@ -67,7 +67,7 @@ export default function PrivacyPolicyPage() {
               Your Privacy Matters
             </h2>
             <p className="text-base sm:text-lg md:text-xl leading-relaxed">
-              At Shama Yah, we are committed to protecting your privacy and ensuring the security of your personal information. 
+              At Light Is For Everyone, we are committed to protecting your privacy and ensuring the security of your personal information. 
               This Privacy Policy explains how we collect, use, and safeguard your information when you use our platform.
             </p>
             <p className="text-sm sm:text-base text-muted-foreground mt-4">

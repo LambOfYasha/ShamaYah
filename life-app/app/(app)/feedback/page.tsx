@@ -134,7 +134,7 @@ export default function FeedbackPage() {
             </h1>
           </div>
           <p className={`${isCompactMode ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} text-muted-foreground max-w-2xl mx-auto`}>
-            Help us improve Shama Yah by sharing your thoughts, suggestions, and experiences. 
+            Help us improve Light Is For Everyone by sharing your thoughts, suggestions, and experiences. 
             Your feedback is valuable to us and helps us serve our community better.
           </p>
         </div>

@@ -15,7 +15,7 @@ function MaintenancePageContent() {
         <div>
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">We&rsquo;re under maintenance</h1>
           <p className="mt-3 text-sm sm:text-base text-gray-600">
-            Shama Yah is temporarily unavailable while we perform updates. Please check back soon.
+            Light Is For Everyone is temporarily unavailable while we perform updates. Please check back soon.
           </p>
           <p className="mt-2 text-xs sm:text-sm text-gray-500">
             Admin and dev users can still sign in to review the site while maintenance mode is active.

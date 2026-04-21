@@ -65,10 +65,9 @@ export default function TermsOfServicePage() {
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6">
               Welcome to Light Is For Everyone
-              Welcome to Shama Yah
             </h2>
             <p className="text-base sm:text-lg md:text-xl leading-relaxed">
-              These Terms of Service govern your use of the Shama Yah platform and services. 
+              These Terms of Service govern your use of the Light Is For Everyone platform and services. 
               By accessing or using our platform, you agree to be bound by these terms and conditions.
             </p>
             <p className="text-sm sm:text-base text-muted-foreground mt-4">

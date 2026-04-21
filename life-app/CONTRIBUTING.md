@@ -1,4 +1,4 @@
-# Contributing to Shama Yah
+# Contributing to Light Is For Everyone
 
 This project uses a branch-intent workflow. In the current checkout, the configured local branches all start from the same base commit, so the branch names describe the intended scope of work more than permanently divergent code lines.
 

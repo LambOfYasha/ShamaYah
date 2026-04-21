@@ -1,4 +1,4 @@
-# Shama Yah
+# Light Is For Everyone
 
 Christian community platform for biblical discussion, publishing, lessons, moderation, and member growth workflows built with Next.js, Clerk, Sanity, and AI-assisted safety tooling.
 
