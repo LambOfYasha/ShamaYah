@@ -1,5 +1,7 @@
-import { adminClient } from '@/sanity/lib/adminClient';
+import { requireAdminOrTeacher } from '@/lib/auth/middleware';
+import { client } from '@/sanity/lib/client';
 import { defineQuery } from 'groq';
+import { redirect } from 'next/navigation';
 
 const usersQuery = defineQuery(`
   *[_type == "user" && isDeleted != true] {
@@ -12,8 +14,16 @@ const usersQuery = defineQuery(`
   }
 `);
 
+export const dynamic = 'force-dynamic';
+
 export default async function DebugUsersPage() {
-  const users = await adminClient.fetch(usersQuery);
+  const currentUser = await requireAdminOrTeacher();
+
+  if (!['admin', 'dev'].includes(currentUser.role)) {
+    redirect('/unauthorized');
+  }
+
+  const users = await client.fetch(usersQuery);
   
   return (
     <div className="p-6">
